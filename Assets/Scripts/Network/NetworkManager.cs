@@ -14,6 +14,8 @@ public struct Client
         this.timeStamp = timeStamp;
         this.id = id;
         this.ipEndPoint = ipEndPoint;
+
+        // Subscribir los tipos de mensajes en el constructor del cliente
     }
 }
 

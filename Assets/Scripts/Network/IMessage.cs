@@ -21,6 +21,7 @@ public abstract class BaseMenssaje<PayLoadType>
     public PayLoadType data;
     public abstract MessageType GetMessageType();
 
+    public static Action<PayLoadType> OnDispatch;
     public abstract byte[] Serialize();
 
     public abstract PayLoadType Deserialize(byte[] message);
