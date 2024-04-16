@@ -23,6 +23,8 @@ public class ChatScreen : MonoBehaviourSingleton<ChatScreen>
         }
 
         messages.text += System.Text.ASCIIEncoding.UTF8.GetString(data) + System.Environment.NewLine;
+
+        //Identifica que tipo de mensaje es
     }
 
     void OnEndEdit(string str)
