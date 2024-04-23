@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
+using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 
 public struct Client
@@ -17,6 +19,12 @@ public struct Client
 
         // Subscribir los tipos de mensajes en el constructor del cliente
     }
+}
+
+public struct Player
+{
+    public int id;
+    public string name;
 }
 
 public class NetworkManager : MonoBehaviourSingleton<NetworkManager>, IReceiveData
@@ -119,5 +127,28 @@ public class NetworkManager : MonoBehaviourSingleton<NetworkManager>, IReceiveDa
         // Flush the data in main thread
         if (connection != null)
             connection.FlushReceiveData();
+    }
+}
+
+public class Utils
+{
+    public static byte[] Serializer(List<Player> player)
+    {
+        BinaryFormatter binaryFormatter = new BinaryFormatter();
+
+        List<byte> outData = new List<byte>();
+
+        foreach (Player p in player) 
+        {
+            using (MemoryStream memoryStream = new MemoryStream())
+            {
+                binaryFormatter.Serialize(memoryStream, player);
+
+                outData.AddRange(memoryStream.ToArray());
+            }
+        }
+        
+        return outData.ToArray();
+        
     }
 }

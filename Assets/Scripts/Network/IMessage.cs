@@ -1,7 +1,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.Text;
+using System.Linq;
 
+
+// Ping : Cuando el Cliente recibe el S2C manda el primer ping
+// El servidor devuelve un "pong"
 public enum MessageType
 {
     HandShake = -1,
@@ -42,18 +47,34 @@ public abstract class BaseOrdenableMenssage<PayloadType> : BaseMenssaje<PayloadT
     protected static Dictionary<MessageType, ulong> lastExecutedMsgID = new Dictionary<MessageType, ulong>();
 }
 
-public class NetHandShake : IMessage<(long, int)>
+public class NetDisconect : IMessage<string>
+{
+    public string Deserialize(byte[] message)
+    {
+        throw new NotImplementedException();
+    }
+
+    public MessageType GetMessageType()
+    {
+        throw new NotImplementedException();
+    }
+
+    public byte[] Serialize()
+    {
+        throw new NotImplementedException();
+    }
+}
+public class NetC2SHandShake : IMessage<string>
 {
     // el servidor deberia de enviar el ID del juegador que se va a conectar
     // Y el cliente deberia enviar su IP con su puerto
 
-    (long, int) data;
-    public (long, int) Deserialize(byte[] message)
+    string data;
+    public string Deserialize(byte[] message)
     {
-        (long, int) outData;
+        string outData;
 
-        outData.Item1 = BitConverter.ToInt64(message, 4);
-        outData.Item2 = BitConverter.ToInt32(message, 12);
+        outData = BitConverter.ToString(message, 4);
 
         return outData;
     }
@@ -69,8 +90,41 @@ public class NetHandShake : IMessage<(long, int)>
 
         outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
 
-        outData.AddRange(BitConverter.GetBytes(data.Item1));
-        outData.AddRange(BitConverter.GetBytes(data.Item2));
+        outData.AddRange(Encoding.UTF8.GetBytes(data));
+
+        return outData.ToArray();
+    }
+}
+
+public class NetS2CHandShake : IMessage<List<Player>>
+{
+    // el servidor deberia de enviar el ID del juegador que se va a conectar
+    // Y el cliente deberia enviar su IP con su puerto
+
+    List<Player> data;
+
+    public List<Player> Deserialize(byte[] message)
+    {
+        List<Player> outData;
+
+        outData = BitConverter.ToInt64(message, 4);
+
+        return outData;
+    }
+
+    public MessageType GetMessageType()
+    {
+        return MessageType.HandShake;
+    }
+
+    public byte[] Serialize()
+    {
+        List<byte> outData = new List<byte>();
+
+        outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
+
+        outData.AddRange(Encoding.UTF8.GetBytes(data));
+        outData.AddRange(Utils.Serializer(data));
 
 
         return outData.ToArray();

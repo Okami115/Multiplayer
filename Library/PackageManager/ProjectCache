@@ -5,16 +5,16 @@ m_ProjectFiles:
     m_ContentTrackingEnabled: 1
     m_ModificationDate:
       serializedVersion: 2
-      ticks: 638488142347474791
-    m_Hash: 215545760
+      ticks: 638494186488541970
+    m_Hash: 2671409390
   m_LockFileStatus:
     m_FilePath: C:/Users/Aula 2/Desktop/Multiplayer/Packages/packages-lock.json
     m_PathExists: 1
     m_ContentTrackingEnabled: 1
     m_ModificationDate:
       serializedVersion: 2
-      ticks: 638488142347540193
-    m_Hash: 1500044229
+      ticks: 638494186488551945
+    m_Hash: 3239863616
 m_EmbeddedPackageManifests:
   m_ManifestsStatus: {}
 m_LocalPackages:
