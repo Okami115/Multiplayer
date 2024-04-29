@@ -64,6 +64,7 @@ public class NetDisconect : IMessage<string>
         throw new NotImplementedException();
     }
 }
+
 public class NetC2SHandShake : IMessage<string>
 {
     // el servidor deberia de enviar el ID del juegador que se va a conectar
