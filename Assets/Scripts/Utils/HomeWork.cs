@@ -1,6 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 
 public class HomeWork
 {
@@ -23,6 +20,10 @@ public class HomeWork
     // Calculo de latencia
 
     // Manejo de desconexiones
+
+    // Mensajer ordenables y completos (Supermensajes)
+                                                            // Retry
+    // Mensajes Importantes y completos con confirmacion
 
     //------------------Segundo Parcial------------------------
 
