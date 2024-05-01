@@ -1,4 +1,6 @@
-﻿using System.Net;
+﻿using System;
+using System.Diagnostics;
+using System.Net;
 using UnityEngine.UI;
 
 public class ChatScreen : MonoBehaviourSingleton<ChatScreen>
@@ -21,9 +23,37 @@ public class ChatScreen : MonoBehaviourSingleton<ChatScreen>
         {
             NetworkManager.Instance.Broadcast(data);
         }
+        else
+        {
+            MessageType aux = (MessageType)BitConverter.ToInt32(data, 0);
 
-        messages.text += System.Text.ASCIIEncoding.UTF8.GetString(data) + System.Environment.NewLine;
+            switch (aux)
+            {
+                case MessageType.Console:
+                    NetConsole consoleMensajes = new NetConsole("");
+                    string text = consoleMensajes.Deserialize(data);
+                    Debug.WriteLine(text);
+                    break;
 
+                case MessageType.Position:
+                    Debug.WriteLine("Pos");
+                    break;
+
+                case MessageType.S2C: 
+                    Debug.WriteLine("S2C");
+                    break;
+
+                case MessageType.Disconect:
+                    Debug.WriteLine("Disconect");
+                    break;
+
+                default: 
+
+                    break;
+            }
+        }
+
+        //messages.text += System.Text.ASCIIEncoding.UTF8.GetString(data) + System.Environment.NewLine;
         //Identifica que tipo de mensaje es
     }
 
@@ -38,7 +68,11 @@ public class ChatScreen : MonoBehaviourSingleton<ChatScreen>
             }
             else
             {
-                NetworkManager.Instance.SendToServer(System.Text.ASCIIEncoding.UTF8.GetBytes(inputMessage.text));
+                //NetworkManager.Instance.SendToServer(System.Text.ASCIIEncoding.UTF8.GetBytes(inputMessage.text));
+
+                NetConsole consoleMensajes = new NetConsole(inputMessage.text);
+                
+                NetworkManager.Instance.SendToServer(consoleMensajes.Serialize());
             }
 
             inputMessage.ActivateInputField();

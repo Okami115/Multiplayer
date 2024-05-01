@@ -66,6 +66,8 @@ public class NetworkManager : MonoBehaviourSingleton<NetworkManager>, IReceiveDa
         isServer = true;
         this.port = port;
         connection = new UdpConnection(port, this);
+
+        playerList = new List<Player>();
     }
 
     public void StartClient(IPAddress ip, int port, string name)

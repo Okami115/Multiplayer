@@ -9,16 +9,11 @@ using System.Linq;
 // El servidor devuelve un "pong"
 public enum MessageType
 {
-    HandShake = -1,
     Console = 0,
-    Position = 1
-}
-
-public interface IMessage<T>
-{
-    public MessageType GetMessageType();
-    public byte[] Serialize();
-    public T Deserialize(byte[] message);
+    Position = 1,
+    Disconect = 2,
+    C2S = 3,
+    S2C = 4,
 }
 
 public abstract class BaseMenssaje<PayLoadType>
@@ -34,6 +29,111 @@ public abstract class BaseMenssaje<PayLoadType>
     public abstract PayLoadType GetData();
 }
 
+public class NetConsole : BaseMenssaje<string>
+{
+    public NetConsole(string data) 
+    { 
+        this.data = data;
+    }
+
+    public override string Deserialize(byte[] message)
+    {
+        int stringlength = BitConverter.ToInt32(message, 4);
+        
+        return Encoding.UTF8.GetString(message, 8, stringlength);
+    }
+
+    public override string GetData()
+    {
+        return data;
+    }
+
+    public override MessageType GetMessageType()
+    {
+        return MessageType.Console;
+    }
+
+    public override byte[] Serialize()
+    {
+        List<byte> outData = new List<byte>();
+
+        outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
+        outData.AddRange(BitConverter.GetBytes(data.Length));
+        outData.AddRange(Encoding.UTF8.GetBytes(data));
+
+        return outData.ToArray();
+    }
+}
+
+public class NetDisconect : BaseMenssaje<bool>
+{
+    public override bool Deserialize(byte[] message)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override bool GetData()
+    {
+        throw new NotImplementedException();
+    }
+
+    public override MessageType GetMessageType()
+    {
+        throw new NotImplementedException();
+    }
+
+    public override byte[] Serialize()
+    {
+        throw new NotImplementedException();
+    }
+}
+
+public class C2SHandShake : BaseMenssaje<int>
+{
+    public override int Deserialize(byte[] message)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override int GetData()
+    {
+        return data;
+    }
+
+    public override MessageType GetMessageType()
+    {
+        return MessageType.C2S;
+    }
+
+    public override byte[] Serialize()
+    {
+        throw new NotImplementedException();
+    }
+}
+
+public class S2CHandShake : BaseMenssaje<List<Player>>
+{
+    public override List<Player> Deserialize(byte[] message)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override List<Player> GetData()
+    {
+        return data;
+    }
+
+    public override MessageType GetMessageType()
+    {
+        return MessageType.S2C;
+    }
+
+    public override byte[] Serialize()
+    {
+        throw new NotImplementedException();
+    }
+}
+
 public abstract class BaseOrdenableMenssage<PayloadType> : BaseMenssaje<PayloadType>
 {
     protected BaseOrdenableMenssage(byte[] msg)
@@ -47,133 +147,14 @@ public abstract class BaseOrdenableMenssage<PayloadType> : BaseMenssaje<PayloadT
     protected static Dictionary<MessageType, ulong> lastExecutedMsgID = new Dictionary<MessageType, ulong>();
 }
 
-public class NetDisconect : IMessage<string>
+public class NetVector3 : BaseOrdenableMenssage<UnityEngine.Vector3>
 {
-    public string Deserialize(byte[] message)
+    public NetVector3(byte[] msg) : base(msg)
     {
-        throw new NotImplementedException();
+
     }
 
-    public MessageType GetMessageType()
-    {
-        throw new NotImplementedException();
-    }
-
-    public byte[] Serialize()
-    {
-        throw new NotImplementedException();
-    }
-}
-
-public class NetC2SHandShake : IMessage<string>
-{
-    // el servidor deberia de enviar el ID del juegador que se va a conectar
-    // Y el cliente deberia enviar su IP con su puerto
-
-    string data;
-    public string Deserialize(byte[] message)
-    {
-        string outData;
-
-        outData = BitConverter.ToString(message, 4);
-
-        return outData;
-    }
-
-    public MessageType GetMessageType()
-    {
-       return MessageType.HandShake;
-    }
-
-    public byte[] Serialize()
-    {
-        List<byte> outData = new List<byte>();
-
-        outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
-
-        outData.AddRange(Encoding.UTF8.GetBytes(data));
-
-        return outData.ToArray();
-    }
-}
-
-public class NetS2CHandShake : IMessage<List<Player>>
-{
-    // el servidor deberia de enviar el ID del juegador que se va a conectar
-    // Y el cliente deberia enviar su IP con su puerto
-
-    List<Player> data;
-
-    public List<Player> Deserialize(byte[] message)
-    {
-        List<Player> outData;
-
-        outData = BitConverter.ToInt64(message, 4);
-
-        return outData;
-    }
-
-    public MessageType GetMessageType()
-    {
-        return MessageType.HandShake;
-    }
-
-    public byte[] Serialize()
-    {
-        List<byte> outData = new List<byte>();
-
-        outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
-
-        outData.AddRange(Encoding.UTF8.GetBytes(data));
-        outData.AddRange(Utils.Serializer(data));
-
-
-        return outData.ToArray();
-    }
-}
-
-public class NetConsole : IMessage<string>
-{
-    string data;
-    public string Deserialize(byte[] message)
-    {
-        string outData;
-
-        outData = BitConverter.ToString(message, 4);
-
-        return outData;
-    }
-
-    public MessageType GetMessageType()
-    {
-        return MessageType.Console;
-    }
-
-    public byte[] Serialize()
-    {
-        List<byte> outData = new List<byte>();
-
-        outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
-
-        outData.AddRange(BitConverter.GetBytes(data.Length));
-
-        //outData.AddRange(BitConverter.GetBytes(data));
-
-        return outData.ToArray();
-    }
-}
-
-public class NetVector3 : IMessage<UnityEngine.Vector3>
-{
-    private static ulong lastMsgID = 0;
-    private Vector3 data;
-
-    public NetVector3(Vector3 data)
-    {
-        this.data = data;
-    }
-
-    public Vector3 Deserialize(byte[] message)
+    public override Vector3 Deserialize(byte[] message)
     {
         Vector3 outData;
 
@@ -184,12 +165,17 @@ public class NetVector3 : IMessage<UnityEngine.Vector3>
         return outData;
     }
 
-    public MessageType GetMessageType()
+    public override Vector3 GetData()
+    {
+        return data;
+    }
+
+    public override MessageType GetMessageType()
     {
         return MessageType.Position;
     }
 
-    public byte[] Serialize()
+    public override byte[] Serialize()
     {
         List<byte> outData = new List<byte>();
 
@@ -201,6 +187,4 @@ public class NetVector3 : IMessage<UnityEngine.Vector3>
 
         return outData.ToArray();
     }
-
-    //Dictionary<Client,Dictionary<msgType,int>>
 }

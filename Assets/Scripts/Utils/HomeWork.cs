@@ -3,26 +3,26 @@ public class HomeWork
 {
     //------------------Primer Parcial------------------------
 
-    // Leer el tipo de mensaje
+    // Leer el tipo de mensaje  - Pendiente
 
-    // Lista de Players
+    // Lista de Players - Pendiente
 
-    // Clientes deben tener ID
+    // Clientes deben tener ID - Pendiente
 
-    // Mensajes Ordenables
+    // Mensajes Ordenables - Pendiente
 
-    // HandShake C2S S2C
+    // HandShake C2S S2C - Pendiente
 
-    // Ping - Pong
+    // Ping - Pong - Pendiente
 
-    // Calcular los mensajes corruptos
+    // Calcular los mensajes corruptos - Pendiente
 
-    // Calculo de latencia
+    // Calculo de latencia - Pendiente
 
-    // Manejo de desconexiones
+    // Manejo de desconexiones - Pendiente
 
     // Mensajer ordenables y completos (Supermensajes)
-                                                            // Retry
+                                                            // Retry - Pendiente
     // Mensajes Importantes y completos con confirmacion
 
     //------------------Segundo Parcial------------------------
