@@ -53,6 +53,8 @@ public class NetworkManager : MonoBehaviourSingleton<NetworkManager>, IReceiveDa
 
     private UdpConnection connection;
 
+    public int idClient = 0;
+
     private List<Player> playerList;
     private Player player;
 
@@ -80,20 +82,24 @@ public class NetworkManager : MonoBehaviourSingleton<NetworkManager>, IReceiveDa
         connection = new UdpConnection(ip, port, this);
 
         player = new Player(-1, name);
-        AddClient(new IPEndPoint(ip, port), player);
 
     }
 
-    void AddClient(IPEndPoint ip, Player player)
+    public void AddClient(IPEndPoint ip, string name)
     {
-        // Go to HandShake
         if (!ipToId.ContainsKey(ip))
         {
-            Debug.Log("Adding client: " + ip.Address);
+            Debug.Log("Adding client: " + ip.Address + " name: " + name);
 
-            ipToId[ip] = player.id;
+            ipToId[ip] = idClient;
+
+            Player player = new Player(ipToId[ip], name);
+
+            playerList.Add(player);
 
             clients.Add(player.id, new Client(ip, player.id, Time.realtimeSinceStartup));
+
+            idClient++;
         }
     }
 

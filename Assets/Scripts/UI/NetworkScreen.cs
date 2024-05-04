@@ -25,7 +25,11 @@ public class NetworkScreen : MonoBehaviourSingleton<NetworkScreen>
         string name = System.Convert.ToString(nameInputField.text);
 
         NetworkManager.Instance.StartClient(ipAddress, port, name);
-        
+
+        C2SHandShake c2SHandShake = new C2SHandShake(name);
+
+        NetworkManager.Instance.SendToServer(c2SHandShake.Serialize());
+
         SwitchToChatScreen();
     }
 

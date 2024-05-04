@@ -88,14 +88,22 @@ public class NetDisconect : BaseMenssaje<bool>
     }
 }
 
-public class C2SHandShake : BaseMenssaje<int>
+public class C2SHandShake : BaseMenssaje<string>
 {
-    public override int Deserialize(byte[] message)
+
+    public C2SHandShake(string data)
     {
-        throw new NotImplementedException();
+        this.data = data;
     }
 
-    public override int GetData()
+    public override string Deserialize(byte[] message)
+    {
+        int stringlength = BitConverter.ToInt32(message, 4);
+
+        return Encoding.UTF8.GetString(message, 8, stringlength);
+    }
+
+    public override string GetData()
     {
         return data;
     }
@@ -107,7 +115,13 @@ public class C2SHandShake : BaseMenssaje<int>
 
     public override byte[] Serialize()
     {
-        throw new NotImplementedException();
+        List<byte> outData = new List<byte>();
+
+        outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
+        outData.AddRange(BitConverter.GetBytes(data.Length));
+        outData.AddRange(Encoding.UTF8.GetBytes(data));
+
+        return outData.ToArray();
     }
 }
 

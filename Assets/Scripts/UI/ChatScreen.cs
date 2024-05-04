@@ -19,14 +19,42 @@ public class ChatScreen : MonoBehaviourSingleton<ChatScreen>
 
     void OnReceiveDataEvent(byte[] data, IPEndPoint ep)
     {
+        MessageType aux = (MessageType)BitConverter.ToInt32(data, 0);
+
         if (NetworkManager.Instance.isServer)
         {
-            NetworkManager.Instance.Broadcast(data);
+            switch (aux)
+            {
+                case MessageType.Console:
+                    NetConsole consoleMensajes = new NetConsole("");
+                    string text = consoleMensajes.Deserialize(data);
+                    NetworkManager.Instance.Broadcast(data);
+                    break;
+
+                case MessageType.Position:
+                    Debug.WriteLine("Pos");
+                    break;
+
+                case MessageType.C2S:
+                    Debug.WriteLine("C2S");
+                    C2SHandShake C2SHandShake = new C2SHandShake("");
+                    string name = C2SHandShake.Deserialize(data);
+                    NetworkManager.Instance.AddClient(ep, name);
+
+                    break;
+
+                case MessageType.Disconect:
+                    Debug.WriteLine("Disconect");
+                    break;
+
+                default:
+
+                    break;
+            }
+
         }
         else
         {
-            MessageType aux = (MessageType)BitConverter.ToInt32(data, 0);
-
             switch (aux)
             {
                 case MessageType.Console:
