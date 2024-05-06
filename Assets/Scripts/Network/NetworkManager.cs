@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Net;
-using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 
 public struct Client
@@ -55,7 +53,7 @@ public class NetworkManager : MonoBehaviourSingleton<NetworkManager>, IReceiveDa
 
     public int idClient = 0;
 
-    private List<Player> playerList;
+    public List<Player> playerList;
     private Player player;
 
     private readonly Dictionary<int, Client> clients = new Dictionary<int, Client>();

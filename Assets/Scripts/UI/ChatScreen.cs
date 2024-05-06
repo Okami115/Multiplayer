@@ -26,25 +26,28 @@ public class ChatScreen : MonoBehaviourSingleton<ChatScreen>
             switch (aux)
             {
                 case MessageType.Console:
-                    NetConsole consoleMensajes = new NetConsole("");
-                    string text = consoleMensajes.Deserialize(data);
                     NetworkManager.Instance.Broadcast(data);
                     break;
 
                 case MessageType.Position:
-                    Debug.WriteLine("Pos");
+                    UnityEngine.Debug.Log("Pos");
                     break;
 
                 case MessageType.C2S:
-                    Debug.WriteLine("C2S");
+                    UnityEngine.Debug.Log("New C2S");
                     C2SHandShake C2SHandShake = new C2SHandShake("");
                     string name = C2SHandShake.Deserialize(data);
                     NetworkManager.Instance.AddClient(ep, name);
 
+                    S2CHandShake s2CHandShake = new S2CHandShake(NetworkManager.Instance.playerList);
+                    byte[] players = s2CHandShake.Serialize();
+                    NetworkManager.Instance.Broadcast(players);
+                    UnityEngine.Debug.Log("Send S2C");
+
                     break;
 
                 case MessageType.Disconect:
-                    Debug.WriteLine("Disconect");
+                    UnityEngine.Debug.Log("Disconect");
                     break;
 
                 default:
@@ -60,19 +63,24 @@ public class ChatScreen : MonoBehaviourSingleton<ChatScreen>
                 case MessageType.Console:
                     NetConsole consoleMensajes = new NetConsole("");
                     string text = consoleMensajes.Deserialize(data);
-                    Debug.WriteLine(text);
+                    messages.text += text;
+                    UnityEngine.Debug.Log(text);
                     break;
 
                 case MessageType.Position:
-                    Debug.WriteLine("Pos");
+                    UnityEngine.Debug.Log("Pos");
                     break;
 
                 case MessageType.S2C: 
-                    Debug.WriteLine("S2C");
+                    UnityEngine.Debug.Log("New S2C");
+                    S2CHandShake s2cHandShake = new S2CHandShake(NetworkManager.Instance.playerList);
+                    NetworkManager.Instance.playerList = s2cHandShake.Deserialize(data);
+                    UnityEngine.Debug.Log("Updating player list...");
+
                     break;
 
                 case MessageType.Disconect:
-                    Debug.WriteLine("Disconect");
+                    UnityEngine.Debug.Log("Disconect");
                     break;
 
                 default: 
@@ -80,8 +88,6 @@ public class ChatScreen : MonoBehaviourSingleton<ChatScreen>
                     break;
             }
         }
-
-        //messages.text += System.Text.ASCIIEncoding.UTF8.GetString(data) + System.Environment.NewLine;
         //Identifica que tipo de mensaje es
     }
 

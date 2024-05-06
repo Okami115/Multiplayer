@@ -2,7 +2,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using System.Text;
-using System.Linq;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 
 
 // Ping : Cuando el Cliente recibe el S2C manda el primer ping
@@ -127,9 +128,28 @@ public class C2SHandShake : BaseMenssaje<string>
 
 public class S2CHandShake : BaseMenssaje<List<Player>>
 {
+
+    public S2CHandShake(List<Player> data)
+    {
+        this.data = data;
+    }
     public override List<Player> Deserialize(byte[] message)
     {
-        throw new NotImplementedException();
+        List<Player> aux = new List<Player>();
+
+        int playersAmmount = BitConverter.ToInt32(message, 4);
+        int offset = 0;
+        for (int i = 0; i < playersAmmount; i++)
+        {
+            Player temp = new Player();
+            temp.id = BitConverter.ToInt32(message, offset + 8);
+            int stringlength = BitConverter.ToInt32(message, offset + 12);
+            temp.name = Encoding.UTF8.GetString(message, offset + 16, stringlength);
+            aux.Add(temp);
+            offset += 8 + stringlength;
+        }
+
+        return aux;
     }
 
     public override List<Player> GetData()
@@ -144,7 +164,19 @@ public class S2CHandShake : BaseMenssaje<List<Player>>
 
     public override byte[] Serialize()
     {
-        throw new NotImplementedException();
+        List<byte> outData = new List<byte>();
+
+        outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
+        outData.AddRange(BitConverter.GetBytes(data.Count));
+
+        foreach (var player in data)
+        {
+            outData.AddRange(BitConverter.GetBytes(player.id));
+            outData.AddRange(BitConverter.GetBytes(player.name.Length));
+            outData.AddRange(Encoding.UTF8.GetBytes(player.name));
+        }
+
+        return outData.ToArray();
     }
 }
 
