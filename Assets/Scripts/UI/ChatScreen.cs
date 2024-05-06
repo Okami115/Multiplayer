@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Net;
 using UnityEngine.UI;
 
@@ -26,7 +25,12 @@ public class ChatScreen : MonoBehaviourSingleton<ChatScreen>
             switch (aux)
             {
                 case MessageType.Console:
+                    UnityEngine.Debug.Log("New mensages to clients");
                     NetworkManager.Instance.Broadcast(data);
+                    NetConsole consoleMensajes = new NetConsole("");
+                    string text = consoleMensajes.Deserialize(data);
+                    messages.text += text;
+                    UnityEngine.Debug.Log(text);
                     break;
 
                 case MessageType.Position:
@@ -54,13 +58,13 @@ public class ChatScreen : MonoBehaviourSingleton<ChatScreen>
 
                     break;
             }
-
         }
         else
         {
             switch (aux)
             {
                 case MessageType.Console:
+                    UnityEngine.Debug.Log("New mensages to server");
                     NetConsole consoleMensajes = new NetConsole("");
                     string text = consoleMensajes.Deserialize(data);
                     messages.text += text;
@@ -97,15 +101,14 @@ public class ChatScreen : MonoBehaviourSingleton<ChatScreen>
         {
             if (NetworkManager.Instance.isServer)
             {
-                NetworkManager.Instance.Broadcast(System.Text.ASCIIEncoding.UTF8.GetBytes(inputMessage.text));
-                messages.text += inputMessage.text + System.Environment.NewLine;
+                NetConsole consoleMensajes = new NetConsole(inputMessage.text + System.Environment.NewLine);
+                messages.text += consoleMensajes.data;
+                NetworkManager.Instance.Broadcast(consoleMensajes.Serialize());
             }
             else
             {
                 //NetworkManager.Instance.SendToServer(System.Text.ASCIIEncoding.UTF8.GetBytes(inputMessage.text));
-
-                NetConsole consoleMensajes = new NetConsole(inputMessage.text);
-                
+                NetConsole consoleMensajes = new NetConsole(inputMessage.text + System.Environment.NewLine);
                 NetworkManager.Instance.SendToServer(consoleMensajes.Serialize());
             }
 

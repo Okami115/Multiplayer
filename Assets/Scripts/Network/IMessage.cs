@@ -2,8 +2,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using System.Text;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 
 
 // Ping : Cuando el Cliente recibe el S2C manda el primer ping
