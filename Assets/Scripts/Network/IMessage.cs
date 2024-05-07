@@ -219,6 +219,11 @@ public class NetVector3 : BaseOrdenableMenssage<UnityEngine.Vector3>
         return MessageType.Position;
     }
 
+    public int GetMessageNumber(byte[] data)
+    {
+        return BitConverter.ToInt32(data, 8);
+    }
+
     public override byte[] Serialize()
     {
         List<byte> outData = new List<byte>();

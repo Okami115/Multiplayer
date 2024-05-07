@@ -24,6 +24,8 @@ public class NetworkScreen : MonoBehaviourSingleton<NetworkScreen>
 
         NetworkManager.Instance.StartClient(ipAddress, port, name);
 
+        NetworkManager.Instance.player.name = name;
+
         C2SHandShake c2SHandShake = new C2SHandShake(name);
 
         NetworkManager.Instance.SendToServer(c2SHandShake.Serialize());

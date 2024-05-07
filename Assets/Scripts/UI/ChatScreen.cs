@@ -73,12 +73,18 @@ public class ChatScreen : MonoBehaviourSingleton<ChatScreen>
 
                 case MessageType.Position:
                     UnityEngine.Debug.Log("Pos");
+                    NetVector3 v3 = new NetVector3(data);
                     break;
 
-                case MessageType.S2C: 
+                case MessageType.S2C:
                     UnityEngine.Debug.Log("New S2C");
                     S2CHandShake s2cHandShake = new S2CHandShake(NetworkManager.Instance.playerList);
                     NetworkManager.Instance.playerList = s2cHandShake.Deserialize(data);
+
+                    for (int i = 0; i < NetworkManager.Instance.playerList.Count; i++)
+                        if (NetworkManager.Instance.player.name == NetworkManager.Instance.playerList[i].name)
+                            NetworkManager.Instance.player.id = NetworkManager.Instance.playerList[i].id;
+                 
                     UnityEngine.Debug.Log("Updating player list...");
 
                     break;
@@ -92,7 +98,6 @@ public class ChatScreen : MonoBehaviourSingleton<ChatScreen>
                     break;
             }
         }
-        //Identifica que tipo de mensaje es
     }
 
     void OnEndEdit(string str)
@@ -101,14 +106,14 @@ public class ChatScreen : MonoBehaviourSingleton<ChatScreen>
         {
             if (NetworkManager.Instance.isServer)
             {
-                NetConsole consoleMensajes = new NetConsole(inputMessage.text + System.Environment.NewLine);
+                NetConsole consoleMensajes = new NetConsole("Server: " + inputMessage.text + System.Environment.NewLine);
                 messages.text += consoleMensajes.data;
                 NetworkManager.Instance.Broadcast(consoleMensajes.Serialize());
             }
             else
             {
                 //NetworkManager.Instance.SendToServer(System.Text.ASCIIEncoding.UTF8.GetBytes(inputMessage.text));
-                NetConsole consoleMensajes = new NetConsole(inputMessage.text + System.Environment.NewLine);
+                NetConsole consoleMensajes = new NetConsole(NetworkManager.Instance.player.name + ": " + inputMessage.text + System.Environment.NewLine);
                 NetworkManager.Instance.SendToServer(consoleMensajes.Serialize());
             }
 

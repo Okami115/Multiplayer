@@ -3,15 +3,19 @@ public class HomeWork
 {
     //------------------Primer Parcial------------------------
 
-    // Leer el tipo de mensaje  - Pendiente
+    // Leer el tipo de mensaje  - Check
 
-    // Lista de Players - Pendiente
+    // Lista de Players - Check
 
-    // Clientes deben tener ID - Pendiente
+    // Clientes deben tener ID - Check
+
+    // HandShake C2S S2C - Check
 
     // Mensajes Ordenables - Pendiente
 
-    // HandShake C2S S2C - Pendiente
+    // Descartables y no descartables - Pendiente
+
+    // importantes - Pendiente
 
     // Ping - Pong - Pendiente
 
@@ -21,9 +25,9 @@ public class HomeWork
 
     // Manejo de desconexiones - Pendiente
 
-    // Mensajer ordenables y completos (Supermensajes)
-                                                            // Retry - Pendiente
-    // Mensajes Importantes y completos con confirmacion
+    // Checksums - Pendiente
+
+    // Desconeccion - Pendiente
 
     //------------------Segundo Parcial------------------------
 
