@@ -9,10 +9,11 @@ using System.Text;
 public enum MessageType
 {
     Console = 0,
-    Position = 1,
-    Disconect = 2,
-    C2S = 3,
-    S2C = 4,
+    Position,
+    Disconect,
+    C2S,
+    S2C,
+    Ping,
 }
 
 public abstract class BaseMenssaje<PayLoadType>
@@ -173,6 +174,34 @@ public class S2CHandShake : BaseMenssaje<List<Player>>
             outData.AddRange(BitConverter.GetBytes(player.name.Length));
             outData.AddRange(Encoding.UTF8.GetBytes(player.name));
         }
+
+        return outData.ToArray();
+    }
+}
+
+public class NetPing : BaseMenssaje<int>
+{
+    public override int Deserialize(byte[] message)
+    {
+       return BitConverter.ToInt32(message, 4);
+    }
+
+    public override int GetData()
+    {
+        return data;
+    }
+
+    public override MessageType GetMessageType()
+    {
+        return MessageType.Ping;
+    }
+
+    public override byte[] Serialize()
+    {
+        List<byte> outData = new List<byte>();
+
+        outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
+        outData.AddRange(BitConverter.GetBytes(data));
 
         return outData.ToArray();
     }

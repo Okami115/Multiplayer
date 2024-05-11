@@ -1,6 +1,10 @@
 
 public class HomeWork
 {
+    //---------------------- Notas ---------------------------
+
+    //PingReply ping2 = new PingReply(); a consultar
+
     //------------------Primer Parcial------------------------
 
     // Leer el tipo de mensaje  - Check
@@ -17,17 +21,13 @@ public class HomeWork
 
     // importantes - Pendiente
 
-    // Ping - Pong - Pendiente
+    // Ping - Pong - Check
 
-    // Calcular los mensajes corruptos - Pendiente
-
-    // Calculo de latencia - Pendiente
+    // Calculo de latencia - Check
 
     // Manejo de desconexiones - Pendiente
 
     // Checksums - Pendiente
-
-    // Desconeccion - Pendiente
 
     //------------------Segundo Parcial------------------------
 

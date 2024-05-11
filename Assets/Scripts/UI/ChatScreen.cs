@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Net.NetworkInformation;
 using UnityEngine.UI;
 
 public class ChatScreen : MonoBehaviourSingleton<ChatScreen>
@@ -54,6 +55,21 @@ public class ChatScreen : MonoBehaviourSingleton<ChatScreen>
                     UnityEngine.Debug.Log("Disconect");
                     break;
 
+                case MessageType.Ping:
+                    NetPing ping = new NetPing();
+
+                    int idPing = ping.Deserialize(data);
+
+                    TimeSpan latency = DateTime.UtcNow - NetworkManager.Instance.lastPingSend[idPing];
+                    int latencyMilliseconds = (int)latency.TotalMilliseconds;
+                    UnityEngine.Debug.Log("Cliente " + idPing + " : ping : " + latencyMilliseconds);
+
+                    ping.data = 0;
+                    NetworkManager.Instance.lastPingSend[idPing] = DateTime.UtcNow;
+                    NetworkManager.Instance.SendToClient(ping.Serialize(), ep);
+                    
+                    break;
+
                 default:
 
                     break;
@@ -87,10 +103,31 @@ public class ChatScreen : MonoBehaviourSingleton<ChatScreen>
                  
                     UnityEngine.Debug.Log("Updating player list...");
 
+                    NetPing Startping = new NetPing();
+                    Startping.data = NetworkManager.Instance.player.id;
+                    NetworkManager.Instance.lastPingSend.Add(DateTime.UtcNow);
+                    NetworkManager.Instance.SendToServer(Startping.Serialize());
+
                     break;
 
                 case MessageType.Disconect:
                     UnityEngine.Debug.Log("Disconect");
+                    break;
+
+                case MessageType.Ping:
+                    NetPing ping = new NetPing();
+
+                    int idPing = ping.Deserialize(data);
+
+                    TimeSpan latency = DateTime.UtcNow - NetworkManager.Instance.lastPingSend[idPing];
+                    int latencyMilliseconds = (int)latency.TotalMilliseconds;
+                    UnityEngine.Debug.Log("ping : " + latencyMilliseconds);
+
+                    ping.data = NetworkManager.Instance.player.id;
+
+                    NetworkManager.Instance.lastPingSend[idPing] = DateTime.UtcNow;
+
+                    NetworkManager.Instance.SendToServer(ping.Serialize());
                     break;
 
                 default: 

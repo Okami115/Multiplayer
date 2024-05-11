@@ -1,6 +1,7 @@
 ﻿
 using UnityEngine.UI;
 using System.Net;
+using System;
 
 public class NetworkScreen : MonoBehaviourSingleton<NetworkScreen>
 {
@@ -27,7 +28,6 @@ public class NetworkScreen : MonoBehaviourSingleton<NetworkScreen>
         NetworkManager.Instance.player.name = name;
 
         C2SHandShake c2SHandShake = new C2SHandShake(name);
-
         NetworkManager.Instance.SendToServer(c2SHandShake.Serialize());
 
         SwitchToChatScreen();

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Net.NetworkInformation;
 using UnityEngine;
 
 public struct Client
@@ -47,6 +48,8 @@ public class NetworkManager : MonoBehaviourSingleton<NetworkManager>, IReceiveDa
     }
     public int TimeOut = 30;
 
+    public List<DateTime> lastPingSend;
+
     public Action<byte[], IPEndPoint> OnReceiveEvent;
 
     private UdpConnection connection;
@@ -59,8 +62,6 @@ public class NetworkManager : MonoBehaviourSingleton<NetworkManager>, IReceiveDa
     private readonly Dictionary<int, Client> clients = new Dictionary<int, Client>();
     private readonly Dictionary<IPEndPoint, int> ipToId = new Dictionary<IPEndPoint, int>();
 
-    // This id should be generated during first handshake
-
     public void StartServer(int port)
     {
         isServer = true;
@@ -68,6 +69,7 @@ public class NetworkManager : MonoBehaviourSingleton<NetworkManager>, IReceiveDa
         connection = new UdpConnection(port, this);
 
         playerList = new List<Player>();
+        lastPingSend = new List<DateTime>();
     }
 
     public void StartClient(IPAddress ip, int port, string name)
@@ -80,7 +82,7 @@ public class NetworkManager : MonoBehaviourSingleton<NetworkManager>, IReceiveDa
         connection = new UdpConnection(ip, port, this);
 
         player = new Player(-1, name);
-
+        lastPingSend = new List<DateTime>();
     }
 
     public void AddClient(IPEndPoint ip, string name)
@@ -96,6 +98,7 @@ public class NetworkManager : MonoBehaviourSingleton<NetworkManager>, IReceiveDa
             playerList.Add(player);
 
             clients.Add(player.id, new Client(ip, player.id, Time.realtimeSinceStartup));
+            lastPingSend.Add(DateTime.UtcNow);
 
             idClient++;
         }
@@ -119,6 +122,11 @@ public class NetworkManager : MonoBehaviourSingleton<NetworkManager>, IReceiveDa
     public void SendToServer(byte[] data)
     {
         connection.Send(data);
+    }
+
+    public void SendToClient(byte[] data, IPEndPoint ip)
+    {
+        connection.Send(data, ip);
     }
 
     public void Broadcast(byte[] data)
