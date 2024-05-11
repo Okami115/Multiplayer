@@ -3,7 +3,9 @@ public class HomeWork
 {
     //---------------------- Notas ---------------------------
 
-    //PingReply ping2 = new PingReply(); a consultar
+    // PingReply ping
+
+    //  TimeSpan latency
 
     //------------------Primer Parcial------------------------
 
