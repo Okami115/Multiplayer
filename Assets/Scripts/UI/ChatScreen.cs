@@ -27,11 +27,15 @@ public class ChatScreen : MonoBehaviourSingleton<ChatScreen>
             {
                 case MessageType.Console:
                     UnityEngine.Debug.Log("New mensages to clients");
-                    NetworkManager.Instance.Broadcast(data);
                     NetConsole consoleMensajes = new NetConsole("");
-                    string text = consoleMensajes.Deserialize(data);
-                    messages.text += text;
-                    UnityEngine.Debug.Log(text);
+                    if(consoleMensajes.Checksum(data))
+                    {
+                        NetworkManager.Instance.Broadcast(data);
+                        string text = consoleMensajes.Deserialize(data);
+                        messages.text += text;
+                        UnityEngine.Debug.Log(text);
+
+                    }
                     break;
 
                 case MessageType.Position:
@@ -82,9 +86,13 @@ public class ChatScreen : MonoBehaviourSingleton<ChatScreen>
                 case MessageType.Console:
                     UnityEngine.Debug.Log("New mensages to server");
                     NetConsole consoleMensajes = new NetConsole("");
-                    string text = consoleMensajes.Deserialize(data);
-                    messages.text += text;
-                    UnityEngine.Debug.Log(text);
+                    if(consoleMensajes.Checksum(data))
+                    {
+                        string text = consoleMensajes.Deserialize(data);
+                        messages.text += text;
+                        UnityEngine.Debug.Log(text);
+
+                    }
                     break;
 
                 case MessageType.Position:

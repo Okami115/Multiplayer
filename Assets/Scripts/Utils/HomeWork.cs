@@ -17,19 +17,19 @@ public class HomeWork
 
     // HandShake C2S S2C - Check
 
-    // Mensajes Ordenables - Pendiente
-
-    // Descartables y no descartables - Pendiente
-
-    // importantes - Pendiente
-
     // Ping - Pong - Check
 
     // Calculo de latencia - Check
 
+    // Checksums - Check
+
+    // importantes - Pendiente
+
+    // Descartables y no descartables - Pendiente
+
     // Manejo de desconexiones - Pendiente
 
-    // Checksums - Pendiente
+    // Mensajes Ordenables - Pendiente
 
     //------------------Segundo Parcial------------------------
 

@@ -24,6 +24,8 @@ public abstract class BaseMenssaje<PayLoadType>
     public static Action<PayLoadType> OnDispatch;
     public abstract byte[] Serialize();
 
+    public abstract bool Checksum(byte[] data);
+
     public abstract PayLoadType Deserialize(byte[] message);
 
     public abstract PayLoadType GetData();
@@ -34,6 +36,29 @@ public class NetConsole : BaseMenssaje<string>
     public NetConsole(string data) 
     { 
         this.data = data;
+    }
+
+    public override bool Checksum(byte[] data)
+    {
+        int checkSum1 = BitConverter.ToInt32(data, data.Length - 8);
+        int checkSum2 = BitConverter.ToInt32(data, data.Length - 4);
+
+        int result1 = 0;
+        int result2 = 0;
+
+        for (int i = 0; i < data.Length - 8; i++)
+        {
+            result1 += data[i];
+            result2 -= data[i];
+        }
+
+        bool aux = checkSum1 == result1 && checkSum2 == result2;
+        Debug.Log("Check1 : " + checkSum1);
+        Debug.Log("Check2 : " + checkSum2);
+        Debug.Log("res1 : " + result1);
+        Debug.Log("res2 : " + result2);
+        Debug.Log("Checksum? : " + aux);
+        return checkSum1 == result1 && checkSum2 == result2;
     }
 
     public override string Deserialize(byte[] message)
@@ -61,12 +86,32 @@ public class NetConsole : BaseMenssaje<string>
         outData.AddRange(BitConverter.GetBytes(data.Length));
         outData.AddRange(Encoding.UTF8.GetBytes(data));
 
+        int result1 = 0;
+        int result2 = 0;
+
+        for (int i = 0; i < outData.Count; i++)
+        {
+            result1 += outData[i];
+            result2 -= outData[i];
+        }
+
+        Debug.Log("Check1 : " + result1);
+        Debug.Log("Check2 : " + result2);
+
+        outData.AddRange(BitConverter.GetBytes(result1));
+        outData.AddRange(BitConverter.GetBytes(result2));
+
         return outData.ToArray();
     }
 }
 
 public class NetDisconect : BaseMenssaje<bool>
 {
+    public override bool Checksum(byte[] data)
+    {
+        throw new NotImplementedException();
+    }
+
     public override bool Deserialize(byte[] message)
     {
         throw new NotImplementedException();
@@ -94,6 +139,11 @@ public class C2SHandShake : BaseMenssaje<string>
     public C2SHandShake(string data)
     {
         this.data = data;
+    }
+
+    public override bool Checksum(byte[] data)
+    {
+        throw new NotImplementedException();
     }
 
     public override string Deserialize(byte[] message)
@@ -132,6 +182,12 @@ public class S2CHandShake : BaseMenssaje<List<Player>>
     {
         this.data = data;
     }
+
+    public override bool Checksum(byte[] data)
+    {
+        throw new NotImplementedException();
+    }
+
     public override List<Player> Deserialize(byte[] message)
     {
         List<Player> aux = new List<Player>();
@@ -181,6 +237,11 @@ public class S2CHandShake : BaseMenssaje<List<Player>>
 
 public class NetPing : BaseMenssaje<int>
 {
+    public override bool Checksum(byte[] data)
+    {
+        throw new NotImplementedException();
+    }
+
     public override int Deserialize(byte[] message)
     {
        return BitConverter.ToInt32(message, 4);
@@ -264,5 +325,10 @@ public class NetVector3 : BaseOrdenableMenssage<UnityEngine.Vector3>
         outData.AddRange(BitConverter.GetBytes(data.z));
 
         return outData.ToArray();
+    }
+
+    public override bool Checksum(byte[] data)
+    {
+        throw new NotImplementedException();
     }
 }
