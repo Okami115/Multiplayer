@@ -3,10 +3,6 @@ public class HomeWork
 {
     //---------------------- Notas ---------------------------
 
-    // PingReply ping
-
-    //  TimeSpan latency
-
     //------------------Primer Parcial------------------------
 
     // Leer el tipo de mensaje  - Check

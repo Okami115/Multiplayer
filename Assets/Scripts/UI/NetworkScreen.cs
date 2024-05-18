@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using System.Net;
 using System;
+using UnityEngine.SceneManagement;
 
 public class NetworkScreen : MonoBehaviourSingleton<NetworkScreen>
 {
@@ -42,7 +43,6 @@ public class NetworkScreen : MonoBehaviourSingleton<NetworkScreen>
 
     void SwitchToChatScreen()
     {
-        ChatScreen.Instance.gameObject.SetActive(true);
-        this.gameObject.SetActive(false);
+        SceneManager.LoadScene(1);
     }
 }

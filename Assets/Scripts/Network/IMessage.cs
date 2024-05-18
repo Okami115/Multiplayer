@@ -2,10 +2,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using System.Text;
+using UnityEngine.UI;
 
 
-// Ping : Cuando el Cliente recibe el S2C manda el primer ping
-// El servidor devuelve un "pong"
 public enum MessageType
 {
     Console = 0,
@@ -13,6 +12,7 @@ public enum MessageType
     Disconect,
     C2S,
     S2C,
+    PlayerList,
     Ping,
 }
 
@@ -199,9 +199,12 @@ public class S2CHandShake : BaseMenssaje<List<Player>>
             Player temp = new Player();
             temp.id = BitConverter.ToInt32(message, offset + 8);
             int stringlength = BitConverter.ToInt32(message, offset + 12);
-            temp.name = Encoding.UTF8.GetString(message, offset + 16, stringlength);
+            temp.pos.x = BitConverter.ToInt32(message, offset + 16);
+            temp.pos.y = BitConverter.ToInt32(message, offset + 20);
+            temp.pos.z = BitConverter.ToInt32(message, offset + 24);
+            temp.name = Encoding.UTF8.GetString(message, offset + 28, stringlength);
             aux.Add(temp);
-            offset += 8 + stringlength;
+            offset += 20 + stringlength;
         }
 
         return aux;
@@ -228,6 +231,9 @@ public class S2CHandShake : BaseMenssaje<List<Player>>
         {
             outData.AddRange(BitConverter.GetBytes(player.id));
             outData.AddRange(BitConverter.GetBytes(player.name.Length));
+            outData.AddRange(BitConverter.GetBytes(player.pos.x));
+            outData.AddRange(BitConverter.GetBytes(player.pos.y));
+            outData.AddRange(BitConverter.GetBytes(player.pos.z));
             outData.AddRange(Encoding.UTF8.GetBytes(player.name));
         }
 
@@ -268,34 +274,16 @@ public class NetPing : BaseMenssaje<int>
     }
 }
 
-public abstract class BaseOrdenableMenssage<PayloadType> : BaseMenssaje<PayloadType>
+public class NetVector3 : BaseMenssaje<UnityEngine.Vector3>
 {
-    protected BaseOrdenableMenssage(byte[] msg)
-    {
-        MsgID = BitConverter.ToUInt64(msg, 4);
-    }
-    
-    protected static ulong lastMsgID = 0;
-
-    protected ulong MsgID = 0;
-    protected static Dictionary<MessageType, ulong> lastExecutedMsgID = new Dictionary<MessageType, ulong>();
-}
-
-public class NetVector3 : BaseOrdenableMenssage<UnityEngine.Vector3>
-{
-    public NetVector3(byte[] msg) : base(msg)
-    {
-
-    }
-
     public override Vector3 Deserialize(byte[] message)
     {
         Vector3 outData;
-
         outData.x = BitConverter.ToSingle(message, 12);
         outData.y = BitConverter.ToSingle(message, 16);
         outData.z = BitConverter.ToSingle(message, 20);
 
+        Debug.LogWarning("recive : " + outData);
         return outData;
     }
 
@@ -319,10 +307,12 @@ public class NetVector3 : BaseOrdenableMenssage<UnityEngine.Vector3>
         List<byte> outData = new List<byte>();
 
         outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
-        outData.AddRange(BitConverter.GetBytes(lastMsgID++));
+        //outData.AddRange(BitConverter.GetBytes(lastMsgID++));
         outData.AddRange(BitConverter.GetBytes(data.x));
         outData.AddRange(BitConverter.GetBytes(data.y));
         outData.AddRange(BitConverter.GetBytes(data.z));
+
+        Debug.LogWarning("Send : " + data);
 
         return outData.ToArray();
     }
@@ -330,5 +320,70 @@ public class NetVector3 : BaseOrdenableMenssage<UnityEngine.Vector3>
     public override bool Checksum(byte[] data)
     {
         throw new NotImplementedException();
+    }
+}
+
+public class NetPlayerListUpdate : BaseMenssaje<List<Player>>
+{
+    public NetPlayerListUpdate(List<Player> data)
+    {
+        this.data = data;
+    }
+    public override bool Checksum(byte[] data)
+    {
+        return true;
+    }
+
+    public override List<Player> Deserialize(byte[] message)
+    {
+        List<Player> aux = new List<Player>();
+
+        int playersAmmount = BitConverter.ToInt32(message, 4);
+        int offset = 0;
+        for (int i = 0; i < playersAmmount; i++)
+        {
+            Player temp = new Player();
+            temp.id = BitConverter.ToInt32(message, offset + 8);
+            int stringlength = BitConverter.ToInt32(message, offset + 12);
+            temp.pos.x = BitConverter.ToInt32(message, offset + 16);
+            temp.pos.y = BitConverter.ToInt32(message, offset + 20);
+            temp.pos.z = BitConverter.ToInt32(message, offset + 24);
+            temp.name = Encoding.UTF8.GetString(message, offset + 28, stringlength);
+            Debug.LogWarning("recive : " + temp.name + " : " + temp.pos);
+            aux.Add(temp);
+            offset += 20 + stringlength;
+        }
+
+        return aux;
+    }
+
+    public override List<Player> GetData()
+    {
+        return data;
+    }
+
+    public override MessageType GetMessageType()
+    {
+        return MessageType.PlayerList;
+    }
+
+    public override byte[] Serialize()
+    {
+        List<byte> outData = new List<byte>();
+
+        outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
+        outData.AddRange(BitConverter.GetBytes(data.Count));
+
+        foreach (var player in data)
+        {
+            outData.AddRange(BitConverter.GetBytes(player.id));
+            outData.AddRange(BitConverter.GetBytes(player.name.Length));
+            outData.AddRange(BitConverter.GetBytes(player.pos.x));
+            outData.AddRange(BitConverter.GetBytes(player.pos.y));
+            outData.AddRange(BitConverter.GetBytes(player.pos.z));
+            outData.AddRange(Encoding.UTF8.GetBytes(player.name));
+            Debug.LogWarning("Send : " + player.name + " : " + player.pos);
+        }
+        return outData.ToArray();
     }
 }
