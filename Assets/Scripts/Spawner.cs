@@ -39,7 +39,8 @@ public class Spawner : MonoBehaviour
     {
         GameObject aux = Instantiate(player);
 
-        aux.AddComponent<PlayerMovment>();
+        if(id == NetworkManager.Instance.player.id)
+            aux.AddComponent<PlayerMovment>();
 
         players.Add(aux);
     }
@@ -48,7 +49,12 @@ public class Spawner : MonoBehaviour
     {
         for (int i = 0; i < NetworkManager.Instance.playerList.Count; i++)
         {
-            players.Add(Instantiate(player));
+            GameObject aux = Instantiate(player);
+
+            if(i == NetworkManager.Instance.player.id)
+                aux.AddComponent<PlayerMovment>();
+
+            players.Add(aux);
         }
     }
 }

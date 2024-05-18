@@ -58,11 +58,11 @@ public class NetworkManager : MonoBehaviour, IReceiveData
     public Action<string> newText;
     public Action<int> spawnPlayer;
     public Action StartMap;
-    public Action<Vector3, Quaternion, int> updatePos;
+    public Action<Vector3, int> updatePos;
 
     private UdpConnection connection;
 
-    public int idClient = 1;
+    public int idClient = 0;
 
     public List<Player> playerList;
     public Player player;
@@ -79,7 +79,9 @@ public class NetworkManager : MonoBehaviour, IReceiveData
         playerList = new List<Player>();
         lastPingSend = new List<DateTime>();
 
-        player = new Player(0, "Server");
+        player = new Player(idClient, "Server");
+        lastPingSend.Add(DateTime.UtcNow);
+        idClient++;
         playerList.Add(player);
     }
 
@@ -148,7 +150,10 @@ public class NetworkManager : MonoBehaviour, IReceiveData
                 if(Instance.isServer)
                 {
                     int id = ipToId[ip];
-                    updatePos?.Invoke(pos.Deserialize(data), Quaternion.identity, id);
+
+                    Vector3 newPos = pos.Deserialize(data);
+
+                    updatePos?.Invoke(newPos, id);
                 }
 
                 break;

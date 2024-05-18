@@ -17,6 +17,11 @@ public class PlayerMovment : MonoBehaviour
         this.player = player;  
     }
 
+    private void OnEnable()
+    {
+        NetworkManager.Instance.updatePos += MovePlayer;
+    }
+
     private void Start()
     {
         pos = new NetVector3();
@@ -41,11 +46,33 @@ public class PlayerMovment : MonoBehaviour
 
             Player character = new Player();
 
-            character = NetworkManager.Instance.playerList[0];
+            character = NetworkManager.Instance.playerList[NetworkManager.Instance.player.id];
 
             character.pos = player.transform.position;
 
-            NetworkManager.Instance.playerList[0] = character;
+            NetworkManager.Instance.playerList[NetworkManager.Instance.player.id] = character;
         }
+        else
+        {
+            NetworkManager.Instance.SendToServer(pos.Serialize());
+        }
+    }
+
+    private void MovePlayer(Vector3 newPos, int id)
+    {
+        Vector3 pos = newPos;
+
+        pos = Camera.main.transform.TransformDirection(pos);
+        pos.y = 0.0f;
+
+        rb.AddForce(pos * speed);
+
+        Player character = new Player();
+
+        character = NetworkManager.Instance.playerList[id];
+
+        character.pos = player.transform.position;
+
+        NetworkManager.Instance.playerList[id] = character;
     }
 }

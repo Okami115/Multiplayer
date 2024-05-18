@@ -279,9 +279,9 @@ public class NetVector3 : BaseMenssaje<UnityEngine.Vector3>
     public override Vector3 Deserialize(byte[] message)
     {
         Vector3 outData;
-        outData.x = BitConverter.ToSingle(message, 12);
-        outData.y = BitConverter.ToSingle(message, 16);
-        outData.z = BitConverter.ToSingle(message, 20);
+        outData.x = BitConverter.ToSingle(message, 4);
+        outData.y = BitConverter.ToSingle(message, 8);
+        outData.z = BitConverter.ToSingle(message, 12);
 
         Debug.LogWarning("recive : " + outData);
         return outData;
@@ -345,9 +345,9 @@ public class NetPlayerListUpdate : BaseMenssaje<List<Player>>
             Player temp = new Player();
             temp.id = BitConverter.ToInt32(message, offset + 8);
             int stringlength = BitConverter.ToInt32(message, offset + 12);
-            temp.pos.x = BitConverter.ToInt32(message, offset + 16);
-            temp.pos.y = BitConverter.ToInt32(message, offset + 20);
-            temp.pos.z = BitConverter.ToInt32(message, offset + 24);
+            temp.pos.x = BitConverter.ToSingle(message, offset + 16);
+            temp.pos.y = BitConverter.ToSingle(message, offset + 20);
+            temp.pos.z = BitConverter.ToSingle(message, offset + 24);
             temp.name = Encoding.UTF8.GetString(message, offset + 28, stringlength);
             Debug.LogWarning("recive : " + temp.name + " : " + temp.pos);
             aux.Add(temp);
