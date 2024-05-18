@@ -6,7 +6,6 @@ public class PlayerMovment : MonoBehaviour
 {
     [SerializeField] private float speed = 5;
 
-    public GameObject player;
     public Rigidbody rb;
 
     private Spawner spawner;
@@ -23,7 +22,6 @@ public class PlayerMovment : MonoBehaviour
         pos = new NetVector3();
         speed = 5;
         rb = GetComponent<Rigidbody>();
-        player = gameObject;
         spawner = FindFirstObjectByType<Spawner>();
     }
 
@@ -41,11 +39,11 @@ public class PlayerMovment : MonoBehaviour
 
             rb.AddForce(pos.data * speed);
 
-            Player character = new Player();
+            Player character = NetworkManager.Instance.playerList[NetworkManager.Instance.player.id];
 
             character = NetworkManager.Instance.playerList[NetworkManager.Instance.player.id];
 
-            character.pos = player.transform.position;
+            character.pos = transform.position;
 
             NetworkManager.Instance.playerList[NetworkManager.Instance.player.id] = character;
         }
@@ -59,14 +57,14 @@ public class PlayerMovment : MonoBehaviour
     {
         Vector3 pos = newPos;
 
-        pos = Camera.main.transform.TransformDirection(pos);
+        pos = spawner.players[id].transform.GetChild(0).transform.TransformDirection(pos);
         pos.y = 0.0f;
 
         Rigidbody RB = spawner.players[id].GetComponent<Rigidbody>();
 
         RB.AddForce(pos * speed);
 
-        Player character = new Player();
+        Player character = NetworkManager.Instance.playerList[id];
 
         character = NetworkManager.Instance.playerList[id];
 

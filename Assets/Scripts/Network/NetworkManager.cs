@@ -24,14 +24,14 @@ public struct Player
     public int id;
     public string name;
     public Vector3 pos;
-    public Quaternion rotation;
+    public Vector2 rotation;
 
     public Player(int id, string name)
     {
         this.id = id;
         this.name = name;
         this.pos = Vector3.zero;
-        this.rotation = Quaternion.identity;
+        this.rotation = Vector2.zero;
     }
 }
 
@@ -59,6 +59,7 @@ public class NetworkManager : MonoBehaviour, IReceiveData
     public Action<int> spawnPlayer;
     public Action StartMap;
     public Action<Vector3, int> updatePos;
+    public Action<Vector2, int> updateRot;
 
     private UdpConnection connection;
 
@@ -156,6 +157,17 @@ public class NetworkManager : MonoBehaviour, IReceiveData
                     updatePos?.Invoke(newPos, id);
                 }
 
+                break;
+            case MessageType.Rotation:
+                NetRotation rot = new NetRotation();
+                if(Instance.isServer)
+                {
+                    int id = ipToId[ip];
+
+                    Vector2 newRotation = rot.Deserialize(data);
+
+                    updateRot?.Invoke(newRotation, id);
+                }
                 break;
             case MessageType.Disconect:
                 UnityEngine.Debug.Log("Disconect");

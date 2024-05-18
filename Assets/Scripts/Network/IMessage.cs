@@ -9,6 +9,7 @@ public enum MessageType
 {
     Console = 0,
     Position,
+    Rotation,
     Disconect,
     C2S,
     S2C,
@@ -202,9 +203,12 @@ public class S2CHandShake : BaseMenssaje<List<Player>>
             temp.pos.x = BitConverter.ToInt32(message, offset + 16);
             temp.pos.y = BitConverter.ToInt32(message, offset + 20);
             temp.pos.z = BitConverter.ToInt32(message, offset + 24);
-            temp.name = Encoding.UTF8.GetString(message, offset + 28, stringlength);
+            temp.rotation.x = BitConverter.ToSingle(message, offset + 28);
+            temp.rotation.y = BitConverter.ToSingle(message, offset + 32);
+            temp.name = Encoding.UTF8.GetString(message, offset + 36, stringlength);
+            Debug.LogWarning("recive : " + temp.name + " : " + temp.pos);
             aux.Add(temp);
-            offset += 20 + stringlength;
+            offset += 28 + stringlength;
         }
 
         return aux;
@@ -234,6 +238,8 @@ public class S2CHandShake : BaseMenssaje<List<Player>>
             outData.AddRange(BitConverter.GetBytes(player.pos.x));
             outData.AddRange(BitConverter.GetBytes(player.pos.y));
             outData.AddRange(BitConverter.GetBytes(player.pos.z));
+            outData.AddRange(BitConverter.GetBytes(player.rotation.x));
+            outData.AddRange(BitConverter.GetBytes(player.rotation.y));
             outData.AddRange(Encoding.UTF8.GetBytes(player.name));
         }
 
@@ -283,7 +289,6 @@ public class NetVector3 : BaseMenssaje<UnityEngine.Vector3>
         outData.y = BitConverter.ToSingle(message, 8);
         outData.z = BitConverter.ToSingle(message, 12);
 
-        Debug.LogWarning("recive : " + outData);
         return outData;
     }
 
@@ -297,11 +302,6 @@ public class NetVector3 : BaseMenssaje<UnityEngine.Vector3>
         return MessageType.Position;
     }
 
-    public int GetMessageNumber(byte[] data)
-    {
-        return BitConverter.ToInt32(data, 8);
-    }
-
     public override byte[] Serialize()
     {
         List<byte> outData = new List<byte>();
@@ -312,14 +312,54 @@ public class NetVector3 : BaseMenssaje<UnityEngine.Vector3>
         outData.AddRange(BitConverter.GetBytes(data.y));
         outData.AddRange(BitConverter.GetBytes(data.z));
 
-        Debug.LogWarning("Send : " + data);
-
         return outData.ToArray();
     }
 
     public override bool Checksum(byte[] data)
     {
         throw new NotImplementedException();
+    }
+}
+
+public class NetRotation : BaseMenssaje<Vector2>
+{
+    public override bool Checksum(byte[] data)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override Vector2 Deserialize(byte[] message)
+    {
+        Vector2 outData;
+        outData.x = BitConverter.ToSingle(message, 4);
+        outData.y = BitConverter.ToSingle(message, 8);
+
+        Debug.LogWarning("recive : " + outData);
+        return outData;
+    }
+
+    public override Vector2 GetData()
+    {
+        return data;
+    }
+
+    public override MessageType GetMessageType()
+    {
+        return MessageType.Rotation;
+    }
+
+    public override byte[] Serialize()
+    {
+        List<byte> outData = new List<byte>();
+
+        outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
+        //outData.AddRange(BitConverter.GetBytes(lastMsgID++));
+        outData.AddRange(BitConverter.GetBytes(data.x));
+        outData.AddRange(BitConverter.GetBytes(data.y));
+
+        Debug.LogWarning("Send : " + data);
+
+        return outData.ToArray();
     }
 }
 
@@ -348,10 +388,12 @@ public class NetPlayerListUpdate : BaseMenssaje<List<Player>>
             temp.pos.x = BitConverter.ToSingle(message, offset + 16);
             temp.pos.y = BitConverter.ToSingle(message, offset + 20);
             temp.pos.z = BitConverter.ToSingle(message, offset + 24);
-            temp.name = Encoding.UTF8.GetString(message, offset + 28, stringlength);
+            temp.rotation.x = BitConverter.ToSingle(message, offset + 28);
+            temp.rotation.y = BitConverter.ToSingle(message, offset + 32);
+            temp.name = Encoding.UTF8.GetString(message, offset + 36, stringlength);
             Debug.LogWarning("recive : " + temp.name + " : " + temp.pos);
             aux.Add(temp);
-            offset += 20 + stringlength;
+            offset += 28 + stringlength;
         }
 
         return aux;
@@ -381,6 +423,8 @@ public class NetPlayerListUpdate : BaseMenssaje<List<Player>>
             outData.AddRange(BitConverter.GetBytes(player.pos.x));
             outData.AddRange(BitConverter.GetBytes(player.pos.y));
             outData.AddRange(BitConverter.GetBytes(player.pos.z));
+            outData.AddRange(BitConverter.GetBytes(player.rotation.x));
+            outData.AddRange(BitConverter.GetBytes(player.rotation.y));
             outData.AddRange(Encoding.UTF8.GetBytes(player.name));
             Debug.LogWarning("Send : " + player.name + " : " + player.pos);
         }

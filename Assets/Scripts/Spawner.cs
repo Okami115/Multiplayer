@@ -31,6 +31,9 @@ public class Spawner : MonoBehaviour
             for(int i = 0; i < players.Count; i++) 
             {
                 players[i].transform.position = NetworkManager.Instance.playerList[i].pos;
+
+                players[i].transform.rotation = Quaternion.Euler(0, NetworkManager.Instance.playerList[i].rotation.y, 0);
+                players[i].transform.GetChild(0).transform.rotation = Quaternion.Euler(NetworkManager.Instance.playerList[i].rotation.x, NetworkManager.Instance.playerList[i].rotation.y, 0);
             }
         }
     }
@@ -42,7 +45,18 @@ public class Spawner : MonoBehaviour
         aux.name = id.ToString();
 
         if(id == NetworkManager.Instance.player.id)
+        {
+            Camera temp = aux.transform.GetComponentInChildren<Camera>();
+            temp.tag = "MainCamera";
             aux.AddComponent<PlayerMovment>();
+            aux.AddComponent<CameraMovement>();
+        }
+        else
+        {
+            Camera temp = aux.transform.GetComponentInChildren<Camera>();
+
+            Destroy(temp);
+        }
 
         players.Add(aux);
     }

@@ -1,20 +1,26 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEditor.PlayerSettings;
 
 public class CameraMovement : MonoBehaviour
 {
     [SerializeField] private float SpeedRotation;
-    [SerializeField] private Transform camera;
 
-    [SerializeField] public Camera cam;
+    private Spawner spawner;
 
-    private float xRotation = 0;
-    private float yRotation = 0;
+    private NetRotation rotationData;
+
+    private void OnEnable()
+    {
+        NetworkManager.Instance.updateRot += RotatePlayer;
+    }
 
     private void Start()
     {
+        rotationData = new NetRotation();
         Cursor.lockState = CursorLockMode.Locked;
+        spawner = FindFirstObjectByType<Spawner>();
     }
 
     void Update()
@@ -22,12 +28,43 @@ public class CameraMovement : MonoBehaviour
         float mouseX = Input.GetAxis("Mouse X");
         float mouseY = Input.GetAxis("Mouse Y");
 
-        yRotation += mouseX;
+        rotationData.data.y += mouseX;
 
-        xRotation -= mouseY;
-        xRotation = Mathf.Clamp(xRotation, -90f, 90f);
+        rotationData.data.x -= mouseY;
 
-        transform.rotation = Quaternion.Euler(0, yRotation, 0);
-        camera.rotation = Quaternion.Euler(xRotation, yRotation, 0);
+        rotationData.data.x = Mathf.Clamp(rotationData.data.x, -90f, 90f);
+
+
+        if (NetworkManager.Instance.isServer)
+        {
+            Player character = NetworkManager.Instance.playerList[NetworkManager.Instance.player.id];
+
+            transform.rotation = Quaternion.Euler(0, rotationData.data.y, 0);
+            transform.GetChild(0).transform.rotation = Quaternion.Euler(rotationData.data.x, rotationData.data.y, 0);
+
+            character = NetworkManager.Instance.playerList[NetworkManager.Instance.player.id];
+
+            character.rotation = rotationData.data;
+
+            NetworkManager.Instance.playerList[NetworkManager.Instance.player.id] = character;
+        }
+        else
+        {
+            NetworkManager.Instance.SendToServer(rotationData.Serialize());
+        }
+    }
+
+    private void RotatePlayer(Vector2 newRotation, int id)
+    {
+        Player character = NetworkManager.Instance.playerList[id];
+
+        spawner.players[id].transform.rotation = Quaternion.Euler(0, newRotation.y, 0);
+        spawner.players[id].transform.GetChild(0).transform.rotation = Quaternion.Euler(newRotation.x, newRotation.y, 0);
+
+        character = NetworkManager.Instance.playerList[id];
+
+        character.rotation = newRotation;
+
+        NetworkManager.Instance.playerList[id] = character;
     }
 }
