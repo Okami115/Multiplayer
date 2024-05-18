@@ -7,7 +7,7 @@ public class Spawner : MonoBehaviour
 {
     [SerializeField] private Transform[] spawns;
     [SerializeField] private GameObject player;
-    private List<GameObject> players;
+    public List<GameObject> players;
 
     private void Start()
     {
@@ -39,6 +39,8 @@ public class Spawner : MonoBehaviour
     {
         GameObject aux = Instantiate(player);
 
+        aux.name = id.ToString();
+
         if(id == NetworkManager.Instance.player.id)
             aux.AddComponent<PlayerMovment>();
 
@@ -49,12 +51,7 @@ public class Spawner : MonoBehaviour
     {
         for (int i = 0; i < NetworkManager.Instance.playerList.Count; i++)
         {
-            GameObject aux = Instantiate(player);
-
-            if(i == NetworkManager.Instance.player.id)
-                aux.AddComponent<PlayerMovment>();
-
-            players.Add(aux);
+            SpawnNewPlayer(NetworkManager.Instance.playerList[i].id);    
         }
     }
 }

@@ -9,13 +9,9 @@ public class PlayerMovment : MonoBehaviour
     public GameObject player;
     public Rigidbody rb;
 
-    private NetVector3 pos;
+    private Spawner spawner;
 
-    public PlayerMovment(Rigidbody rb, GameObject player)
-    {
-        this.rb = rb;
-        this.player = player;  
-    }
+    private NetVector3 pos;
 
     private void OnEnable()
     {
@@ -28,6 +24,7 @@ public class PlayerMovment : MonoBehaviour
         speed = 5;
         rb = GetComponent<Rigidbody>();
         player = gameObject;
+        spawner = FindFirstObjectByType<Spawner>();
     }
 
     void Update()
@@ -65,13 +62,15 @@ public class PlayerMovment : MonoBehaviour
         pos = Camera.main.transform.TransformDirection(pos);
         pos.y = 0.0f;
 
-        rb.AddForce(pos * speed);
+        Rigidbody RB = spawner.players[id].GetComponent<Rigidbody>();
+
+        RB.AddForce(pos * speed);
 
         Player character = new Player();
 
         character = NetworkManager.Instance.playerList[id];
 
-        character.pos = player.transform.position;
+        character.pos = spawner.players[id].transform.position;
 
         NetworkManager.Instance.playerList[id] = character;
     }
