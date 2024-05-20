@@ -1,13 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using static UnityEditor.PlayerSettings;
 
 public class CameraMovement : MonoBehaviour
 {
     [SerializeField] private float SpeedRotation;
 
-    private Spawner spawner;
+    private PlayerManager playerManager;
 
     private NetRotation rotationData;
 
@@ -20,7 +17,7 @@ public class CameraMovement : MonoBehaviour
     {
         rotationData = new NetRotation();
         Cursor.lockState = CursorLockMode.Locked;
-        spawner = FindFirstObjectByType<Spawner>();
+        playerManager = FindFirstObjectByType<PlayerManager>();
     }
 
     void Update()
@@ -56,15 +53,23 @@ public class CameraMovement : MonoBehaviour
 
     private void RotatePlayer(Vector2 newRotation, int id)
     {
-        Player character = NetworkManager.Instance.playerList[id];
+        int ed = 0;
 
-        spawner.players[id].transform.rotation = Quaternion.Euler(0, newRotation.y, 0);
-        spawner.players[id].transform.GetChild(0).transform.rotation = Quaternion.Euler(newRotation.x, newRotation.y, 0);
+        for (int i = 0; i < NetworkManager.Instance.playerList.Count; i++)
+        {
+            if (NetworkManager.Instance.playerList[i].id == id)
+                ed = i;
+        }
 
-        character = NetworkManager.Instance.playerList[id];
+        Player character = NetworkManager.Instance.playerList[ed];
+
+        playerManager.players[ed].transform.rotation = Quaternion.Euler(0, newRotation.y, 0);
+        playerManager.players[ed].transform.GetChild(0).transform.rotation = Quaternion.Euler(newRotation.x, newRotation.y, 0);
+
+        character = NetworkManager.Instance.playerList[ed];
 
         character.rotation = newRotation;
 
-        NetworkManager.Instance.playerList[id] = character;
+        NetworkManager.Instance.playerList[ed] = character;
     }
 }

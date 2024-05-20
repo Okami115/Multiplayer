@@ -3,24 +3,45 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class Spawner : MonoBehaviour
+public class PlayerManager : MonoBehaviour
 {
     [SerializeField] private Transform[] spawns;
     [SerializeField] private GameObject player;
     public List<GameObject> players;
 
-    private void Start()
+
+    private void OnEnable()
     {
         NetworkManager.Instance.spawnPlayer += SpawnNewPlayer;
+        NetworkManager.Instance.disconectPlayer += DeletePlayer;
+
+        if(!NetworkManager.Instance.isServer)
+        {
+            NetworkManager.Instance.StartMap += StartMap;
+            NetworkManager.Instance.connectPlayer += SpawnNewPlayer;
+
+        }
+    }
+
+    private void OnDestroy()
+    {
+        NetworkManager.Instance.spawnPlayer -= SpawnNewPlayer;
+        NetworkManager.Instance.disconectPlayer -= DeletePlayer;
+
+        if (!NetworkManager.Instance.isServer)
+        {
+            NetworkManager.Instance.StartMap -= StartMap;
+            NetworkManager.Instance.connectPlayer -= SpawnNewPlayer;
+        }
+    }
+
+    private void Start()
+    {
         players = new List<GameObject>();
 
         if(NetworkManager.Instance.isServer)
         {
             SpawnNewPlayer(NetworkManager.Instance.player.id);
-        }
-        else
-        {
-            NetworkManager.Instance.StartMap += StartMap;
         }
     }
 
@@ -50,6 +71,8 @@ public class Spawner : MonoBehaviour
             temp.tag = "MainCamera";
             aux.AddComponent<PlayerMovment>();
             aux.AddComponent<CameraMovement>();
+            aux.AddComponent<Shoot>();
+            aux.AddComponent<InputController>();
         }
         else
         {
@@ -67,5 +90,19 @@ public class Spawner : MonoBehaviour
         {
             SpawnNewPlayer(NetworkManager.Instance.playerList[i].id);    
         }
+    }
+
+    private void DeletePlayer(int id)
+    {
+        int ed = 0;
+
+        for (int i = 0; i < NetworkManager.Instance.playerList.Count; i++)
+        {
+            if (NetworkManager.Instance.playerList[i].id == id)
+                ed = i;
+        }
+
+        Destroy(players[ed]);
+        players.Remove(players[ed]);
     }
 }

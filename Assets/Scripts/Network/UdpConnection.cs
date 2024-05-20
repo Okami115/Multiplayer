@@ -11,10 +11,11 @@ public class UdpConnection
         public IPEndPoint ipEndPoint;
     }
 
-    private readonly UdpClient connection;
+    private UdpClient connection;
     private IReceiveData receiver = null;
     private Queue<DataReceived> dataReceivedQueue = new Queue<DataReceived>();
 
+    private bool isDisposed = false;
     object handler = new object();
     
     public UdpConnection(int port, IReceiveData receiver = null)
@@ -56,25 +57,27 @@ public class UdpConnection
 
     void OnReceive(IAsyncResult ar)
     {
+        DataReceived dataReceived = new DataReceived();
+
+        if (connection.Client == null)
+            return;
+
         try
         {
-            DataReceived dataReceived = new DataReceived();
             dataReceived.data = connection.EndReceive(ar, ref dataReceived.ipEndPoint);
-
             lock (handler)
             {
                 dataReceivedQueue.Enqueue(dataReceived);
             }
         }
-        catch(SocketException e)
+        catch (SocketException e)
         {
             // This happens when a client disconnects, as we fail to send to that port.
             UnityEngine.Debug.LogError("[UdpConnection] " + e.Message);
         }
-
         connection.BeginReceive(OnReceive, null);
     }
-
+    
     public void Send(byte[] data)
     {
         connection.Send(data, data.Length);

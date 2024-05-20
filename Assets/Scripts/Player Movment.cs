@@ -8,7 +8,7 @@ public class PlayerMovment : MonoBehaviour
 
     public Rigidbody rb;
 
-    private Spawner spawner;
+    private PlayerManager playerManager;
 
     private NetVector3 pos;
 
@@ -22,7 +22,7 @@ public class PlayerMovment : MonoBehaviour
         pos = new NetVector3();
         speed = 5;
         rb = GetComponent<Rigidbody>();
-        spawner = FindFirstObjectByType<Spawner>();
+        playerManager = FindFirstObjectByType<PlayerManager>();
     }
 
     void Update()
@@ -31,8 +31,8 @@ public class PlayerMovment : MonoBehaviour
         float movimientoVertical = Input.GetAxis("Vertical");
 
         pos.data = new Vector3(movimientoHorizontal, 0.0f, movimientoVertical);
-        
-        if(NetworkManager.Instance.isServer)
+
+        if (NetworkManager.Instance.isServer)
         {
             pos.data = Camera.main.transform.TransformDirection(pos.data);
             pos.data.y = 0.0f;
@@ -55,21 +55,29 @@ public class PlayerMovment : MonoBehaviour
 
     private void MovePlayer(Vector3 newPos, int id)
     {
+        int ed = 0;
+
+        for (int i = 0; i < NetworkManager.Instance.playerList.Count; i++)
+        {
+            if (NetworkManager.Instance.playerList[i].id == id)
+                ed = i;
+        }
+
         Vector3 pos = newPos;
 
-        pos = spawner.players[id].transform.GetChild(0).transform.TransformDirection(pos);
+        pos = playerManager.players[ed].transform.GetChild(0).transform.TransformDirection(pos);
         pos.y = 0.0f;
 
-        Rigidbody RB = spawner.players[id].GetComponent<Rigidbody>();
+        Rigidbody RB = playerManager.players[ed].GetComponent<Rigidbody>();
 
         RB.AddForce(pos * speed);
 
-        Player character = NetworkManager.Instance.playerList[id];
+        Player character = NetworkManager.Instance.playerList[ed];
 
-        character = NetworkManager.Instance.playerList[id];
+        character = NetworkManager.Instance.playerList[ed];
 
-        character.pos = spawner.players[id].transform.position;
+        character.pos = playerManager.players[ed].transform.position;
 
-        NetworkManager.Instance.playerList[id] = character;
+        NetworkManager.Instance.playerList[ed] = character;
     }
 }

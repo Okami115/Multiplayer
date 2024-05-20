@@ -19,11 +19,11 @@ public class HomeWork
 
     // Checksums - Check
 
-    // importantes - Pendiente
+    // Manejo de desconexiones - Pendiente
 
     // Descartables y no descartables - Pendiente
 
-    // Manejo de desconexiones - Pendiente
+    // importantes - Pendiente
 
     // Mensajes Ordenables - Pendiente
 

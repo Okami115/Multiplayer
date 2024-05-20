@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public struct Client
 {
@@ -23,6 +24,7 @@ public struct Player
 {
     public int id;
     public string name;
+    public int HP;
     public Vector3 pos;
     public Vector2 rotation;
 
@@ -30,6 +32,7 @@ public struct Player
     {
         this.id = id;
         this.name = name;
+        HP = 3;
         this.pos = Vector3.zero;
         this.rotation = Vector2.zero;
     }
@@ -58,8 +61,13 @@ public class NetworkManager : MonoBehaviour, IReceiveData
     public Action<string> newText;
     public Action<int> spawnPlayer;
     public Action StartMap;
+
     public Action<Vector3, int> updatePos;
     public Action<Vector2, int> updateRot;
+    public Action<int> updateShoot;
+
+    public Action<int> disconectPlayer;
+    public Action<int> connectPlayer;
 
     private UdpConnection connection;
 
@@ -110,29 +118,61 @@ public class NetworkManager : MonoBehaviour, IReceiveData
 
             Player player = new Player(ipToId[ip], name);
 
+            clients.Add(player.id, new Client(ip, player.id, Time.realtimeSinceStartup));
+
+            AddPlayer newPlayer = new AddPlayer();
+
+            newPlayer.data = player;    
+
+            Instance.Broadcast(newPlayer.Serialize());
+
             playerList.Add(player);
 
-            clients.Add(player.id, new Client(ip, player.id, Time.realtimeSinceStartup));
             lastPingSend.Add(DateTime.UtcNow);
 
             spawnPlayer?.Invoke(player.id);
 
             idClient++;
+
         }
     }
 
-    void RemoveClient(IPEndPoint ip)
+    public void RemoveClient(int id, IPEndPoint ip)
     {
-        if (ipToId.ContainsKey(ip))
+        Debug.LogWarning("Removing client : " + playerList[id].name);
+
+        disconectPlayer?.Invoke(id);
+
+        if(Instance.isServer)
         {
-            Debug.Log("Removing client: " + ip.Address);
-            clients.Remove(ipToId[ip]);
+            clients.Remove(id);
+            ipToId.Remove(ip);
+
+            int ed = 0;
+
+            for (int i = 0; i < Instance.playerList.Count; i++)
+            {
+                if (Instance.playerList[i].id == id)
+                    ed = i;
+            }
+
+            lastPingSend.Remove(lastPingSend[ed]);
+            playerList.Remove(playerList[ed]);
+        }
+
+        if (Instance.player.id == id)
+        {
+            Cursor.lockState = CursorLockMode.Confined;
+            SceneManager.LoadScene(0);
+            connection.Close();
+            playerList.Remove(player);
         }
     }
 
     public void OnReceiveData(byte[] data, IPEndPoint ip)
     {
         MessageType aux = (MessageType)BitConverter.ToInt32(data, 0);
+        int id;
 
         switch (aux)
         {
@@ -150,8 +190,7 @@ public class NetworkManager : MonoBehaviour, IReceiveData
                 NetVector3 pos = new NetVector3();
                 if(Instance.isServer)
                 {
-                    int id = ipToId[ip];
-
+                    id = ipToId[ip];
                     Vector3 newPos = pos.Deserialize(data);
 
                     updatePos?.Invoke(newPos, id);
@@ -162,25 +201,45 @@ public class NetworkManager : MonoBehaviour, IReceiveData
                 NetRotation rot = new NetRotation();
                 if(Instance.isServer)
                 {
-                    int id = ipToId[ip];
-
+                    id = ipToId[ip];
                     Vector2 newRotation = rot.Deserialize(data);
 
                     updateRot?.Invoke(newRotation, id);
                 }
                 break;
             case MessageType.Disconect:
-                UnityEngine.Debug.Log("Disconect");
+                NetDisconect dis = new NetDisconect();
+
+                if(Instance.isServer)
+                {
+                    id = ipToId[ip];
+                    dis.data = id;
+                    Broadcast(dis.Serialize());
+                    RemoveClient(id, ip);
+                }
+                else
+                {
+                    id = dis.Deserialize(data);
+                    RemoveClient(id, ip);
+                }
+
+
+                break;
+            case MessageType.AddPlayer:
+                AddPlayer addPlayer = new AddPlayer();
+
+                addPlayer.data = addPlayer.Deserialize(data);
+                //connectPlayer?.Invoke(addPlayer.data.id);
                 break;
             case MessageType.C2S:
                 UnityEngine.Debug.Log("New C2S");
                 C2SHandShake C2SHandShake = new C2SHandShake("");
                 string name = C2SHandShake.Deserialize(data);
-                NetworkManager.Instance.AddClient(ip, name);
+                Instance.AddClient(ip, name);
 
-                S2CHandShake s2CHandShake = new S2CHandShake(NetworkManager.Instance.playerList);
+                S2CHandShake s2CHandShake = new S2CHandShake(Instance.playerList);
                 byte[] players = s2CHandShake.Serialize();
-                NetworkManager.Instance.Broadcast(players);
+                Instance.Broadcast(players);
                 UnityEngine.Debug.Log("Send S2C");
                 break;
             case MessageType.S2C:
@@ -204,11 +263,14 @@ public class NetworkManager : MonoBehaviour, IReceiveData
                 NetPing ping = new NetPing();
 
                 int idPing = ping.Deserialize(data);
+                int latencyMilliseconds = 0;
 
-                TimeSpan latency = DateTime.UtcNow - Instance.lastPingSend[idPing];
-                int latencyMilliseconds = (int)latency.TotalMilliseconds;
-
-                Instance.lastPingSend[idPing] = DateTime.UtcNow;
+                if (Instance.lastPingSend.Count >= idPing + 1)
+                {
+                    TimeSpan latency = DateTime.UtcNow - Instance.lastPingSend[idPing];
+                    latencyMilliseconds = (int)latency.TotalMilliseconds;
+                    Instance.lastPingSend[idPing] = DateTime.UtcNow;
+                }
 
                 if (Instance.isServer)
                 {
@@ -227,6 +289,12 @@ public class NetworkManager : MonoBehaviour, IReceiveData
                 NetPlayerListUpdate updating = new NetPlayerListUpdate(playerList);
                 playerList = updating.Deserialize(data);
                  break;
+            case MessageType.Shoot:
+                NetShoot shoot = new NetShoot();
+
+                updateShoot?.Invoke(shoot.Deserialize(data));
+
+                break;
             default:
                 break;
         }
@@ -234,12 +302,14 @@ public class NetworkManager : MonoBehaviour, IReceiveData
 
     public void SendToServer(byte[] data)
     {
-        connection.Send(data);
+        if (connection != null)
+            connection.Send(data);
     }
 
     public void SendToClient(byte[] data, IPEndPoint ip)
     {
-        connection.Send(data, ip);
+        if(connection != null)
+            connection.Send(data, ip);
     }
 
     public void Broadcast(byte[] data)
