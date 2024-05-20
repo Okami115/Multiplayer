@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Net;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -8,24 +9,11 @@ public class PlayerManager : MonoBehaviour
     [SerializeField] private Transform[] spawns;
     [SerializeField] private GameObject player;
     public List<GameObject> players;
-
-
-    private void OnEnable()
-    {
-        NetworkManager.Instance.spawnPlayer += SpawnNewPlayer;
-        NetworkManager.Instance.disconectPlayer += DeletePlayer;
-        NetworkManager.Instance.stopPlayer += LockPlayer;
-
-        if (!NetworkManager.Instance.isServer)
-        {
-            NetworkManager.Instance.StartMap += StartMap;
-            NetworkManager.Instance.connectPlayer += SpawnNewPlayer;
-
-        }
-    }
+    NetworkScreen netScreen;
 
     private void OnDestroy()
     {
+        netScreen.start -= StartGame;
         NetworkManager.Instance.spawnPlayer -= SpawnNewPlayer;
         NetworkManager.Instance.disconectPlayer -= DeletePlayer;
         NetworkManager.Instance.stopPlayer -= LockPlayer;
@@ -37,18 +25,31 @@ public class PlayerManager : MonoBehaviour
         }
     }
 
-    private void Start()
+    private void OnEnable()
     {
-        players = new List<GameObject>();
+        netScreen = FindAnyObjectByType<NetworkScreen>();
 
-        if (NetworkManager.Instance.isServer)
-        {
-            SpawnNewPlayer(NetworkManager.Instance.player.id);
-        }
+        netScreen.start += StartGame;
     }
 
     private void Update()
     {
+        if(NetworkManager.Instance.isServer) 
+        {
+            for (int i = 1; i < NetworkManager.Instance.playerList.Count; i++) 
+            {
+                if (NetworkManager.Instance.playerList[i].HP <= 0)
+                {
+                    NetDisconect dis = new NetDisconect();
+                
+                    IPEndPoint ip = NetworkManager.Instance.GetIpById(NetworkManager.Instance.playerList[i].id);
+                    dis.data = NetworkManager.Instance.playerList[i].id;
+                    NetworkManager.Instance.Broadcast(dis.Serialize());
+                    NetworkManager.Instance.RemoveClient(NetworkManager.Instance.playerList[i].id, ip);
+                }
+            }
+        }
+
         if (!NetworkManager.Instance.isServer)
         {
             for (int i = 0; i < players.Count; i++)
@@ -115,5 +116,26 @@ public class PlayerManager : MonoBehaviour
 
         Destroy(players[ed]);
         players.Remove(players[ed]);
+    }
+
+    private void StartGame()
+    {
+        players = new List<GameObject>();
+
+        if (NetworkManager.Instance.isServer)
+        {
+            SpawnNewPlayer(NetworkManager.Instance.player.id);
+        }
+
+        NetworkManager.Instance.spawnPlayer += SpawnNewPlayer;
+        NetworkManager.Instance.disconectPlayer += DeletePlayer;
+        NetworkManager.Instance.stopPlayer += LockPlayer;
+
+        if (!NetworkManager.Instance.isServer)
+        {
+            NetworkManager.Instance.StartMap += StartMap;
+            NetworkManager.Instance.connectPlayer += SpawnNewPlayer;
+
+        }
     }
 }

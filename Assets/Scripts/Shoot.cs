@@ -6,6 +6,7 @@ public class Shoot : MonoBehaviour
     private PlayerManager playerManager;
 
     private NetShoot shootData;
+    private NetworkScreen netScreen;
 
     private void OnEnable()
     {
@@ -52,9 +53,11 @@ public class Shoot : MonoBehaviour
 
         GameObject aux = Instantiate(gameManager.bullet, playerManager.players[ed].transform.GetChild(0).transform.position, Quaternion.identity);
 
+        aux.name = playerManager.players[ed].name;
+
         Rigidbody rb = aux.GetComponent<Rigidbody>();
 
-        rb.AddForce(playerManager.players[ed].transform.GetChild(0).transform.forward * 1000);
+        rb.AddForce(playerManager.players[ed].transform.GetChild(0).transform.forward * 5000);
 
         Destroy(aux, 3);
 
@@ -64,5 +67,10 @@ public class Shoot : MonoBehaviour
         {
             NetworkManager.Instance.Broadcast(shootData.Serialize());
         }
+    }
+
+    private void StartGame()
+    {
+
     }
 }

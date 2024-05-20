@@ -7,6 +7,7 @@ public class CameraMovement : MonoBehaviour
     private PlayerManager playerManager;
 
     private NetRotation rotationData;
+    private NetworkScreen netScreen;
 
     private void OnEnable()
     {
@@ -31,23 +32,25 @@ public class CameraMovement : MonoBehaviour
 
         rotationData.data.x = Mathf.Clamp(rotationData.data.x, -90f, 90f);
 
-
-        if (NetworkManager.Instance.isServer)
+        if(NetworkManager.Instance != null)
         {
-            Player character = NetworkManager.Instance.playerList[NetworkManager.Instance.player.id];
+            if (NetworkManager.Instance.isServer)
+            {
+                Player character = NetworkManager.Instance.playerList[NetworkManager.Instance.player.id];
 
-            transform.rotation = Quaternion.Euler(0, rotationData.data.y, 0);
-            transform.GetChild(0).transform.rotation = Quaternion.Euler(rotationData.data.x, rotationData.data.y, 0);
+                transform.rotation = Quaternion.Euler(0, rotationData.data.y, 0);
+                transform.GetChild(0).transform.rotation = Quaternion.Euler(rotationData.data.x, rotationData.data.y, 0);
 
-            character = NetworkManager.Instance.playerList[NetworkManager.Instance.player.id];
+                character = NetworkManager.Instance.playerList[NetworkManager.Instance.player.id];
 
-            character.rotation = rotationData.data;
+                character.rotation = rotationData.data;
 
-            NetworkManager.Instance.playerList[NetworkManager.Instance.player.id] = character;
-        }
-        else
-        {
-            NetworkManager.Instance.SendToServer(rotationData.Serialize());
+                NetworkManager.Instance.playerList[NetworkManager.Instance.player.id] = character;
+            }
+            else
+            {
+                NetworkManager.Instance.SendToServer(rotationData.Serialize());
+            }
         }
     }
 
@@ -71,5 +74,10 @@ public class CameraMovement : MonoBehaviour
         character.rotation = newRotation;
 
         NetworkManager.Instance.playerList[ed] = character;
+    }
+
+    private void StartGame()
+    {
+
     }
 }

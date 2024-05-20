@@ -50,9 +50,10 @@ public class NetworkManager : MonoBehaviour, IReceiveData
     {
         get; private set;
     }
+
     public int TimeOut = 30;
 
-    public static NetworkManager Instance;
+    public static NetworkManager  Instance;
 
     public List<DateTime> lastPingSend;
 
@@ -67,6 +68,7 @@ public class NetworkManager : MonoBehaviour, IReceiveData
     public Action<int> disconectPlayer;
     public Action stopPlayer;
     public Action<int> connectPlayer;
+    public Action<string> deniedConnection;
 
     private UdpConnection connection;
 
@@ -109,6 +111,9 @@ public class NetworkManager : MonoBehaviour, IReceiveData
 
     public void AddClient(IPEndPoint ip, string name)
     {
+
+
+
         if (!ipToId.ContainsKey(ip))
         {
             Debug.Log("Adding client: " + ip.Address + " name: " + name);
@@ -171,6 +176,9 @@ public class NetworkManager : MonoBehaviour, IReceiveData
 
     public void OnReceiveData(byte[] data, IPEndPoint ip)
     {
+        if (data == null)
+            return;
+
         MessageType aux = (MessageType)BitConverter.ToInt32(data, 0);
         int id;
 
@@ -231,13 +239,31 @@ public class NetworkManager : MonoBehaviour, IReceiveData
             case MessageType.C2S:
                 UnityEngine.Debug.Log("New C2S");
                 C2SHandShake C2SHandShake = new C2SHandShake("");
+                DeniedNet temp = new DeniedNet();
                 string name = C2SHandShake.Deserialize(data);
-                Instance.AddClient(ip, name);
 
-                S2CHandShake s2CHandShake = new S2CHandShake(Instance.playerList);
-                byte[] players = s2CHandShake.Serialize();
-                Instance.Broadcast(players);
-                UnityEngine.Debug.Log("Send S2C");
+                temp.data = "Authorized";
+
+                if (idClient >= 5)
+                    temp.data = "Full";
+
+                for (int i = 0; i < Instance.playerList.Count; i++)
+                {
+                    if(Instance.playerList[i].name == name)
+                        temp.data = "Name";
+                }
+
+                SendToClient(temp.Serialize(), ip);
+
+                if(temp.data == "Authorized")
+                {
+                    Instance.AddClient(ip, name);
+
+                    S2CHandShake s2CHandShake = new S2CHandShake(Instance.playerList);
+                    byte[] players = s2CHandShake.Serialize();
+                    Instance.Broadcast(players);
+                    UnityEngine.Debug.Log("Send S2C");
+                }
                 break;
             case MessageType.S2C:
                 UnityEngine.Debug.Log("New S2C");
@@ -290,6 +316,15 @@ public class NetworkManager : MonoBehaviour, IReceiveData
                 NetShoot shoot = new NetShoot();
 
                 updateShoot?.Invoke(shoot.Deserialize(data));
+
+                break;
+            case MessageType.Denied:
+
+                DeniedNet denied = new DeniedNet();
+
+                denied.data = denied.Deserialize(data);
+
+                deniedConnection?.Invoke(denied.data);
 
                 break;
             default:
@@ -369,7 +404,7 @@ public class NetworkManager : MonoBehaviour, IReceiveData
         if (connection != null)
             connection.FlushReceiveData();
 
-        if(Instance.isServer)
+        if(Instance.isServer && playerList != null)
         {
             NetPlayerListUpdate updating = new NetPlayerListUpdate(playerList);
             byte[] players = updating.Serialize();
@@ -388,4 +423,6 @@ public class NetworkManager : MonoBehaviour, IReceiveData
         }
         return null;
     }
+
+
 }

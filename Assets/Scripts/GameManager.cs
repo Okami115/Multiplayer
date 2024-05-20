@@ -15,8 +15,8 @@ public class GameManager : MonoBehaviour
         {
             timer += Time.deltaTime;
 
-            if(timer >= 120)
-                NetworkManager.Instance.Disconnect();
+            //if(timer >= 120)
+                //NetworkManager.Instance.Disconnect();
         }
         else
         {

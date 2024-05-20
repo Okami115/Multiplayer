@@ -10,6 +10,9 @@ public class Bullet : MonoBehaviour
         {
             for(int i = 0; i < NetworkManager.Instance.playerList.Count; i++)
             {
+                if(other.gameObject.name == gameObject.name)
+                    return;
+
                 if(other.gameObject.name == NetworkManager.Instance.playerList[i].id.ToString())
                 {
                     Player player = NetworkManager.Instance.playerList[i];
@@ -17,6 +20,8 @@ public class Bullet : MonoBehaviour
                     player.HP--;
 
                     NetworkManager.Instance.playerList[i] = player;
+
+                    Destroy(gameObject);
                 }
             }
         }

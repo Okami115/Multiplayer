@@ -11,6 +11,7 @@ public class PlayerMovment : MonoBehaviour
     private PlayerManager playerManager;
 
     private NetVector3 pos;
+    private NetworkScreen netScreen;
 
     private void OnEnable()
     {
@@ -27,7 +28,7 @@ public class PlayerMovment : MonoBehaviour
     private void Start()
     {
         pos = new NetVector3();
-        speed = 5;
+        speed = 20;
         rb = GetComponent<Rigidbody>();
         playerManager = FindFirstObjectByType<PlayerManager>();
     }
@@ -91,5 +92,10 @@ public class PlayerMovment : MonoBehaviour
     private void LockPlayer()
     {
         gameObject.SetActive(false);
+    }
+
+    private void StartGame()
+    {
+
     }
 }
