@@ -188,7 +188,7 @@ public class NetworkManager : MonoBehaviour, IReceiveData
                 break;
             case MessageType.Position:
                 NetVector3 pos = new NetVector3();
-                if(Instance.isServer)
+                if(Instance.isServer && ipToId.Count != 0)
                 {
                     id = ipToId[ip];
                     Vector3 newPos = pos.Deserialize(data);
@@ -198,7 +198,7 @@ public class NetworkManager : MonoBehaviour, IReceiveData
                 break;
             case MessageType.Rotation:
                 NetRotation rot = new NetRotation();
-                if(Instance.isServer)
+                if (Instance.isServer && ipToId.Count != 0)
                 {
                     id = ipToId[ip];
                     Vector2 newRotation = rot.Deserialize(data);
@@ -329,6 +329,7 @@ public class NetworkManager : MonoBehaviour, IReceiveData
             playerList.Clear();
             lastPingSend.Clear();
             ipToId.Clear();
+            idClient = 0;
         }
         else
         {

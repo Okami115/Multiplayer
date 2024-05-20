@@ -39,26 +39,20 @@ public class UdpConnection
 
     public void Close()
     {
-        lock (handler)
+        if(!isDisposed)
         {
-            if(!isDisposed)
-            {
-                isDisposed = true;
-                connection.Close();
-            }
+            isDisposed = true;
+            connection.Close();
         }
     }
 
     public void FlushReceiveData()
     {
-        lock (handler)
+        while (dataReceivedQueue.Count > 0)
         {
-            while (dataReceivedQueue.Count > 0)
-            {
-                DataReceived dataReceived = dataReceivedQueue.Dequeue();
-                if (receiver != null)
-                    receiver.OnReceiveData(dataReceived.data, dataReceived.ipEndPoint);
-            }
+            DataReceived dataReceived = dataReceivedQueue.Dequeue();
+            if (receiver != null)
+                receiver.OnReceiveData(dataReceived.data, dataReceived.ipEndPoint);
         }
     }
 
@@ -68,29 +62,23 @@ public class UdpConnection
 
         try
         {
-            lock (handler)
+            if (!isDisposed)
             {
-                if (!isDisposed)
-                {
-                    dataReceived.ipEndPoint = new IPEndPoint(IPAddress.Any, 0);
-                    dataReceived.data = connection.EndReceive(ar, ref dataReceived.ipEndPoint);
-                    dataReceivedQueue.Enqueue(dataReceived);
-                }
+                dataReceived.data = connection.EndReceive(ar, ref dataReceived.ipEndPoint);
             }
+
         }
         catch (SocketException e)
         {
             // This happens when a client disconnects, as we fail to send to that port.
             UnityEngine.Debug.LogError("[UdpConnection] " + e.Message);
         }
-        finally
+        lock (handler)
         {
-            lock (handler)
-            { 
-                if (!isDisposed)
-                    connection.BeginReceive(OnReceive, null);
-            }
+            dataReceivedQueue.Enqueue(dataReceived);
         }
+
+        connection.BeginReceive(OnReceive, null);
     }
     
     public void Send(byte[] data)
