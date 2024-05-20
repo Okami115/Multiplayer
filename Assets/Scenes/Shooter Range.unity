@@ -183,6 +183,7 @@ MonoBehaviour:
   bullet: {fileID: 2585657352083979254, guid: 3b754ffc26fb510458972680f1f702cb, type: 3}
   canvas: {fileID: 1571777266}
   timer: 0
+  input: {fileID: 58112417}
 --- !u!4 &58112416
 Transform:
   m_ObjectHideFlags: 0

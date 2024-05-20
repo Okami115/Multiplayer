@@ -9,18 +9,24 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private float timer = 0;
 
+    [SerializeField] private InputController input;
+
+    private void Start()
+    {
+        input.setChat += SetChatScreen;
+    }
+
+    private void OnDestroy()
+    {
+        input.setChat -= SetChatScreen;
+    }
     private void Update()
     {
         if(NetworkManager.Instance.isServer)
         {
             timer += Time.deltaTime;
 
-            //if(timer >= 120)
-                //NetworkManager.Instance.Disconnect();
-        }
-        else
-        {
-            if(NetworkManager.Instance.player.HP <= 0)
+            if(timer >= 300)
                 NetworkManager.Instance.Disconnect();
         }
     }
