@@ -61,11 +61,16 @@ public class PlayerManager : MonoBehaviour
 
     private void SpawnNewPlayer(int id)
     {
-        GameObject aux = Instantiate(player);
+        for(int i = 0; i < players.Count; i++) 
+        {
+            if(players[i].transform.name == id.ToString())
+                return;
+        }
 
+        GameObject aux = Instantiate(player);
         aux.name = id.ToString();
 
-        if(id == NetworkManager.Instance.player.id)
+        if (id == NetworkManager.Instance.player.id)
         {
             Camera temp = aux.transform.GetComponentInChildren<Camera>();
             temp.tag = "MainCamera";

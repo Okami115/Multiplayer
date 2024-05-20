@@ -59,9 +59,6 @@ public class UdpConnection
     {
         DataReceived dataReceived = new DataReceived();
 
-        if (connection.Client == null)
-            return;
-
         try
         {
             dataReceived.data = connection.EndReceive(ar, ref dataReceived.ipEndPoint);
@@ -80,11 +77,13 @@ public class UdpConnection
     
     public void Send(byte[] data)
     {
-        connection.Send(data, data.Length);
+        if (connection.Client != null)
+            connection.Send(data, data.Length);
     }
 
     public void Send(byte[] data, IPEndPoint ipEndpoint)
     {
-        connection.Send(data, data.Length, ipEndpoint);
+        if (connection.Client != null)
+            connection.Send(data, data.Length, ipEndpoint);
     }
 }
