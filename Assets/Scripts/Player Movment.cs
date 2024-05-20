@@ -15,6 +15,13 @@ public class PlayerMovment : MonoBehaviour
     private void OnEnable()
     {
         NetworkManager.Instance.updatePos += MovePlayer;
+        NetworkManager.Instance.stopPlayer += LockPlayer;
+    }
+
+    private void OnDestroy()
+    {
+        NetworkManager.Instance.updatePos -= MovePlayer;
+        NetworkManager.Instance.stopPlayer -= LockPlayer;
     }
 
     private void Start()
@@ -79,5 +86,10 @@ public class PlayerMovment : MonoBehaviour
         character.pos = playerManager.players[ed].transform.position;
 
         NetworkManager.Instance.playerList[ed] = character;
+    }
+
+    private void LockPlayer()
+    {
+        gameObject.SetActive(false);
     }
 }

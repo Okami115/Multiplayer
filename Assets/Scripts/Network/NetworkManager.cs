@@ -15,8 +15,6 @@ public struct Client
         this.timeStamp = timeStamp;
         this.id = id;
         this.ipEndPoint = ipEndPoint;
-
-        // Subscribir los tipos de mensajes en el constructor del cliente
     }
 }
 
@@ -67,6 +65,7 @@ public class NetworkManager : MonoBehaviour, IReceiveData
     public Action<int> updateShoot;
 
     public Action<int> disconectPlayer;
+    public Action stopPlayer;
     public Action<int> connectPlayer;
 
     private UdpConnection connection;
@@ -139,8 +138,6 @@ public class NetworkManager : MonoBehaviour, IReceiveData
 
     public void RemoveClient(int id, IPEndPoint ip)
     {
-        Debug.LogWarning("Removing client : " + playerList[id].name);
-
         disconectPlayer?.Invoke(id);
 
         if(Instance.isServer)
@@ -162,10 +159,13 @@ public class NetworkManager : MonoBehaviour, IReceiveData
 
         if (Instance.player.id == id)
         {
+            stopPlayer?.Invoke();
             Cursor.lockState = CursorLockMode.Confined;
             SceneManager.LoadScene(0);
             connection.Close();
-            playerList.Remove(player);
+            playerList.Clear();
+            lastPingSend.Clear();
+            ipToId.Clear();
         }
     }
 
@@ -195,7 +195,6 @@ public class NetworkManager : MonoBehaviour, IReceiveData
 
                     updatePos?.Invoke(newPos, id);
                 }
-
                 break;
             case MessageType.Rotation:
                 NetRotation rot = new NetRotation();
@@ -227,9 +226,7 @@ public class NetworkManager : MonoBehaviour, IReceiveData
                 break;
             case MessageType.AddPlayer:
                 AddPlayer addPlayer = new AddPlayer();
-
                 addPlayer.data = addPlayer.Deserialize(data);
-                //connectPlayer?.Invoke(addPlayer.data.id);
                 break;
             case MessageType.C2S:
                 UnityEngine.Debug.Log("New C2S");
@@ -312,6 +309,35 @@ public class NetworkManager : MonoBehaviour, IReceiveData
             connection.Send(data, ip);
     }
 
+    public void Disconnect()
+    {
+        stopPlayer?.Invoke();
+
+        if (Instance.isServer)
+        {
+            NetDisconect dis = new NetDisconect();
+
+            for (int i = 1; i < playerList.Count; i++)
+            {
+                dis.data = playerList[i].id;
+                SendToClient(dis.Serialize(), GetIpById(playerList[i].id));
+            }
+
+            Cursor.lockState = CursorLockMode.Confined;
+            SceneManager.LoadScene(0);
+            connection.Close();
+            playerList.Clear();
+            lastPingSend.Clear();
+            ipToId.Clear();
+        }
+        else
+        {
+            NetDisconect dis = new NetDisconect();
+            dis.data = Instance.player.id;
+            Instance.SendToServer(dis.Serialize());
+        }
+    }
+
     public void Broadcast(byte[] data)
     {
         using (var iterator = clients.GetEnumerator())
@@ -348,5 +374,17 @@ public class NetworkManager : MonoBehaviour, IReceiveData
             byte[] players = updating.Serialize();
             Instance.Broadcast(players);
         }
+    }
+
+    public IPEndPoint GetIpById(int id)
+    {
+        foreach (var kvp in ipToId)
+        {
+            if (kvp.Value == id)
+            {
+                return kvp.Key;
+            }
+        }
+        return null;
     }
 }

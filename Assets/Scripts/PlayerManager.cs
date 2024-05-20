@@ -14,8 +14,9 @@ public class PlayerManager : MonoBehaviour
     {
         NetworkManager.Instance.spawnPlayer += SpawnNewPlayer;
         NetworkManager.Instance.disconectPlayer += DeletePlayer;
+        NetworkManager.Instance.stopPlayer += LockPlayer;
 
-        if(!NetworkManager.Instance.isServer)
+        if (!NetworkManager.Instance.isServer)
         {
             NetworkManager.Instance.StartMap += StartMap;
             NetworkManager.Instance.connectPlayer += SpawnNewPlayer;
@@ -27,6 +28,7 @@ public class PlayerManager : MonoBehaviour
     {
         NetworkManager.Instance.spawnPlayer -= SpawnNewPlayer;
         NetworkManager.Instance.disconectPlayer -= DeletePlayer;
+        NetworkManager.Instance.stopPlayer -= LockPlayer;
 
         if (!NetworkManager.Instance.isServer)
         {
@@ -39,7 +41,7 @@ public class PlayerManager : MonoBehaviour
     {
         players = new List<GameObject>();
 
-        if(NetworkManager.Instance.isServer)
+        if (NetworkManager.Instance.isServer)
         {
             SpawnNewPlayer(NetworkManager.Instance.player.id);
         }
@@ -47,9 +49,9 @@ public class PlayerManager : MonoBehaviour
 
     private void Update()
     {
-        if(!NetworkManager.Instance.isServer)
+        if (!NetworkManager.Instance.isServer)
         {
-            for(int i = 0; i < players.Count; i++) 
+            for (int i = 0; i < players.Count; i++)
             {
                 players[i].transform.position = NetworkManager.Instance.playerList[i].pos;
 
@@ -61,9 +63,9 @@ public class PlayerManager : MonoBehaviour
 
     private void SpawnNewPlayer(int id)
     {
-        for(int i = 0; i < players.Count; i++) 
+        for (int i = 0; i < players.Count; i++)
         {
-            if(players[i].transform.name == id.ToString())
+            if (players[i].transform.name == id.ToString())
                 return;
         }
 
@@ -77,7 +79,6 @@ public class PlayerManager : MonoBehaviour
             aux.AddComponent<PlayerMovment>();
             aux.AddComponent<CameraMovement>();
             aux.AddComponent<Shoot>();
-            aux.AddComponent<InputController>();
         }
         else
         {
@@ -93,8 +94,13 @@ public class PlayerManager : MonoBehaviour
     {
         for (int i = 0; i < NetworkManager.Instance.playerList.Count; i++)
         {
-            SpawnNewPlayer(NetworkManager.Instance.playerList[i].id);    
+            SpawnNewPlayer(NetworkManager.Instance.playerList[i].id);
         }
+    }
+
+    private void LockPlayer()
+    {
+        gameObject.SetActive(false);
     }
 
     private void DeletePlayer(int id)

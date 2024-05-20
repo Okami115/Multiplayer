@@ -15,7 +15,7 @@ public class UdpConnection
     private IReceiveData receiver = null;
     private Queue<DataReceived> dataReceivedQueue = new Queue<DataReceived>();
 
-    private bool isDisposed = false;
+    private bool isDisposed = false;    
     object handler = new object();
     
     public UdpConnection(int port, IReceiveData receiver = null)
@@ -39,7 +39,14 @@ public class UdpConnection
 
     public void Close()
     {
-        connection.Close();
+        lock (handler)
+        {
+            if(!isDisposed)
+            {
+                isDisposed = true;
+                connection.Close();
+            }
+        }
     }
 
     public void FlushReceiveData()
@@ -61,10 +68,14 @@ public class UdpConnection
 
         try
         {
-            dataReceived.data = connection.EndReceive(ar, ref dataReceived.ipEndPoint);
             lock (handler)
             {
-                dataReceivedQueue.Enqueue(dataReceived);
+                if (!isDisposed)
+                {
+                    dataReceived.ipEndPoint = new IPEndPoint(IPAddress.Any, 0);
+                    dataReceived.data = connection.EndReceive(ar, ref dataReceived.ipEndPoint);
+                    dataReceivedQueue.Enqueue(dataReceived);
+                }
             }
         }
         catch (SocketException e)
@@ -72,18 +83,25 @@ public class UdpConnection
             // This happens when a client disconnects, as we fail to send to that port.
             UnityEngine.Debug.LogError("[UdpConnection] " + e.Message);
         }
-        connection.BeginReceive(OnReceive, null);
+        finally
+        {
+            lock (handler)
+            { 
+                if (!isDisposed)
+                    connection.BeginReceive(OnReceive, null);
+            }
+        }
     }
     
     public void Send(byte[] data)
     {
-        if (connection.Client != null)
+        if (connection.Client != null && !isDisposed)
             connection.Send(data, data.Length);
     }
 
     public void Send(byte[] data, IPEndPoint ipEndpoint)
     {
-        if (connection.Client != null)
+        if (connection.Client != null && !isDisposed)
             connection.Send(data, data.Length, ipEndpoint);
     }
 }
