@@ -64,6 +64,7 @@ public class NetworkManager : MonoBehaviour, IReceiveData
     public Action<Vector3, int> updatePos;
     public Action<Vector2, int> updateRot;
     public Action<int> updateShoot;
+    public Action<float> updateTimer;
 
     public Action<int> disconectPlayer;
     public Action stopPlayer;
@@ -322,6 +323,12 @@ public class NetworkManager : MonoBehaviour, IReceiveData
                 denied.data = denied.Deserialize(data);
 
                 deniedConnection?.Invoke(denied.data);
+
+                break;
+            case MessageType.Timer:
+                NetTimer timer = new NetTimer();
+                timer.data = timer.Deserialize(data);
+                updateTimer?.Invoke(timer.data);
 
                 break;
             default:

@@ -182,7 +182,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bullet: {fileID: 2585657352083979254, guid: 3b754ffc26fb510458972680f1f702cb, type: 3}
   canvas: {fileID: 1571777266}
-  timer: 0
+  timerText: {fileID: 314771511}
+  timerInSecons: 60
   input: {fileID: 58112417}
 --- !u!4 &58112416
 Transform:
@@ -238,10 +239,10 @@ RectTransform:
   m_GameObject: {fileID: 99218437}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2.3999999, y: 2.3999999, z: 2.3999999}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 2133070666}
+  m_Father: {fileID: 340368695}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
@@ -1019,6 +1020,7 @@ RectTransform:
   - {fileID: 1384409410}
   - {fileID: 1176228754}
   - {fileID: 764456894}
+  - {fileID: 99218438}
   m_Father: {fileID: 2133070666}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -3854,7 +3856,6 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 99218438}
   - {fileID: 340368695}
   - {fileID: 1571777267}
   - {fileID: 314771510}

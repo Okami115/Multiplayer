@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -7,27 +9,42 @@ public class GameManager : MonoBehaviour
     [SerializeField] public GameObject bullet;
     [SerializeField] public GameObject canvas;
 
-    [SerializeField] private float timer = 0;
+    [SerializeField] private TextMeshProUGUI timerText;
+
+    [SerializeField] private float timerInSecons;
 
     [SerializeField] private InputController input;
 
+    private NetTimer netTimer;
+    private NetworkScreen netScreen;
+
     private void Start()
     {
-        input.setChat += SetChatScreen;
+        netScreen = FindAnyObjectByType<NetworkScreen>();
+        netTimer = new NetTimer();
+        netTimer.data = timerInSecons;
+        netScreen.start += StartGame;
     }
 
     private void OnDestroy()
     {
         input.setChat -= SetChatScreen;
+        NetworkManager.Instance.updateTimer -= UpdateTimer;
     }
     private void Update()
     {
-        if(NetworkManager.Instance.isServer)
+        if (NetworkManager.Instance.isServer)
         {
-            timer += Time.deltaTime;
+            timerInSecons -= Time.deltaTime;
 
-            if(timer >= 300)
+            timerText.text = ((int)timerInSecons).ToString();
+
+            if (timerInSecons <= 0)
                 NetworkManager.Instance.Disconnect();
+
+            netTimer.data = timerInSecons;
+
+            NetworkManager.Instance.Broadcast(netTimer.Serialize());
         }
     }
 
@@ -39,5 +56,18 @@ public class GameManager : MonoBehaviour
             Cursor.lockState = CursorLockMode.None;
 
         canvas.SetActive(!canvas.active);
+    }
+
+    private void UpdateTimer(float time)
+    {
+        timerText.text = ((int)time).ToString();
+    }
+
+    private void StartGame()
+    {
+        timerText.gameObject.SetActive(true);
+        input.setChat += SetChatScreen;
+        NetworkManager.Instance.updateTimer += UpdateTimer;
+        netTimer = new NetTimer();
     }
 }

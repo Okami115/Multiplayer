@@ -18,6 +18,7 @@ public enum MessageType
     PlayerList,
     Ping,
     Denied,
+    Timer,
 }
 
 public abstract class BaseMenssaje<PayLoadType>
@@ -586,6 +587,42 @@ public class DeniedNet : BaseMenssaje<string>
 
         outData.AddRange(BitConverter.GetBytes(result1));
         outData.AddRange(BitConverter.GetBytes(result2));
+
+        return outData.ToArray();
+    }
+}
+
+public class NetTimer : BaseMenssaje<float>
+{
+    public override bool Checksum(byte[] data)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override float Deserialize(byte[] message)
+    {
+        float outData;
+        outData = BitConverter.ToSingle(message, 4);
+
+        return outData;
+    }
+
+    public override float GetData()
+    {
+        return data;
+    }
+
+    public override MessageType GetMessageType()
+    {
+        return MessageType.Timer;
+    }
+
+    public override byte[] Serialize()
+    {
+        List<byte> outData = new List<byte>();
+
+        outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
+        outData.AddRange(BitConverter.GetBytes(data));
 
         return outData.ToArray();
     }
