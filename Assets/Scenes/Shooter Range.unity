@@ -1112,7 +1112,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f30c9f44b7174d45b74c4ae777e3447, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TimeOut: 30
+  TimeOut: 10
   idClient: 0
 --- !u!4 &429310963
 Transform:

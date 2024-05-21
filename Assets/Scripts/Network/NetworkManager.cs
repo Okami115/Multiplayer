@@ -111,9 +111,6 @@ public class NetworkManager : MonoBehaviour, IReceiveData
 
     public void AddClient(IPEndPoint ip, string name)
     {
-
-
-
         if (!ipToId.ContainsKey(ip))
         {
             Debug.Log("Adding client: " + ip.Address + " name: " + name);
@@ -403,6 +400,42 @@ public class NetworkManager : MonoBehaviour, IReceiveData
         // Flush the data in main thread
         if (connection != null)
             connection.FlushReceiveData();
+
+        if(lastPingSend != null)
+        {
+            for(int i = 0; i < lastPingSend.Count; i++)
+            {
+                TimeSpan latency = DateTime.UtcNow - Instance.lastPingSend[i];
+                int latencySeconds = (int)latency.TotalSeconds;
+
+                if (latencySeconds > TimeOut)
+                {
+                    if (Instance.isServer)
+                    {
+                        NetDisconect dis = new NetDisconect();
+
+                        if(Instance.playerList[i].id != Instance.player.id)
+                        {
+                            IPEndPoint ip = Instance.GetIpById(Instance.playerList[i].id);
+                            dis.data = Instance.playerList[i].id;
+                            Instance.Broadcast(dis.Serialize());
+                            Instance.RemoveClient(Instance.playerList[i].id, ip);
+                        }
+                    }
+                    else
+                    {
+                        stopPlayer?.Invoke();
+                        Cursor.lockState = CursorLockMode.Confined;
+                        SceneManager.LoadScene(0);
+                        connection.Close();
+                        playerList.Clear();
+                        lastPingSend.Clear();
+                        ipToId.Clear();
+                    }
+                }
+            }
+        }
+
 
         if(Instance.isServer && playerList != null)
         {

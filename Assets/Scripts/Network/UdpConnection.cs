@@ -15,9 +15,9 @@ public class UdpConnection
     private IReceiveData receiver = null;
     private Queue<DataReceived> dataReceivedQueue = new Queue<DataReceived>();
 
-    private bool isDisposed = false;    
+    private bool isDisposed = false;
     object handler = new object();
-    
+
     public UdpConnection(int port, IReceiveData receiver = null)
     {
         connection = new UdpClient(port);
@@ -39,7 +39,7 @@ public class UdpConnection
 
     public void Close()
     {
-        if(!isDisposed)
+        if (!isDisposed)
         {
             isDisposed = true;
             connection.Close();
@@ -71,16 +71,19 @@ public class UdpConnection
         catch (SocketException e)
         {
             // This happens when a client disconnects, as we fail to send to that port.
-            UnityEngine.Debug.LogError("[UdpConnection] " + e.Message);
+            UnityEngine.Debug.Log("[UdpConnection] " + e.Message);
         }
-        lock (handler)
+        finally
         {
-            dataReceivedQueue.Enqueue(dataReceived);
-        }
+            lock (handler)
+            {
+                dataReceivedQueue.Enqueue(dataReceived);
+            }
 
-        connection.BeginReceive(OnReceive, null);
+            connection.BeginReceive(OnReceive, null);
+        }
     }
-    
+
     public void Send(byte[] data)
     {
         if (connection.Client != null && !isDisposed)
