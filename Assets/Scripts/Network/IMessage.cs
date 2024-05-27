@@ -114,7 +114,25 @@ public class NetDisconect : BaseMenssaje<int>
 {
     public override bool Checksum(byte[] data)
     {
-        throw new NotImplementedException();
+        int checkSum1 = BitConverter.ToInt32(data, data.Length - 8);
+        int checkSum2 = BitConverter.ToInt32(data, data.Length - 4);
+
+        int result1 = 0;
+        int result2 = 0;
+
+        for (int i = 0; i < data.Length - 8; i++)
+        {
+            result1 += data[i];
+            result2 -= data[i];
+        }
+
+        bool aux = checkSum1 == result1 && checkSum2 == result2;
+        Debug.Log("Check1 : " + checkSum1);
+        Debug.Log("Check2 : " + checkSum2);
+        Debug.Log("res1 : " + result1);
+        Debug.Log("res2 : " + result2);
+        Debug.Log("Checksum? : " + aux);
+        return checkSum1 == result1 && checkSum2 == result2;
     }
 
     public override int Deserialize(byte[] message)
@@ -139,6 +157,21 @@ public class NetDisconect : BaseMenssaje<int>
         outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
         outData.AddRange(BitConverter.GetBytes(data));
 
+        int result1 = 0;
+        int result2 = 0;
+
+        for (int i = 0; i < outData.Count; i++)
+        {
+            result1 += outData[i];
+            result2 -= outData[i];
+        }
+
+        Debug.Log("Check1 : " + result1);
+        Debug.Log("Check2 : " + result2);
+
+        outData.AddRange(BitConverter.GetBytes(result1));
+        outData.AddRange(BitConverter.GetBytes(result2));
+
         return outData.ToArray();
     }
 }
@@ -147,7 +180,25 @@ public class AddPlayer : BaseMenssaje<Player>
 {
     public override bool Checksum(byte[] data)
     {
-        throw new NotImplementedException();
+        int checkSum1 = BitConverter.ToInt32(data, data.Length - 8);
+        int checkSum2 = BitConverter.ToInt32(data, data.Length - 4);
+
+        int result1 = 0;
+        int result2 = 0;
+
+        for (int i = 0; i < data.Length - 8; i++)
+        {
+            result1 += data[i];
+            result2 -= data[i];
+        }
+
+        bool aux = checkSum1 == result1 && checkSum2 == result2;
+        Debug.Log("Check1 : " + checkSum1);
+        Debug.Log("Check2 : " + checkSum2);
+        Debug.Log("res1 : " + result1);
+        Debug.Log("res2 : " + result2);
+        Debug.Log("Checksum? : " + aux);
+        return checkSum1 == result1 && checkSum2 == result2;
     }
 
     public override Player Deserialize(byte[] message)
@@ -191,6 +242,21 @@ public class AddPlayer : BaseMenssaje<Player>
         outData.AddRange(BitConverter.GetBytes(data.rotation.y));
         outData.AddRange(Encoding.UTF8.GetBytes(data.name));
 
+        int result1 = 0;
+        int result2 = 0;
+
+        for (int i = 0; i < outData.Count; i++)
+        {
+            result1 += outData[i];
+            result2 -= outData[i];
+        }
+
+        Debug.Log("Check1 : " + result1);
+        Debug.Log("Check2 : " + result2);
+
+        outData.AddRange(BitConverter.GetBytes(result1));
+        outData.AddRange(BitConverter.GetBytes(result2));
+
         return outData.ToArray();
     }
 }
@@ -205,7 +271,25 @@ public class C2SHandShake : BaseMenssaje<string>
 
     public override bool Checksum(byte[] data)
     {
-        throw new NotImplementedException();
+        int checkSum1 = BitConverter.ToInt32(data, data.Length - 8);
+        int checkSum2 = BitConverter.ToInt32(data, data.Length - 4);
+
+        int result1 = 0;
+        int result2 = 0;
+
+        for (int i = 0; i < data.Length - 8; i++)
+        {
+            result1 += data[i];
+            result2 -= data[i];
+        }
+
+        bool aux = checkSum1 == result1 && checkSum2 == result2;
+        Debug.Log("Check1 : " + checkSum1);
+        Debug.Log("Check2 : " + checkSum2);
+        Debug.Log("res1 : " + result1);
+        Debug.Log("res2 : " + result2);
+        Debug.Log("Checksum? : " + aux);
+        return checkSum1 == result1 && checkSum2 == result2;
     }
 
     public override string Deserialize(byte[] message)
@@ -233,6 +317,21 @@ public class C2SHandShake : BaseMenssaje<string>
         outData.AddRange(BitConverter.GetBytes(data.Length));
         outData.AddRange(Encoding.UTF8.GetBytes(data));
 
+        int result1 = 0;
+        int result2 = 0;
+
+        for (int i = 0; i < outData.Count; i++)
+        {
+            result1 += outData[i];
+            result2 -= outData[i];
+        }
+
+        Debug.Log("Check1 : " + result1);
+        Debug.Log("Check2 : " + result2);
+
+        outData.AddRange(BitConverter.GetBytes(result1));
+        outData.AddRange(BitConverter.GetBytes(result2));
+
         return outData.ToArray();
     }
 }
@@ -246,7 +345,25 @@ public class S2CHandShake : BaseMenssaje<List<Player>>
 
     public override bool Checksum(byte[] data)
     {
-        throw new NotImplementedException();
+        int checkSum1 = BitConverter.ToInt32(data, data.Length - 8);
+        int checkSum2 = BitConverter.ToInt32(data, data.Length - 4);
+
+        int result1 = 0;
+        int result2 = 0;
+
+        for (int i = 0; i < data.Length - 8; i++)
+        {
+            result1 += data[i];
+            result2 -= data[i];
+        }
+
+        bool aux = checkSum1 == result1 && checkSum2 == result2;
+        Debug.Log("Check1 : " + checkSum1);
+        Debug.Log("Check2 : " + checkSum2);
+        Debug.Log("res1 : " + result1);
+        Debug.Log("res2 : " + result2);
+        Debug.Log("Checksum? : " + aux);
+        return checkSum1 == result1 && checkSum2 == result2;
     }
 
     public override List<Player> Deserialize(byte[] message)
@@ -304,6 +421,21 @@ public class S2CHandShake : BaseMenssaje<List<Player>>
             outData.AddRange(Encoding.UTF8.GetBytes(player.name));
         }
 
+        int result1 = 0;
+        int result2 = 0;
+
+        for (int i = 0; i < outData.Count; i++)
+        {
+            result1 += outData[i];
+            result2 -= outData[i];
+        }
+
+        Debug.Log("Check1 : " + result1);
+        Debug.Log("Check2 : " + result2);
+
+        outData.AddRange(BitConverter.GetBytes(result1));
+        outData.AddRange(BitConverter.GetBytes(result2));
+
         return outData.ToArray();
     }
 }
@@ -312,7 +444,25 @@ public class NetShoot : BaseMenssaje<int>
 {
     public override bool Checksum(byte[] data)
     {
-        throw new NotImplementedException();
+        int checkSum1 = BitConverter.ToInt32(data, data.Length - 8);
+        int checkSum2 = BitConverter.ToInt32(data, data.Length - 4);
+
+        int result1 = 0;
+        int result2 = 0;
+
+        for (int i = 0; i < data.Length - 8; i++)
+        {
+            result1 += data[i];
+            result2 -= data[i];
+        }
+
+        bool aux = checkSum1 == result1 && checkSum2 == result2;
+        Debug.Log("Check1 : " + checkSum1);
+        Debug.Log("Check2 : " + checkSum2);
+        Debug.Log("res1 : " + result1);
+        Debug.Log("res2 : " + result2);
+        Debug.Log("Checksum? : " + aux);
+        return checkSum1 == result1 && checkSum2 == result2;
     }
 
     public override int Deserialize(byte[] message)
@@ -337,6 +487,21 @@ public class NetShoot : BaseMenssaje<int>
         outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
         outData.AddRange(BitConverter.GetBytes(data));
 
+        int result1 = 0;
+        int result2 = 0;
+
+        for (int i = 0; i < outData.Count; i++)
+        {
+            result1 += outData[i];
+            result2 -= outData[i];
+        }
+
+        Debug.Log("Check1 : " + result1);
+        Debug.Log("Check2 : " + result2);
+
+        outData.AddRange(BitConverter.GetBytes(result1));
+        outData.AddRange(BitConverter.GetBytes(result2));
+
         return outData.ToArray();
     }
 }
@@ -345,7 +510,25 @@ public class NetPing : BaseMenssaje<int>
 {
     public override bool Checksum(byte[] data)
     {
-        throw new NotImplementedException();
+        int checkSum1 = BitConverter.ToInt32(data, data.Length - 8);
+        int checkSum2 = BitConverter.ToInt32(data, data.Length - 4);
+
+        int result1 = 0;
+        int result2 = 0;
+
+        for (int i = 0; i < data.Length - 8; i++)
+        {
+            result1 += data[i];
+            result2 -= data[i];
+        }
+
+        bool aux = checkSum1 == result1 && checkSum2 == result2;
+        Debug.Log("Check1 : " + checkSum1);
+        Debug.Log("Check2 : " + checkSum2);
+        Debug.Log("res1 : " + result1);
+        Debug.Log("res2 : " + result2);
+        Debug.Log("Checksum? : " + aux);
+        return checkSum1 == result1 && checkSum2 == result2;
     }
 
     public override int Deserialize(byte[] message)
@@ -369,6 +552,21 @@ public class NetPing : BaseMenssaje<int>
 
         outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
         outData.AddRange(BitConverter.GetBytes(data));
+
+        int result1 = 0;
+        int result2 = 0;
+
+        for (int i = 0; i < outData.Count; i++)
+        {
+            result1 += outData[i];
+            result2 -= outData[i];
+        }
+
+        Debug.Log("Check1 : " + result1);
+        Debug.Log("Check2 : " + result2);
+
+        outData.AddRange(BitConverter.GetBytes(result1));
+        outData.AddRange(BitConverter.GetBytes(result2));
 
         return outData.ToArray();
     }
@@ -406,12 +604,45 @@ public class NetVector3 : BaseMenssaje<UnityEngine.Vector3>
         outData.AddRange(BitConverter.GetBytes(data.y));
         outData.AddRange(BitConverter.GetBytes(data.z));
 
+        int result1 = 0;
+        int result2 = 0;
+
+        for (int i = 0; i < outData.Count; i++)
+        {
+            result1 += outData[i];
+            result2 -= outData[i];
+        }
+
+        Debug.Log("Check1 : " + result1);
+        Debug.Log("Check2 : " + result2);
+
+        outData.AddRange(BitConverter.GetBytes(result1));
+        outData.AddRange(BitConverter.GetBytes(result2));
+
         return outData.ToArray();
     }
 
     public override bool Checksum(byte[] data)
     {
-        throw new NotImplementedException();
+        int checkSum1 = BitConverter.ToInt32(data, data.Length - 8);
+        int checkSum2 = BitConverter.ToInt32(data, data.Length - 4);
+
+        int result1 = 0;
+        int result2 = 0;
+
+        for (int i = 0; i < data.Length - 8; i++)
+        {
+            result1 += data[i];
+            result2 -= data[i];
+        }
+
+        bool aux = checkSum1 == result1 && checkSum2 == result2;
+        Debug.Log("Check1 : " + checkSum1);
+        Debug.Log("Check2 : " + checkSum2);
+        Debug.Log("res1 : " + result1);
+        Debug.Log("res2 : " + result2);
+        Debug.Log("Checksum? : " + aux);
+        return checkSum1 == result1 && checkSum2 == result2;
     }
 }
 
@@ -419,7 +650,25 @@ public class NetRotation : BaseMenssaje<Vector2>
 {
     public override bool Checksum(byte[] data)
     {
-        throw new NotImplementedException();
+        int checkSum1 = BitConverter.ToInt32(data, data.Length - 8);
+        int checkSum2 = BitConverter.ToInt32(data, data.Length - 4);
+
+        int result1 = 0;
+        int result2 = 0;
+
+        for (int i = 0; i < data.Length - 8; i++)
+        {
+            result1 += data[i];
+            result2 -= data[i];
+        }
+
+        bool aux = checkSum1 == result1 && checkSum2 == result2;
+        Debug.Log("Check1 : " + checkSum1);
+        Debug.Log("Check2 : " + checkSum2);
+        Debug.Log("res1 : " + result1);
+        Debug.Log("res2 : " + result2);
+        Debug.Log("Checksum? : " + aux);
+        return checkSum1 == result1 && checkSum2 == result2;
     }
 
     public override Vector2 Deserialize(byte[] message)
@@ -450,6 +699,21 @@ public class NetRotation : BaseMenssaje<Vector2>
         outData.AddRange(BitConverter.GetBytes(data.x));
         outData.AddRange(BitConverter.GetBytes(data.y));
 
+        int result1 = 0;
+        int result2 = 0;
+
+        for (int i = 0; i < outData.Count; i++)
+        {
+            result1 += outData[i];
+            result2 -= outData[i];
+        }
+
+        Debug.Log("Check1 : " + result1);
+        Debug.Log("Check2 : " + result2);
+
+        outData.AddRange(BitConverter.GetBytes(result1));
+        outData.AddRange(BitConverter.GetBytes(result2));
+
         return outData.ToArray();
     }
 }
@@ -462,7 +726,25 @@ public class NetPlayerListUpdate : BaseMenssaje<List<Player>>
     }
     public override bool Checksum(byte[] data)
     {
-        return true;
+        int checkSum1 = BitConverter.ToInt32(data, data.Length - 8);
+        int checkSum2 = BitConverter.ToInt32(data, data.Length - 4);
+
+        int result1 = 0;
+        int result2 = 0;
+
+        for (int i = 0; i < data.Length - 8; i++)
+        {
+            result1 += data[i];
+            result2 -= data[i];
+        }
+
+        bool aux = checkSum1 == result1 && checkSum2 == result2;
+        Debug.Log("Check1 : " + checkSum1);
+        Debug.Log("Check2 : " + checkSum2);
+        Debug.Log("res1 : " + result1);
+        Debug.Log("res2 : " + result2);
+        Debug.Log("Checksum? : " + aux);
+        return checkSum1 == result1 && checkSum2 == result2;
     }
 
     public override List<Player> Deserialize(byte[] message)
@@ -519,6 +801,21 @@ public class NetPlayerListUpdate : BaseMenssaje<List<Player>>
             outData.AddRange(BitConverter.GetBytes(player.rotation.y));
             outData.AddRange(Encoding.UTF8.GetBytes(player.name));
         }
+
+        int result1 = 0;
+        int result2 = 0;
+
+        for (int i = 0; i < outData.Count; i++)
+        {
+            result1 += outData[i];
+            result2 -= outData[i];
+        }
+
+        Debug.Log("Check1 : " + result1);
+        Debug.Log("Check2 : " + result2);
+
+        outData.AddRange(BitConverter.GetBytes(result1));
+        outData.AddRange(BitConverter.GetBytes(result2));
         return outData.ToArray();
     }
 }
@@ -596,7 +893,25 @@ public class NetTimer : BaseMenssaje<float>
 {
     public override bool Checksum(byte[] data)
     {
-        throw new NotImplementedException();
+        int checkSum1 = BitConverter.ToInt32(data, data.Length - 8);
+        int checkSum2 = BitConverter.ToInt32(data, data.Length - 4);
+
+        int result1 = 0;
+        int result2 = 0;
+
+        for (int i = 0; i < data.Length - 8; i++)
+        {
+            result1 += data[i];
+            result2 -= data[i];
+        }
+
+        bool aux = checkSum1 == result1 && checkSum2 == result2;
+        Debug.Log("Check1 : " + checkSum1);
+        Debug.Log("Check2 : " + checkSum2);
+        Debug.Log("res1 : " + result1);
+        Debug.Log("res2 : " + result2);
+        Debug.Log("Checksum? : " + aux);
+        return checkSum1 == result1 && checkSum2 == result2;
     }
 
     public override float Deserialize(byte[] message)
@@ -623,6 +938,21 @@ public class NetTimer : BaseMenssaje<float>
 
         outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
         outData.AddRange(BitConverter.GetBytes(data));
+
+        int result1 = 0;
+        int result2 = 0;
+
+        for (int i = 0; i < outData.Count; i++)
+        {
+            result1 += outData[i];
+            result2 -= outData[i];
+        }
+
+        Debug.Log("Check1 : " + result1);
+        Debug.Log("Check2 : " + result2);
+
+        outData.AddRange(BitConverter.GetBytes(result1));
+        outData.AddRange(BitConverter.GetBytes(result2));
 
         return outData.ToArray();
     }

@@ -19,7 +19,7 @@ public class HomeWork
 
     // Checksums - Check
 
-    // Manejo de desconexiones - Pendiente
+    // Manejo de desconexiones - Check
 
     // Descartables y no descartables - Pendiente
 
@@ -28,5 +28,13 @@ public class HomeWork
     // Mensajes Ordenables - Pendiente
 
     //------------------Segundo Parcial------------------------
+
+    // Server not player - Pendiente
+
+    // Server Indpendiente - Pendiente
+
+    // Libreria Comun - Pendiente
+
+    // MachMaker Independiente - Pendiente 
 
 }
