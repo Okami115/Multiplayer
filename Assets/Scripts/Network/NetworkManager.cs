@@ -177,8 +177,12 @@ public class NetworkManager : MonoBehaviour, IReceiveData
         if (data == null)
             return;
 
+        if (!Checksum.ChecksumConfirm(data))
+            return;
+
         MessageType aux = (MessageType)BitConverter.ToInt32(data, 0);
         int id;
+            
 
         switch (aux)
         {

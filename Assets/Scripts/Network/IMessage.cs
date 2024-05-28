@@ -2,8 +2,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using System.Text;
-using UnityEngine.UI;
-
 
 public enum MessageType
 {
@@ -29,8 +27,6 @@ public abstract class BaseMenssaje<PayLoadType>
     public static Action<PayLoadType> OnDispatch;
     public abstract byte[] Serialize();
 
-    public abstract bool Checksum(byte[] data);
-
     public abstract PayLoadType Deserialize(byte[] message);
 
     public abstract PayLoadType GetData();
@@ -41,29 +37,6 @@ public class NetConsole : BaseMenssaje<string>
     public NetConsole(string data) 
     { 
         this.data = data;
-    }
-
-    public override bool Checksum(byte[] data)
-    {
-        int checkSum1 = BitConverter.ToInt32(data, data.Length - 8);
-        int checkSum2 = BitConverter.ToInt32(data, data.Length - 4);
-
-        int result1 = 0;
-        int result2 = 0;
-
-        for (int i = 0; i < data.Length - 8; i++)
-        {
-            result1 += data[i];
-            result2 -= data[i];
-        }
-
-        bool aux = checkSum1 == result1 && checkSum2 == result2;
-        Debug.Log("Check1 : " + checkSum1);
-        Debug.Log("Check2 : " + checkSum2);
-        Debug.Log("res1 : " + result1);
-        Debug.Log("res2 : " + result2);
-        Debug.Log("Checksum? : " + aux);
-        return checkSum1 == result1 && checkSum2 == result2;
     }
 
     public override string Deserialize(byte[] message)
@@ -112,29 +85,6 @@ public class NetConsole : BaseMenssaje<string>
 
 public class NetDisconect : BaseMenssaje<int>
 {
-    public override bool Checksum(byte[] data)
-    {
-        int checkSum1 = BitConverter.ToInt32(data, data.Length - 8);
-        int checkSum2 = BitConverter.ToInt32(data, data.Length - 4);
-
-        int result1 = 0;
-        int result2 = 0;
-
-        for (int i = 0; i < data.Length - 8; i++)
-        {
-            result1 += data[i];
-            result2 -= data[i];
-        }
-
-        bool aux = checkSum1 == result1 && checkSum2 == result2;
-        Debug.Log("Check1 : " + checkSum1);
-        Debug.Log("Check2 : " + checkSum2);
-        Debug.Log("res1 : " + result1);
-        Debug.Log("res2 : " + result2);
-        Debug.Log("Checksum? : " + aux);
-        return checkSum1 == result1 && checkSum2 == result2;
-    }
-
     public override int Deserialize(byte[] message)
     {
         return BitConverter.ToInt32(message, 4);
@@ -178,29 +128,6 @@ public class NetDisconect : BaseMenssaje<int>
 
 public class AddPlayer : BaseMenssaje<Player>
 {
-    public override bool Checksum(byte[] data)
-    {
-        int checkSum1 = BitConverter.ToInt32(data, data.Length - 8);
-        int checkSum2 = BitConverter.ToInt32(data, data.Length - 4);
-
-        int result1 = 0;
-        int result2 = 0;
-
-        for (int i = 0; i < data.Length - 8; i++)
-        {
-            result1 += data[i];
-            result2 -= data[i];
-        }
-
-        bool aux = checkSum1 == result1 && checkSum2 == result2;
-        Debug.Log("Check1 : " + checkSum1);
-        Debug.Log("Check2 : " + checkSum2);
-        Debug.Log("res1 : " + result1);
-        Debug.Log("res2 : " + result2);
-        Debug.Log("Checksum? : " + aux);
-        return checkSum1 == result1 && checkSum2 == result2;
-    }
-
     public override Player Deserialize(byte[] message)
     {
         Player temp = new Player();
@@ -269,29 +196,6 @@ public class C2SHandShake : BaseMenssaje<string>
         this.data = data;
     }
 
-    public override bool Checksum(byte[] data)
-    {
-        int checkSum1 = BitConverter.ToInt32(data, data.Length - 8);
-        int checkSum2 = BitConverter.ToInt32(data, data.Length - 4);
-
-        int result1 = 0;
-        int result2 = 0;
-
-        for (int i = 0; i < data.Length - 8; i++)
-        {
-            result1 += data[i];
-            result2 -= data[i];
-        }
-
-        bool aux = checkSum1 == result1 && checkSum2 == result2;
-        Debug.Log("Check1 : " + checkSum1);
-        Debug.Log("Check2 : " + checkSum2);
-        Debug.Log("res1 : " + result1);
-        Debug.Log("res2 : " + result2);
-        Debug.Log("Checksum? : " + aux);
-        return checkSum1 == result1 && checkSum2 == result2;
-    }
-
     public override string Deserialize(byte[] message)
     {
         int stringlength = BitConverter.ToInt32(message, 4);
@@ -341,29 +245,6 @@ public class S2CHandShake : BaseMenssaje<List<Player>>
     public S2CHandShake(List<Player> data)
     {
         this.data = data;
-    }
-
-    public override bool Checksum(byte[] data)
-    {
-        int checkSum1 = BitConverter.ToInt32(data, data.Length - 8);
-        int checkSum2 = BitConverter.ToInt32(data, data.Length - 4);
-
-        int result1 = 0;
-        int result2 = 0;
-
-        for (int i = 0; i < data.Length - 8; i++)
-        {
-            result1 += data[i];
-            result2 -= data[i];
-        }
-
-        bool aux = checkSum1 == result1 && checkSum2 == result2;
-        Debug.Log("Check1 : " + checkSum1);
-        Debug.Log("Check2 : " + checkSum2);
-        Debug.Log("res1 : " + result1);
-        Debug.Log("res2 : " + result2);
-        Debug.Log("Checksum? : " + aux);
-        return checkSum1 == result1 && checkSum2 == result2;
     }
 
     public override List<Player> Deserialize(byte[] message)
@@ -442,29 +323,6 @@ public class S2CHandShake : BaseMenssaje<List<Player>>
 
 public class NetShoot : BaseMenssaje<int>
 {
-    public override bool Checksum(byte[] data)
-    {
-        int checkSum1 = BitConverter.ToInt32(data, data.Length - 8);
-        int checkSum2 = BitConverter.ToInt32(data, data.Length - 4);
-
-        int result1 = 0;
-        int result2 = 0;
-
-        for (int i = 0; i < data.Length - 8; i++)
-        {
-            result1 += data[i];
-            result2 -= data[i];
-        }
-
-        bool aux = checkSum1 == result1 && checkSum2 == result2;
-        Debug.Log("Check1 : " + checkSum1);
-        Debug.Log("Check2 : " + checkSum2);
-        Debug.Log("res1 : " + result1);
-        Debug.Log("res2 : " + result2);
-        Debug.Log("Checksum? : " + aux);
-        return checkSum1 == result1 && checkSum2 == result2;
-    }
-
     public override int Deserialize(byte[] message)
     {
         return BitConverter.ToInt32(message, 4);
@@ -508,29 +366,6 @@ public class NetShoot : BaseMenssaje<int>
 
 public class NetPing : BaseMenssaje<int>
 {
-    public override bool Checksum(byte[] data)
-    {
-        int checkSum1 = BitConverter.ToInt32(data, data.Length - 8);
-        int checkSum2 = BitConverter.ToInt32(data, data.Length - 4);
-
-        int result1 = 0;
-        int result2 = 0;
-
-        for (int i = 0; i < data.Length - 8; i++)
-        {
-            result1 += data[i];
-            result2 -= data[i];
-        }
-
-        bool aux = checkSum1 == result1 && checkSum2 == result2;
-        Debug.Log("Check1 : " + checkSum1);
-        Debug.Log("Check2 : " + checkSum2);
-        Debug.Log("res1 : " + result1);
-        Debug.Log("res2 : " + result2);
-        Debug.Log("Checksum? : " + aux);
-        return checkSum1 == result1 && checkSum2 == result2;
-    }
-
     public override int Deserialize(byte[] message)
     {
        return BitConverter.ToInt32(message, 4);
@@ -621,56 +456,10 @@ public class NetVector3 : BaseMenssaje<UnityEngine.Vector3>
 
         return outData.ToArray();
     }
-
-    public override bool Checksum(byte[] data)
-    {
-        int checkSum1 = BitConverter.ToInt32(data, data.Length - 8);
-        int checkSum2 = BitConverter.ToInt32(data, data.Length - 4);
-
-        int result1 = 0;
-        int result2 = 0;
-
-        for (int i = 0; i < data.Length - 8; i++)
-        {
-            result1 += data[i];
-            result2 -= data[i];
-        }
-
-        bool aux = checkSum1 == result1 && checkSum2 == result2;
-        Debug.Log("Check1 : " + checkSum1);
-        Debug.Log("Check2 : " + checkSum2);
-        Debug.Log("res1 : " + result1);
-        Debug.Log("res2 : " + result2);
-        Debug.Log("Checksum? : " + aux);
-        return checkSum1 == result1 && checkSum2 == result2;
-    }
 }
 
 public class NetRotation : BaseMenssaje<Vector2>
 {
-    public override bool Checksum(byte[] data)
-    {
-        int checkSum1 = BitConverter.ToInt32(data, data.Length - 8);
-        int checkSum2 = BitConverter.ToInt32(data, data.Length - 4);
-
-        int result1 = 0;
-        int result2 = 0;
-
-        for (int i = 0; i < data.Length - 8; i++)
-        {
-            result1 += data[i];
-            result2 -= data[i];
-        }
-
-        bool aux = checkSum1 == result1 && checkSum2 == result2;
-        Debug.Log("Check1 : " + checkSum1);
-        Debug.Log("Check2 : " + checkSum2);
-        Debug.Log("res1 : " + result1);
-        Debug.Log("res2 : " + result2);
-        Debug.Log("Checksum? : " + aux);
-        return checkSum1 == result1 && checkSum2 == result2;
-    }
-
     public override Vector2 Deserialize(byte[] message)
     {
         Vector2 outData;
@@ -724,29 +513,7 @@ public class NetPlayerListUpdate : BaseMenssaje<List<Player>>
     {
         this.data = data;
     }
-    public override bool Checksum(byte[] data)
-    {
-        int checkSum1 = BitConverter.ToInt32(data, data.Length - 8);
-        int checkSum2 = BitConverter.ToInt32(data, data.Length - 4);
-
-        int result1 = 0;
-        int result2 = 0;
-
-        for (int i = 0; i < data.Length - 8; i++)
-        {
-            result1 += data[i];
-            result2 -= data[i];
-        }
-
-        bool aux = checkSum1 == result1 && checkSum2 == result2;
-        Debug.Log("Check1 : " + checkSum1);
-        Debug.Log("Check2 : " + checkSum2);
-        Debug.Log("res1 : " + result1);
-        Debug.Log("res2 : " + result2);
-        Debug.Log("Checksum? : " + aux);
-        return checkSum1 == result1 && checkSum2 == result2;
-    }
-
+    
     public override List<Player> Deserialize(byte[] message)
     {
         List<Player> aux = new List<Player>();
@@ -822,29 +589,6 @@ public class NetPlayerListUpdate : BaseMenssaje<List<Player>>
 
 public class DeniedNet : BaseMenssaje<string>
 {
-    public override bool Checksum(byte[] data)
-    {
-        int checkSum1 = BitConverter.ToInt32(data, data.Length - 8);
-        int checkSum2 = BitConverter.ToInt32(data, data.Length - 4);
-
-        int result1 = 0;
-        int result2 = 0;
-
-        for (int i = 0; i < data.Length - 8; i++)
-        {
-            result1 += data[i];
-            result2 -= data[i];
-        }
-
-        bool aux = checkSum1 == result1 && checkSum2 == result2;
-        Debug.Log("Check1 : " + checkSum1);
-        Debug.Log("Check2 : " + checkSum2);
-        Debug.Log("res1 : " + result1);
-        Debug.Log("res2 : " + result2);
-        Debug.Log("Checksum? : " + aux);
-        return checkSum1 == result1 && checkSum2 == result2;
-    }
-
     public override string Deserialize(byte[] message)
     {
         int stringlength = BitConverter.ToInt32(message, 4);
@@ -891,29 +635,6 @@ public class DeniedNet : BaseMenssaje<string>
 
 public class NetTimer : BaseMenssaje<float>
 {
-    public override bool Checksum(byte[] data)
-    {
-        int checkSum1 = BitConverter.ToInt32(data, data.Length - 8);
-        int checkSum2 = BitConverter.ToInt32(data, data.Length - 4);
-
-        int result1 = 0;
-        int result2 = 0;
-
-        for (int i = 0; i < data.Length - 8; i++)
-        {
-            result1 += data[i];
-            result2 -= data[i];
-        }
-
-        bool aux = checkSum1 == result1 && checkSum2 == result2;
-        Debug.Log("Check1 : " + checkSum1);
-        Debug.Log("Check2 : " + checkSum2);
-        Debug.Log("res1 : " + result1);
-        Debug.Log("res2 : " + result2);
-        Debug.Log("Checksum? : " + aux);
-        return checkSum1 == result1 && checkSum2 == result2;
-    }
-
     public override float Deserialize(byte[] message)
     {
         float outData;
@@ -955,5 +676,32 @@ public class NetTimer : BaseMenssaje<float>
         outData.AddRange(BitConverter.GetBytes(result2));
 
         return outData.ToArray();
+    }
+}
+
+public static class Checksum
+{
+    public static bool ChecksumConfirm(byte[] data)
+    {
+        int checkSum1 = BitConverter.ToInt32(data, data.Length - 8);
+        int checkSum2 = BitConverter.ToInt32(data, data.Length - 4);
+
+        int result1 = 0;
+        int result2 = 0;
+
+        for (int i = 0; i < data.Length - 8; i++)
+        {
+            result1 += data[i];
+            result2 -= data[i];
+        }
+
+        bool aux = checkSum1 == result1 && checkSum2 == result2;
+        Debug.Log("Check1 : " + checkSum1);
+        Debug.Log("Check2 : " + checkSum2);
+        Debug.Log("res1 : " + result1);
+        Debug.Log("res2 : " + result2);
+        Debug.Log("Checksum? : " + aux);
+
+        return checkSum1 == result1 && checkSum2 == result2;
     }
 }

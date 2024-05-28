@@ -135,7 +135,6 @@ public class PlayerManager : MonoBehaviour
         {
             NetworkManager.Instance.StartMap += StartMap;
             NetworkManager.Instance.connectPlayer += SpawnNewPlayer;
-
         }
     }
 }

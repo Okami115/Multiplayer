@@ -93,9 +93,4 @@ public class PlayerMovment : MonoBehaviour
     {
         gameObject.SetActive(false);
     }
-
-    private void StartGame()
-    {
-
-    }
 }
