@@ -17,15 +17,17 @@ public class HomeWork
 
     // Calculo de latencia - Check
 
+    // Manejo de desconexiones - Check
+
     // Checksums - Check
 
-    // Manejo de desconexiones - Check
+    // Mensajes Ordenables - Pendiente
 
     // Descartables y no descartables - Pendiente
 
     // importantes - Pendiente
 
-    // Mensajes Ordenables - Pendiente
+    // historial de mensajes - pendiente
 
     //------------------Segundo Parcial------------------------
 
@@ -36,5 +38,9 @@ public class HomeWork
     // Libreria Comun - Pendiente
 
     // MachMaker Independiente - Pendiente 
+
+    // Criterio de ELO - Pendiente
+
+    // RollBack - Pendiente
 
 }

@@ -182,7 +182,6 @@ public class NetworkManager : MonoBehaviour, IReceiveData
 
         MessageType aux = (MessageType)BitConverter.ToInt32(data, 0);
         int id;
-            
 
         switch (aux)
         {
