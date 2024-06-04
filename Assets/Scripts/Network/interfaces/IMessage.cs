@@ -4,40 +4,9 @@ using System.Text;
 using System.Numerics;
 
 // Go to DLL
-public enum MessageType
+public class NetString : BaseMenssaje<string>
 {
-    Console = 0,
-    Position,
-    Rotation,
-    Shoot,
-    Disconect,
-    AddPlayer,
-    C2S,
-    S2C,
-    PlayerList,
-    Ping,
-    Denied,
-    Timer,
-}
-
-// Go to DLL
-public abstract class BaseMenssaje<PayLoadType>
-{
-    public PayLoadType data;
-    public abstract MessageType GetMessageType();
-
-    public static Action<PayLoadType> OnDispatch;
-    public abstract byte[] Serialize();
-
-    public abstract PayLoadType Deserialize(byte[] message);
-
-    public abstract PayLoadType GetData();
-}
-
-// Go to DLL
-public class NetConsole : BaseMenssaje<string>
-{
-    public NetConsole(string data) 
+    public NetString(string data) 
     { 
         this.data = data;
     }
@@ -66,6 +35,199 @@ public class NetConsole : BaseMenssaje<string>
         outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
         outData.AddRange(BitConverter.GetBytes(data.Length));
         outData.AddRange(Encoding.UTF8.GetBytes(data));
+
+        int result1 = 0;
+        int result2 = 0;
+
+        for (int i = 0; i < outData.Count; i++)
+        {
+            result1 += outData[i];
+            result2 -= outData[i];
+        }
+
+        Console.WriteLine("Check1 : " + result1);
+        Console.WriteLine("Check2 : " + result2);
+
+        outData.AddRange(BitConverter.GetBytes(result1));
+        outData.AddRange(BitConverter.GetBytes(result2));
+
+        return outData.ToArray();
+    }
+}
+
+// Go to DLL
+public class NetFloat : BaseMenssaje<float>
+{
+    public override float Deserialize(byte[] message)
+    {
+        float outData;
+        outData = BitConverter.ToSingle(message, 4);
+
+        return outData;
+    }
+
+    public override float GetData()
+    {
+        return data;
+    }
+
+    public override MessageType GetMessageType()
+    {
+        return MessageType.Timer;
+    }
+
+    public override byte[] Serialize()
+    {
+        List<byte> outData = new List<byte>();
+
+        outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
+        outData.AddRange(BitConverter.GetBytes(data));
+
+        int result1 = 0;
+        int result2 = 0;
+
+        for (int i = 0; i < outData.Count; i++)
+        {
+            result1 += outData[i];
+            result2 -= outData[i];
+        }
+
+        Console.WriteLine("Check1 : " + result1);
+        Console.WriteLine("Check2 : " + result2);
+
+        outData.AddRange(BitConverter.GetBytes(result1));
+        outData.AddRange(BitConverter.GetBytes(result2));
+
+        return outData.ToArray();
+    }
+}
+
+// Go to DLL
+public class NetInt : BaseMenssaje<int>
+{
+    public override int Deserialize(byte[] message)
+    {
+        return BitConverter.ToInt32(message, 4);
+    }
+
+    public override int GetData()
+    {
+        return data;
+    }
+
+    public override MessageType GetMessageType()
+    {
+        return MessageType.Shoot;
+    }
+
+    public override byte[] Serialize()
+    {
+        List<byte> outData = new List<byte>();
+
+        outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
+        outData.AddRange(BitConverter.GetBytes(data));
+
+        int result1 = 0;
+        int result2 = 0;
+
+        for (int i = 0; i < outData.Count; i++)
+        {
+            result1 += outData[i];
+            result2 -= outData[i];
+        }
+
+        Console.WriteLine("Check1 : " + result1);
+        Console.WriteLine("Check2 : " + result2);
+
+        outData.AddRange(BitConverter.GetBytes(result1));
+        outData.AddRange(BitConverter.GetBytes(result2));
+
+        return outData.ToArray();
+    }
+}
+
+// Go to DLL
+public class NetVector3 : BaseMenssaje<Vector3>
+{
+    public override Vector3 Deserialize(byte[] message)
+    {
+        Vector3 outData;
+        outData.X = BitConverter.ToSingle(message, 4);
+        outData.Y = BitConverter.ToSingle(message, 8);
+        outData.Z = BitConverter.ToSingle(message, 12);
+
+        return outData;
+    }
+
+    public override Vector3 GetData()
+    {
+        return data;
+    }
+
+    public override MessageType GetMessageType()
+    {
+        return MessageType.Position;
+    }
+
+    public override byte[] Serialize()
+    {
+        List<byte> outData = new List<byte>();
+
+        outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
+        //outData.AddRange(BitConverter.GetBytes(lastMsgID++));
+        outData.AddRange(BitConverter.GetBytes(data.X));
+        outData.AddRange(BitConverter.GetBytes(data.Y));
+        outData.AddRange(BitConverter.GetBytes(data.Z));
+
+        int result1 = 0;
+        int result2 = 0;
+
+        for (int i = 0; i < outData.Count; i++)
+        {
+            result1 += outData[i];
+            result2 -= outData[i];
+        }
+
+        Console.WriteLine("Check1 : " + result1);
+        Console.WriteLine("Check2 : " + result2);
+
+        outData.AddRange(BitConverter.GetBytes(result1));
+        outData.AddRange(BitConverter.GetBytes(result2));
+
+        return outData.ToArray();
+    }
+}
+
+// Go to DLL
+public class NetVector2 : BaseMenssaje<Vector2>
+{
+    public override Vector2 Deserialize(byte[] message)
+    {
+        Vector2 outData;
+        outData.X = BitConverter.ToSingle(message, 4);
+        outData.Y = BitConverter.ToSingle(message, 8);
+
+        return outData;
+    }
+
+    public override Vector2 GetData()
+    {
+        return data;
+    }
+
+    public override MessageType GetMessageType()
+    {
+        return MessageType.Rotation;
+    }
+
+    public override byte[] Serialize()
+    {
+        List<byte> outData = new List<byte>();
+
+        outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
+        //outData.AddRange(BitConverter.GetBytes(lastMsgID++));
+        outData.AddRange(BitConverter.GetBytes(data.X));
+        outData.AddRange(BitConverter.GetBytes(data.Y));
 
         int result1 = 0;
         int result2 = 0;
@@ -196,7 +358,6 @@ public class AddPlayer : BaseMenssaje<Player>
 // Go to DLL
 public class C2SHandShake : BaseMenssaje<string>
 {
-
     public C2SHandShake(string data)
     {
         this.data = data;
@@ -328,49 +489,6 @@ public class S2CHandShake : BaseMenssaje<List<Player>>
     }
 }
 
-public class NetShoot : BaseMenssaje<int>
-{
-    public override int Deserialize(byte[] message)
-    {
-        return BitConverter.ToInt32(message, 4);
-    }
-
-    public override int GetData()
-    {
-        return data;
-    }
-
-    public override MessageType GetMessageType()
-    {
-        return MessageType.Shoot;
-    }
-
-    public override byte[] Serialize()
-    {
-        List<byte> outData = new List<byte>();
-
-        outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
-        outData.AddRange(BitConverter.GetBytes(data));
-
-        int result1 = 0;
-        int result2 = 0;
-
-        for (int i = 0; i < outData.Count; i++)
-        {
-            result1 += outData[i];
-            result2 -= outData[i];
-        }
-
-        Console.WriteLine("Check1 : " + result1);
-        Console.WriteLine("Check2 : " + result2);
-
-        outData.AddRange(BitConverter.GetBytes(result1));
-        outData.AddRange(BitConverter.GetBytes(result2));
-
-        return outData.ToArray();
-    }
-}
-
 // Go to DLL
 public class NetPing : BaseMenssaje<int>
 {
@@ -395,108 +513,6 @@ public class NetPing : BaseMenssaje<int>
 
         outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
         outData.AddRange(BitConverter.GetBytes(data));
-
-        int result1 = 0;
-        int result2 = 0;
-
-        for (int i = 0; i < outData.Count; i++)
-        {
-            result1 += outData[i];
-            result2 -= outData[i];
-        }
-
-        Console.WriteLine("Check1 : " + result1);
-        Console.WriteLine("Check2 : " + result2);
-
-        outData.AddRange(BitConverter.GetBytes(result1));
-        outData.AddRange(BitConverter.GetBytes(result2));
-
-        return outData.ToArray();
-    }
-}
-
-// Go to DLL
-public class NetVector3 : BaseMenssaje<Vector3>
-{
-    public override Vector3 Deserialize(byte[] message)
-    {
-        Vector3 outData;
-        outData.X = BitConverter.ToSingle(message, 4);
-        outData.Y = BitConverter.ToSingle(message, 8);
-        outData.Z = BitConverter.ToSingle(message, 12);
-
-        return outData;
-    }
-
-    public override Vector3 GetData()
-    {
-        return data;
-    }
-
-    public override MessageType GetMessageType()
-    {
-        return MessageType.Position;
-    }
-
-    public override byte[] Serialize()
-    {
-        List<byte> outData = new List<byte>();
-
-        outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
-        //outData.AddRange(BitConverter.GetBytes(lastMsgID++));
-        outData.AddRange(BitConverter.GetBytes(data.X));
-        outData.AddRange(BitConverter.GetBytes(data.Y));
-        outData.AddRange(BitConverter.GetBytes(data.Z));
-
-        int result1 = 0;
-        int result2 = 0;
-
-        for (int i = 0; i < outData.Count; i++)
-        {
-            result1 += outData[i];
-            result2 -= outData[i];
-        }
-
-        Console.WriteLine("Check1 : " + result1);
-        Console.WriteLine("Check2 : " + result2);
-
-        outData.AddRange(BitConverter.GetBytes(result1));
-        outData.AddRange(BitConverter.GetBytes(result2));
-
-        return outData.ToArray();
-    }
-}
-
-// Go to DLL
-public class NetVector2 : BaseMenssaje<Vector2>
-{
-    public override Vector2 Deserialize(byte[] message)
-    {
-        Vector2 outData;
-        outData.X = BitConverter.ToSingle(message, 4);
-        outData.Y = BitConverter.ToSingle(message, 8);
-
-        return outData;
-    }
-
-    public override Vector2 GetData()
-    {
-        return data;
-    }
-
-    public override MessageType GetMessageType()
-    {
-        return MessageType.Rotation;
-    }
-
-    public override byte[] Serialize()
-    {
-        List<byte> outData = new List<byte>();
-
-        outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
-        //outData.AddRange(BitConverter.GetBytes(lastMsgID++));
-        outData.AddRange(BitConverter.GetBytes(data.X));
-        outData.AddRange(BitConverter.GetBytes(data.Y));
 
         int result1 = 0;
         int result2 = 0;
@@ -624,52 +640,6 @@ public class DeniedNet : BaseMenssaje<string>
         outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
         outData.AddRange(BitConverter.GetBytes(data.Length));
         outData.AddRange(Encoding.UTF8.GetBytes(data));
-
-        int result1 = 0;
-        int result2 = 0;
-
-        for (int i = 0; i < outData.Count; i++)
-        {
-            result1 += outData[i];
-            result2 -= outData[i];
-        }
-
-        Console.WriteLine("Check1 : " + result1);
-        Console.WriteLine("Check2 : " + result2);
-
-        outData.AddRange(BitConverter.GetBytes(result1));
-        outData.AddRange(BitConverter.GetBytes(result2));
-
-        return outData.ToArray();
-    }
-}
-
-public class NetTimer : BaseMenssaje<float>
-{
-    public override float Deserialize(byte[] message)
-    {
-        float outData;
-        outData = BitConverter.ToSingle(message, 4);
-
-        return outData;
-    }
-
-    public override float GetData()
-    {
-        return data;
-    }
-
-    public override MessageType GetMessageType()
-    {
-        return MessageType.Timer;
-    }
-
-    public override byte[] Serialize()
-    {
-        List<byte> outData = new List<byte>();
-
-        outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
-        outData.AddRange(BitConverter.GetBytes(data));
 
         int result1 = 0;
         int result2 = 0;

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
-using System.Numerics;
 using UnityEngine;
 
 
@@ -32,12 +31,12 @@ public struct Player
         this.id = id;
         this.name = name;
         HP = 3;
-        this.pos = System.Numerics.Vector3.Zero;
-        this.rotation = System.Numerics.Vector2.Zero;
+        pos = System.Numerics.Vector3.Zero;
+        rotation = System.Numerics.Vector2.Zero;
     }
 }
 
-// Sintetizar, Independizar de Unity y Go to DLL
+// Sintetizar, Independizar de Unity y Go to DLL, Separar en NetClient y NetServer
 public class NetworkManager : MonoBehaviour, IReceiveData
 {
     public IPAddress ipAddress
@@ -188,7 +187,7 @@ public class NetworkManager : MonoBehaviour, IReceiveData
             case MessageType.Console:
 
                 UnityEngine.Debug.Log("New mensages");
-                NetConsole consoleMensajes = new NetConsole("");
+                NetString consoleMensajes = new NetString("");
                 string text = consoleMensajes.Deserialize(data);
                 newText?.Invoke(text);
                 UnityEngine.Debug.Log(text);
@@ -314,7 +313,7 @@ public class NetworkManager : MonoBehaviour, IReceiveData
                 playerList = updating.Deserialize(data);
                  break;
             case MessageType.Shoot:
-                NetShoot shoot = new NetShoot();
+                NetInt shoot = new NetInt();
 
                 updateShoot?.Invoke(shoot.Deserialize(data));
 
@@ -329,7 +328,7 @@ public class NetworkManager : MonoBehaviour, IReceiveData
 
                 break;
             case MessageType.Timer:
-                NetTimer timer = new NetTimer();
+                NetFloat timer = new NetFloat();
                 timer.data = timer.Deserialize(data);
                 updateTimer?.Invoke(timer.data);
 
@@ -389,6 +388,16 @@ public class NetworkManager : MonoBehaviour, IReceiveData
         }
     }
 
+
+    private void Start()
+    {
+        if (Instance == null)
+            Instance = this;
+        else
+            Destroy(gameObject);
+    }
+
+    // mover a funcion generica
     void Update()
     {
         // Flush the data in main thread
@@ -432,18 +441,17 @@ public class NetworkManager : MonoBehaviour, IReceiveData
         if(Instance.isServer && playerList != null)
         {
             NetPlayerListUpdate updating = new NetPlayerListUpdate(playerList);
-            byte[] players = updating.Serialize();
-            Instance.Broadcast(players);
+            Instance.Broadcast(updating.Serialize());
         }
     }
 
     public IPEndPoint GetIpById(int id)
     {
-        foreach (var kvp in ipToId)
+        foreach (var aux in ipToId)
         {
-            if (kvp.Value == id)
+            if (aux.Value == id)
             {
-                return kvp.Key;
+                return aux.Key;
             }
         }
         return null;

@@ -5,7 +5,7 @@ public class Shoot : MonoBehaviour
     private GameManager gameManager;
     private PlayerManager playerManager;
 
-    private NetShoot shootData;
+    private NetInt shootData;
 
     private void OnEnable()
     {
@@ -19,7 +19,7 @@ public class Shoot : MonoBehaviour
 
     void Start()
     {
-        shootData = new NetShoot();
+        shootData = new NetInt();
         gameManager = FindAnyObjectByType<GameManager>();
         playerManager = FindFirstObjectByType<PlayerManager>();
     }

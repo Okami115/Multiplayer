@@ -61,11 +61,12 @@
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\2023.2.11f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.UIToolkit.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Scripts\Network\interfaces\IRecieveData.cs" />
-    <Compile Include="Assets\Scripts\Network\interfaces\IMessage.cs" />
+    <Compile Include="Assets\DLL\IRecieveData.cs" />
+    <Compile Include="Assets\DLL\UdpConnection.cs" />
+    <Compile Include="Assets\DLL\BaseMenssaje.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Assets\Scripts\Network\interfaces\NetOkamiSystem.asmdef" />
+    <None Include="Assets\DLL\NetOkamiSystem.asmdef" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

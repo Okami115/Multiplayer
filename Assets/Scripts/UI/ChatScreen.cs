@@ -29,13 +29,13 @@ public class ChatScreen : MonoBehaviour
         {
             if (NetworkManager.Instance.isServer)
             {
-                NetConsole consoleMensajes = new NetConsole("Server: " + inputMessage.text + System.Environment.NewLine);
+                NetString consoleMensajes = new NetString("Server: " + inputMessage.text + System.Environment.NewLine);
                 messages.text += consoleMensajes.data;
                 NetworkManager.Instance.Broadcast(consoleMensajes.Serialize());
             }
             else
             {
-                NetConsole consoleMensajes = new NetConsole(NetworkManager.Instance.player.name + ": " + inputMessage.text + System.Environment.NewLine);
+                NetString consoleMensajes = new NetString(NetworkManager.Instance.player.name + ": " + inputMessage.text + System.Environment.NewLine);
                 NetworkManager.Instance.SendToServer(consoleMensajes.Serialize());
             }
 

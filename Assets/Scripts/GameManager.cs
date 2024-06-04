@@ -13,13 +13,13 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private InputController input;
 
-    private NetTimer netTimer;
+    private NetFloat netTimer;
     private NetworkScreen netScreen;
 
     private void Start()
     {
         netScreen = FindAnyObjectByType<NetworkScreen>();
-        netTimer = new NetTimer();
+        netTimer = new NetFloat();
         netTimer.data = timerInSecons;
         netScreen.start += StartGame;
     }
@@ -49,7 +49,7 @@ public class GameManager : MonoBehaviour
         timerText.gameObject.SetActive(true);
         input.setChat += SetChatScreen;
         NetworkManager.Instance.updateTimer += UpdateTimer;
-        netTimer = new NetTimer();
+        netTimer = new NetFloat();
     }
 
     /*
