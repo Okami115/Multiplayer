@@ -1,8 +1,9 @@
 using System.Collections.Generic;
-using UnityEngine;
 using System;
 using System.Text;
+using System.Numerics;
 
+// Go to DLL
 public enum MessageType
 {
     Console = 0,
@@ -19,6 +20,7 @@ public enum MessageType
     Timer,
 }
 
+// Go to DLL
 public abstract class BaseMenssaje<PayLoadType>
 {
     public PayLoadType data;
@@ -32,6 +34,7 @@ public abstract class BaseMenssaje<PayLoadType>
     public abstract PayLoadType GetData();
 }
 
+// Go to DLL
 public class NetConsole : BaseMenssaje<string>
 {
     public NetConsole(string data) 
@@ -73,8 +76,8 @@ public class NetConsole : BaseMenssaje<string>
             result2 -= outData[i];
         }
 
-        Debug.Log("Check1 : " + result1);
-        Debug.Log("Check2 : " + result2);
+        Console.WriteLine("Check1 : " + result1);
+        Console.WriteLine("Check2 : " + result2);
 
         outData.AddRange(BitConverter.GetBytes(result1));
         outData.AddRange(BitConverter.GetBytes(result2));
@@ -83,6 +86,7 @@ public class NetConsole : BaseMenssaje<string>
     }
 }
 
+// Go to DLL
 public class NetDisconect : BaseMenssaje<int>
 {
     public override int Deserialize(byte[] message)
@@ -116,8 +120,8 @@ public class NetDisconect : BaseMenssaje<int>
             result2 -= outData[i];
         }
 
-        Debug.Log("Check1 : " + result1);
-        Debug.Log("Check2 : " + result2);
+        Console.WriteLine("Check1 : " + result1);
+        Console.WriteLine("Check2 : " + result2);
 
         outData.AddRange(BitConverter.GetBytes(result1));
         outData.AddRange(BitConverter.GetBytes(result2));
@@ -126,6 +130,7 @@ public class NetDisconect : BaseMenssaje<int>
     }
 }
 
+// Go to DLL
 public class AddPlayer : BaseMenssaje<Player>
 {
     public override Player Deserialize(byte[] message)
@@ -134,11 +139,11 @@ public class AddPlayer : BaseMenssaje<Player>
         temp.id = BitConverter.ToInt32(message, 4);
         int stringlength = BitConverter.ToInt32(message, 8);
         temp.HP = BitConverter.ToInt32(message, 12);
-        temp.pos.x = BitConverter.ToSingle(message, 16);
-        temp.pos.y = BitConverter.ToSingle(message, 20);
-        temp.pos.z = BitConverter.ToSingle(message, 24);
-        temp.rotation.x = BitConverter.ToSingle(message, 28);
-        temp.rotation.y = BitConverter.ToSingle(message, 32);
+        temp.pos.X = BitConverter.ToSingle(message, 16);
+        temp.pos.Y = BitConverter.ToSingle(message, 20);
+        temp.pos.Z = BitConverter.ToSingle(message, 24);
+        temp.rotation.X = BitConverter.ToSingle(message, 28);
+        temp.rotation.Y = BitConverter.ToSingle(message, 32);
         temp.name = Encoding.UTF8.GetString(message, 36, stringlength);
 
         return temp;
@@ -162,11 +167,11 @@ public class AddPlayer : BaseMenssaje<Player>
         outData.AddRange(BitConverter.GetBytes(data.id));
         outData.AddRange(BitConverter.GetBytes(data.name.Length));
         outData.AddRange(BitConverter.GetBytes(data.HP));
-        outData.AddRange(BitConverter.GetBytes(data.pos.x));
-        outData.AddRange(BitConverter.GetBytes(data.pos.y));
-        outData.AddRange(BitConverter.GetBytes(data.pos.z));
-        outData.AddRange(BitConverter.GetBytes(data.rotation.x));
-        outData.AddRange(BitConverter.GetBytes(data.rotation.y));
+        outData.AddRange(BitConverter.GetBytes(data.pos.X));
+        outData.AddRange(BitConverter.GetBytes(data.pos.Y));
+        outData.AddRange(BitConverter.GetBytes(data.pos.Z));
+        outData.AddRange(BitConverter.GetBytes(data.rotation.X));
+        outData.AddRange(BitConverter.GetBytes(data.rotation.Y));
         outData.AddRange(Encoding.UTF8.GetBytes(data.name));
 
         int result1 = 0;
@@ -178,8 +183,8 @@ public class AddPlayer : BaseMenssaje<Player>
             result2 -= outData[i];
         }
 
-        Debug.Log("Check1 : " + result1);
-        Debug.Log("Check2 : " + result2);
+        Console.WriteLine("Check1 : " + result1);
+        Console.WriteLine("Check2 : " + result2);
 
         outData.AddRange(BitConverter.GetBytes(result1));
         outData.AddRange(BitConverter.GetBytes(result2));
@@ -188,6 +193,7 @@ public class AddPlayer : BaseMenssaje<Player>
     }
 }
 
+// Go to DLL
 public class C2SHandShake : BaseMenssaje<string>
 {
 
@@ -230,8 +236,8 @@ public class C2SHandShake : BaseMenssaje<string>
             result2 -= outData[i];
         }
 
-        Debug.Log("Check1 : " + result1);
-        Debug.Log("Check2 : " + result2);
+        Console.WriteLine("Check1 : " + result1);
+        Console.WriteLine("Check2 : " + result2);
 
         outData.AddRange(BitConverter.GetBytes(result1));
         outData.AddRange(BitConverter.GetBytes(result2));
@@ -240,6 +246,7 @@ public class C2SHandShake : BaseMenssaje<string>
     }
 }
 
+// Go to DLL
 public class S2CHandShake : BaseMenssaje<List<Player>>
 {
     public S2CHandShake(List<Player> data)
@@ -259,11 +266,11 @@ public class S2CHandShake : BaseMenssaje<List<Player>>
             temp.id = BitConverter.ToInt32(message, offset + 8);
             int stringlength = BitConverter.ToInt32(message, offset + 12);
             temp.HP = BitConverter.ToInt32(message, offset + 16);
-            temp.pos.x = BitConverter.ToSingle(message, offset + 20);
-            temp.pos.y = BitConverter.ToSingle(message, offset + 24);
-            temp.pos.z = BitConverter.ToSingle(message, offset + 28);
-            temp.rotation.x = BitConverter.ToSingle(message, offset + 32);
-            temp.rotation.y = BitConverter.ToSingle(message, offset + 36);
+            temp.pos.X = BitConverter.ToSingle(message, offset + 20);
+            temp.pos.Y = BitConverter.ToSingle(message, offset + 24);
+            temp.pos.Z = BitConverter.ToSingle(message, offset + 28);
+            temp.rotation.X = BitConverter.ToSingle(message, offset + 32);
+            temp.rotation.Y = BitConverter.ToSingle(message, offset + 36);
             temp.name = Encoding.UTF8.GetString(message, offset + 40, stringlength);
             aux.Add(temp);
             offset += 32 + stringlength;
@@ -294,11 +301,11 @@ public class S2CHandShake : BaseMenssaje<List<Player>>
             outData.AddRange(BitConverter.GetBytes(player.id));
             outData.AddRange(BitConverter.GetBytes(player.name.Length));
             outData.AddRange(BitConverter.GetBytes(player.HP));
-            outData.AddRange(BitConverter.GetBytes(player.pos.x));
-            outData.AddRange(BitConverter.GetBytes(player.pos.y));
-            outData.AddRange(BitConverter.GetBytes(player.pos.z));
-            outData.AddRange(BitConverter.GetBytes(player.rotation.x));
-            outData.AddRange(BitConverter.GetBytes(player.rotation.y));
+            outData.AddRange(BitConverter.GetBytes(player.pos.X));
+            outData.AddRange(BitConverter.GetBytes(player.pos.Y));
+            outData.AddRange(BitConverter.GetBytes(player.pos.Z));
+            outData.AddRange(BitConverter.GetBytes(player.rotation.X));
+            outData.AddRange(BitConverter.GetBytes(player.rotation.Y));
             outData.AddRange(Encoding.UTF8.GetBytes(player.name));
         }
 
@@ -311,8 +318,8 @@ public class S2CHandShake : BaseMenssaje<List<Player>>
             result2 -= outData[i];
         }
 
-        Debug.Log("Check1 : " + result1);
-        Debug.Log("Check2 : " + result2);
+        Console.WriteLine("Check1 : " + result1);
+        Console.WriteLine("Check2 : " + result2);
 
         outData.AddRange(BitConverter.GetBytes(result1));
         outData.AddRange(BitConverter.GetBytes(result2));
@@ -354,8 +361,8 @@ public class NetShoot : BaseMenssaje<int>
             result2 -= outData[i];
         }
 
-        Debug.Log("Check1 : " + result1);
-        Debug.Log("Check2 : " + result2);
+        Console.WriteLine("Check1 : " + result1);
+        Console.WriteLine("Check2 : " + result2);
 
         outData.AddRange(BitConverter.GetBytes(result1));
         outData.AddRange(BitConverter.GetBytes(result2));
@@ -364,6 +371,7 @@ public class NetShoot : BaseMenssaje<int>
     }
 }
 
+// Go to DLL
 public class NetPing : BaseMenssaje<int>
 {
     public override int Deserialize(byte[] message)
@@ -397,8 +405,8 @@ public class NetPing : BaseMenssaje<int>
             result2 -= outData[i];
         }
 
-        Debug.Log("Check1 : " + result1);
-        Debug.Log("Check2 : " + result2);
+        Console.WriteLine("Check1 : " + result1);
+        Console.WriteLine("Check2 : " + result2);
 
         outData.AddRange(BitConverter.GetBytes(result1));
         outData.AddRange(BitConverter.GetBytes(result2));
@@ -407,14 +415,15 @@ public class NetPing : BaseMenssaje<int>
     }
 }
 
-public class NetVector3 : BaseMenssaje<UnityEngine.Vector3>
+// Go to DLL
+public class NetVector3 : BaseMenssaje<Vector3>
 {
     public override Vector3 Deserialize(byte[] message)
     {
         Vector3 outData;
-        outData.x = BitConverter.ToSingle(message, 4);
-        outData.y = BitConverter.ToSingle(message, 8);
-        outData.z = BitConverter.ToSingle(message, 12);
+        outData.X = BitConverter.ToSingle(message, 4);
+        outData.Y = BitConverter.ToSingle(message, 8);
+        outData.Z = BitConverter.ToSingle(message, 12);
 
         return outData;
     }
@@ -435,9 +444,9 @@ public class NetVector3 : BaseMenssaje<UnityEngine.Vector3>
 
         outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
         //outData.AddRange(BitConverter.GetBytes(lastMsgID++));
-        outData.AddRange(BitConverter.GetBytes(data.x));
-        outData.AddRange(BitConverter.GetBytes(data.y));
-        outData.AddRange(BitConverter.GetBytes(data.z));
+        outData.AddRange(BitConverter.GetBytes(data.X));
+        outData.AddRange(BitConverter.GetBytes(data.Y));
+        outData.AddRange(BitConverter.GetBytes(data.Z));
 
         int result1 = 0;
         int result2 = 0;
@@ -448,8 +457,8 @@ public class NetVector3 : BaseMenssaje<UnityEngine.Vector3>
             result2 -= outData[i];
         }
 
-        Debug.Log("Check1 : " + result1);
-        Debug.Log("Check2 : " + result2);
+        Console.WriteLine("Check1 : " + result1);
+        Console.WriteLine("Check2 : " + result2);
 
         outData.AddRange(BitConverter.GetBytes(result1));
         outData.AddRange(BitConverter.GetBytes(result2));
@@ -458,13 +467,14 @@ public class NetVector3 : BaseMenssaje<UnityEngine.Vector3>
     }
 }
 
-public class NetRotation : BaseMenssaje<Vector2>
+// Go to DLL
+public class NetVector2 : BaseMenssaje<Vector2>
 {
     public override Vector2 Deserialize(byte[] message)
     {
         Vector2 outData;
-        outData.x = BitConverter.ToSingle(message, 4);
-        outData.y = BitConverter.ToSingle(message, 8);
+        outData.X = BitConverter.ToSingle(message, 4);
+        outData.Y = BitConverter.ToSingle(message, 8);
 
         return outData;
     }
@@ -485,8 +495,8 @@ public class NetRotation : BaseMenssaje<Vector2>
 
         outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
         //outData.AddRange(BitConverter.GetBytes(lastMsgID++));
-        outData.AddRange(BitConverter.GetBytes(data.x));
-        outData.AddRange(BitConverter.GetBytes(data.y));
+        outData.AddRange(BitConverter.GetBytes(data.X));
+        outData.AddRange(BitConverter.GetBytes(data.Y));
 
         int result1 = 0;
         int result2 = 0;
@@ -497,8 +507,8 @@ public class NetRotation : BaseMenssaje<Vector2>
             result2 -= outData[i];
         }
 
-        Debug.Log("Check1 : " + result1);
-        Debug.Log("Check2 : " + result2);
+        Console.WriteLine("Check1 : " + result1);
+        Console.WriteLine("Check2 : " + result2);
 
         outData.AddRange(BitConverter.GetBytes(result1));
         outData.AddRange(BitConverter.GetBytes(result2));
@@ -526,11 +536,11 @@ public class NetPlayerListUpdate : BaseMenssaje<List<Player>>
             temp.id = BitConverter.ToInt32(message, offset + 8);
             int stringlength = BitConverter.ToInt32(message, offset + 12);
             temp.HP = BitConverter.ToInt32(message, offset + 16);
-            temp.pos.x = BitConverter.ToSingle(message, offset + 20);
-            temp.pos.y = BitConverter.ToSingle(message, offset + 24);
-            temp.pos.z = BitConverter.ToSingle(message, offset + 28);
-            temp.rotation.x = BitConverter.ToSingle(message, offset + 32);
-            temp.rotation.y = BitConverter.ToSingle(message, offset + 36);
+            temp.pos.X = BitConverter.ToSingle(message, offset + 20);
+            temp.pos.Y = BitConverter.ToSingle(message, offset + 24);
+            temp.pos.Z = BitConverter.ToSingle(message, offset + 28);
+            temp.rotation.X = BitConverter.ToSingle(message, offset + 32);
+            temp.rotation.Y = BitConverter.ToSingle(message, offset + 36);
             temp.name = Encoding.UTF8.GetString(message, offset + 40, stringlength);
             aux.Add(temp);
             offset += 32 + stringlength;
@@ -561,11 +571,11 @@ public class NetPlayerListUpdate : BaseMenssaje<List<Player>>
             outData.AddRange(BitConverter.GetBytes(player.id));
             outData.AddRange(BitConverter.GetBytes(player.name.Length));
             outData.AddRange(BitConverter.GetBytes(player.HP));
-            outData.AddRange(BitConverter.GetBytes(player.pos.x));
-            outData.AddRange(BitConverter.GetBytes(player.pos.y));
-            outData.AddRange(BitConverter.GetBytes(player.pos.z));
-            outData.AddRange(BitConverter.GetBytes(player.rotation.x));
-            outData.AddRange(BitConverter.GetBytes(player.rotation.y));
+            outData.AddRange(BitConverter.GetBytes(player.pos.X));
+            outData.AddRange(BitConverter.GetBytes(player.pos.Y));
+            outData.AddRange(BitConverter.GetBytes(player.pos.Z));
+            outData.AddRange(BitConverter.GetBytes(player.rotation.X));
+            outData.AddRange(BitConverter.GetBytes(player.rotation.Y));
             outData.AddRange(Encoding.UTF8.GetBytes(player.name));
         }
 
@@ -578,8 +588,8 @@ public class NetPlayerListUpdate : BaseMenssaje<List<Player>>
             result2 -= outData[i];
         }
 
-        Debug.Log("Check1 : " + result1);
-        Debug.Log("Check2 : " + result2);
+        Console.WriteLine("Check1 : " + result1);
+        Console.WriteLine("Check2 : " + result2);
 
         outData.AddRange(BitConverter.GetBytes(result1));
         outData.AddRange(BitConverter.GetBytes(result2));
@@ -587,6 +597,7 @@ public class NetPlayerListUpdate : BaseMenssaje<List<Player>>
     }
 }
 
+// Sintetizar y Go to DLL
 public class DeniedNet : BaseMenssaje<string>
 {
     public override string Deserialize(byte[] message)
@@ -623,8 +634,8 @@ public class DeniedNet : BaseMenssaje<string>
             result2 -= outData[i];
         }
 
-        Debug.Log("Check1 : " + result1);
-        Debug.Log("Check2 : " + result2);
+        Console.WriteLine("Check1 : " + result1);
+        Console.WriteLine("Check2 : " + result2);
 
         outData.AddRange(BitConverter.GetBytes(result1));
         outData.AddRange(BitConverter.GetBytes(result2));
@@ -669,8 +680,8 @@ public class NetTimer : BaseMenssaje<float>
             result2 -= outData[i];
         }
 
-        Debug.Log("Check1 : " + result1);
-        Debug.Log("Check2 : " + result2);
+        Console.WriteLine("Check1 : " + result1);
+        Console.WriteLine("Check2 : " + result2);
 
         outData.AddRange(BitConverter.GetBytes(result1));
         outData.AddRange(BitConverter.GetBytes(result2));
@@ -679,6 +690,7 @@ public class NetTimer : BaseMenssaje<float>
     }
 }
 
+// Go to DLL
 public static class Checksum
 {
     public static bool ChecksumConfirm(byte[] data)
@@ -696,11 +708,11 @@ public static class Checksum
         }
 
         bool aux = checkSum1 == result1 && checkSum2 == result2;
-        Debug.Log("Check1 : " + checkSum1);
-        Debug.Log("Check2 : " + checkSum2);
-        Debug.Log("res1 : " + result1);
-        Debug.Log("res2 : " + result2);
-        Debug.Log("Checksum? : " + aux);
+        Console.WriteLine("Check1 : " + checkSum1);
+        Console.WriteLine("Check2 : " + checkSum2);
+        Console.WriteLine("res1 : " + result1);
+        Console.WriteLine("res2 : " + result2);
+        Console.WriteLine("Checksum? : " + aux);
 
         return checkSum1 == result1 && checkSum2 == result2;
     }

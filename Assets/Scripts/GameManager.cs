@@ -1,9 +1,7 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
+// Separa en archivos (UI manager)
 public class GameManager : MonoBehaviour
 {
     [SerializeField] public GameObject bullet;
@@ -31,23 +29,6 @@ public class GameManager : MonoBehaviour
         input.setChat -= SetChatScreen;
         NetworkManager.Instance.updateTimer -= UpdateTimer;
     }
-    private void Update()
-    {
-        if (NetworkManager.Instance.isServer)
-        {
-            timerInSecons -= Time.deltaTime;
-
-            timerText.text = ((int)timerInSecons).ToString();
-
-            if (timerInSecons <= 0)
-                NetworkManager.Instance.Disconnect();
-
-            netTimer.data = timerInSecons;
-
-            NetworkManager.Instance.Broadcast(netTimer.Serialize());
-        }
-    }
-
     private void SetChatScreen()
     {
         if (canvas.active)
@@ -70,4 +51,20 @@ public class GameManager : MonoBehaviour
         NetworkManager.Instance.updateTimer += UpdateTimer;
         netTimer = new NetTimer();
     }
+
+    /*
+     
+    Nose donde chota deberia ir esto
+
+    timerInSecons -= Time.deltaTime;
+
+    timerText.text = ((int)timerInSecons).ToString();
+
+    if (timerInSecons <= 0)
+        NetworkManager.Instance.Disconnect();
+
+    netTimer.data = timerInSecons;
+
+    NetworkManager.Instance.Broadcast(netTimer.Serialize());
+     */
 }

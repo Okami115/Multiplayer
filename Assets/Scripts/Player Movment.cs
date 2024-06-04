@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerMovment : MonoBehaviour
@@ -11,7 +9,6 @@ public class PlayerMovment : MonoBehaviour
     private PlayerManager playerManager;
 
     private NetVector3 pos;
-    private NetworkScreen netScreen;
 
     private void OnEnable()
     {
@@ -38,30 +35,12 @@ public class PlayerMovment : MonoBehaviour
         float movimientoHorizontal = Input.GetAxis("Horizontal");
         float movimientoVertical = Input.GetAxis("Vertical");
 
-        pos.data = new Vector3(movimientoHorizontal, 0.0f, movimientoVertical);
+        pos.data = new System.Numerics.Vector3(movimientoHorizontal, 0.0f, movimientoVertical);
 
-        if (NetworkManager.Instance.isServer)
-        {
-            pos.data = Camera.main.transform.TransformDirection(pos.data);
-            pos.data.y = 0.0f;
-
-            rb.AddForce(pos.data * speed);
-
-            Player character = NetworkManager.Instance.playerList[NetworkManager.Instance.player.id];
-
-            character = NetworkManager.Instance.playerList[NetworkManager.Instance.player.id];
-
-            character.pos = transform.position;
-
-            NetworkManager.Instance.playerList[NetworkManager.Instance.player.id] = character;
-        }
-        else
-        {
-            NetworkManager.Instance.SendToServer(pos.Serialize());
-        }
+        NetworkManager.Instance.SendToServer(pos.Serialize());
     }
 
-    private void MovePlayer(Vector3 newPos, int id)
+    private void MovePlayer(System.Numerics.Vector3 newPos, int id)
     {
         int ed = 0;
 
@@ -71,7 +50,11 @@ public class PlayerMovment : MonoBehaviour
                 ed = i;
         }
 
-        Vector3 pos = newPos;
+        Vector3 pos = new Vector3();
+
+        pos.x = newPos.X;
+        pos.y = newPos.Y;
+        pos.z = newPos.Z;
 
         pos = playerManager.players[ed].transform.GetChild(0).transform.TransformDirection(pos);
         pos.y = 0.0f;
@@ -84,7 +67,9 @@ public class PlayerMovment : MonoBehaviour
 
         character = NetworkManager.Instance.playerList[ed];
 
-        character.pos = playerManager.players[ed].transform.position;
+        character.pos.X = playerManager.players[ed].transform.position.x;
+        character.pos.Y = playerManager.players[ed].transform.position.y;
+        character.pos.Z = playerManager.players[ed].transform.position.z;
 
         NetworkManager.Instance.playerList[ed] = character;
     }
@@ -93,4 +78,24 @@ public class PlayerMovment : MonoBehaviour
     {
         gameObject.SetActive(false);
     }
+
+
+    /*
+     
+    cada Player se mueve a si mismo y luego envia su posicion en el update (terrorismo)
+
+    pos.data = Camera.main.transform.TransformDirection(pos.data);
+    pos.data.y = 0.0f;
+
+    rb.AddForce(pos.data * speed);
+
+    Player character = NetworkManager.Instance.playerList[NetworkManager.Instance.player.id];
+
+    character = NetworkManager.Instance.playerList[NetworkManager.Instance.player.id];
+
+    character.pos = transform.position;
+
+    NetworkManager.Instance.playerList[NetworkManager.Instance.player.id] = character;
+     
+     */
 }

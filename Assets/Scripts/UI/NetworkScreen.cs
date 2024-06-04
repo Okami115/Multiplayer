@@ -1,10 +1,9 @@
-﻿
-using System;
+﻿using System;
 using System.Net;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class NetworkScreen : MonoBehaviourSingleton<NetworkScreen>
+public class NetworkScreen : MonoBehaviour
 {
     public Button connectBtn;
     public Button startServerBtn;
@@ -16,7 +15,7 @@ public class NetworkScreen : MonoBehaviourSingleton<NetworkScreen>
 
     private IPAddress ipAddress;
     private int port;
-    private string name;
+    private string playerName;
 
     public Action start;
 
@@ -25,7 +24,7 @@ public class NetworkScreen : MonoBehaviourSingleton<NetworkScreen>
         NetworkManager.Instance.deniedConnection -= SwitchToChatScreen;
     }
 
-    protected override void Initialize()
+    private void Start()
     {
         connectBtn.onClick.AddListener(OnConnectBtnClick);
         startServerBtn.onClick.AddListener(OnStartServerBtnClick);
@@ -34,10 +33,10 @@ public class NetworkScreen : MonoBehaviourSingleton<NetworkScreen>
     void OnConnectBtnClick()
     {
         ipAddress = IPAddress.Parse(addressInputField.text);
-        port = System.Convert.ToInt32(portInputField.text);
-        name = System.Convert.ToString(nameInputField.text);
+        port = Convert.ToInt32(portInputField.text);
+        name = Convert.ToString(nameInputField.text);
 
-        C2SHandShake c2SHandShake = new C2SHandShake(name);
+        C2SHandShake c2SHandShake = new C2SHandShake(playerName);
 
         NetworkManager.Instance.deniedConnection += SwitchToChatScreen;
         NetworkManager.Instance.StartClient(ipAddress, port, c2SHandShake.data);
@@ -46,11 +45,12 @@ public class NetworkScreen : MonoBehaviourSingleton<NetworkScreen>
 
     void OnStartServerBtnClick()
     {
-        port = System.Convert.ToInt32(portInputField.text);
+        port = Convert.ToInt32(portInputField.text);
         NetworkManager.Instance.StartServer(port);
         SwitchToChatScreen("Authorized");
     }
 
+    // Sintetizar
     void SwitchToChatScreen(string set)
     {
         if(set == "Authorized")
@@ -58,7 +58,7 @@ public class NetworkScreen : MonoBehaviourSingleton<NetworkScreen>
             start?.Invoke();
             gameObject.SetActive(false);
             if(!NetworkManager.Instance.isServer)
-                NetworkManager.Instance.player.name = name;
+                NetworkManager.Instance.player.name = playerName;
         }
 
         if (set == "Name")

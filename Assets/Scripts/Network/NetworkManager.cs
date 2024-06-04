@@ -1,41 +1,43 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Numerics;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
+
+// Go to DLL
 public struct Client
 {
-    public float timeStamp;
     public int id;
     public IPEndPoint ipEndPoint;
 
-    public Client(IPEndPoint ipEndPoint, int id, float timeStamp)
+    public Client(IPEndPoint ipEndPoint, int id)
     {
-        this.timeStamp = timeStamp;
         this.id = id;
         this.ipEndPoint = ipEndPoint;
     }
 }
 
+// Sintetizar
 public struct Player
 {
     public int id;
     public string name;
     public int HP;
-    public Vector3 pos;
-    public Vector2 rotation;
+    public System.Numerics.Vector3 pos;
+    public System.Numerics.Vector2 rotation;
 
     public Player(int id, string name)
     {
         this.id = id;
         this.name = name;
         HP = 3;
-        this.pos = Vector3.zero;
-        this.rotation = Vector2.zero;
+        this.pos = System.Numerics.Vector3.Zero;
+        this.rotation = System.Numerics.Vector2.Zero;
     }
 }
 
+// Sintetizar, Independizar de Unity y Go to DLL
 public class NetworkManager : MonoBehaviour, IReceiveData
 {
     public IPAddress ipAddress
@@ -61,8 +63,8 @@ public class NetworkManager : MonoBehaviour, IReceiveData
     public Action<int> spawnPlayer;
     public Action StartMap;
 
-    public Action<Vector3, int> updatePos;
-    public Action<Vector2, int> updateRot;
+    public Action<System.Numerics.Vector3, int> updatePos;
+    public Action<System.Numerics.Vector2, int> updateRot;
     public Action<int> updateShoot;
     public Action<float> updateTimer;
 
@@ -114,13 +116,13 @@ public class NetworkManager : MonoBehaviour, IReceiveData
     {
         if (!ipToId.ContainsKey(ip))
         {
-            Debug.Log("Adding client: " + ip.Address + " name: " + name);
+            Console.WriteLine("Adding client: " + ip.Address + " name: " + name);
 
             ipToId[ip] = idClient;
 
             Player player = new Player(ipToId[ip], name);
 
-            clients.Add(player.id, new Client(ip, player.id, Time.realtimeSinceStartup));
+            clients.Add(player.id, new Client(ip, player.id));
 
             AddPlayer newPlayer = new AddPlayer();
 
@@ -163,8 +165,6 @@ public class NetworkManager : MonoBehaviour, IReceiveData
         if (Instance.player.id == id)
         {
             stopPlayer?.Invoke();
-            Cursor.lockState = CursorLockMode.Confined;
-            SceneManager.LoadScene(0);
             connection.Close();
             playerList.Clear();
             lastPingSend.Clear();
@@ -200,17 +200,17 @@ public class NetworkManager : MonoBehaviour, IReceiveData
                 if(Instance.isServer && ipToId.Count != 0)
                 {
                     id = ipToId[ip];
-                    Vector3 newPos = pos.Deserialize(data);
+                    System.Numerics.Vector3 newPos = pos.Deserialize(data);
 
                     updatePos?.Invoke(newPos, id);
                 }
                 break;
             case MessageType.Rotation:
-                NetRotation rot = new NetRotation();
+                NetVector2 rot = new NetVector2();
                 if (Instance.isServer && ipToId.Count != 0)
                 {
                     id = ipToId[ip];
-                    Vector2 newRotation = rot.Deserialize(data);
+                    System.Numerics.Vector2 newRotation = rot.Deserialize(data);
 
                     updateRot?.Invoke(newRotation, id);
                 }
@@ -364,9 +364,6 @@ public class NetworkManager : MonoBehaviour, IReceiveData
                 dis.data = playerList[i].id;
                 SendToClient(dis.Serialize(), GetIpById(playerList[i].id));
             }
-
-            Cursor.lockState = CursorLockMode.Confined;
-            SceneManager.LoadScene(0);
             connection.Close();
             playerList.Clear();
             lastPingSend.Clear();
@@ -389,19 +386,6 @@ public class NetworkManager : MonoBehaviour, IReceiveData
             {
                 connection.Send(data, iterator.Current.Value.ipEndPoint);
             }
-        }
-    }
-
-    void Start()
-    {
-        if(Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-        }
-        else
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
         }
     }
 
@@ -435,8 +419,6 @@ public class NetworkManager : MonoBehaviour, IReceiveData
                     else
                     {
                         stopPlayer?.Invoke();
-                        Cursor.lockState = CursorLockMode.Confined;
-                        SceneManager.LoadScene(0);
                         connection.Close();
                         playerList.Clear();
                         lastPingSend.Clear();

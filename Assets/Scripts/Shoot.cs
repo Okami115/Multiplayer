@@ -6,7 +6,6 @@ public class Shoot : MonoBehaviour
     private PlayerManager playerManager;
 
     private NetShoot shootData;
-    private NetworkScreen netScreen;
 
     private void OnEnable()
     {
@@ -29,15 +28,8 @@ public class Shoot : MonoBehaviour
     {
         if(Input.GetMouseButtonUp(0))
         {
-            if(NetworkManager.Instance.isServer)
-            {
-                ShootBullet(NetworkManager.Instance.player.id);
-            }
-            else
-            {
-                shootData.data = NetworkManager.Instance.player.id;
-                NetworkManager.Instance.SendToServer(shootData.Serialize());
-            }
+            shootData.data = NetworkManager.Instance.player.id;
+            NetworkManager.Instance.SendToServer(shootData.Serialize());
         }
     }
 
@@ -62,15 +54,5 @@ public class Shoot : MonoBehaviour
         Destroy(aux, 3);
 
         shootData.data = id;
-
-        if(NetworkManager.Instance.isServer)
-        {
-            NetworkManager.Instance.Broadcast(shootData.Serialize());
-        }
-    }
-
-    private void StartGame()
-    {
-
     }
 }

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// Optimizar
 public class Bullet : MonoBehaviour
 {
     private void OnTriggerEnter(Collider other)

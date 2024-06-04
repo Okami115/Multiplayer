@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 
+// Go to DLL
 public class UdpConnection
 {
     private struct DataReceived

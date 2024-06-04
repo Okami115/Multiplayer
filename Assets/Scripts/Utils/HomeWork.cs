@@ -31,16 +31,20 @@ public class HomeWork
 
     //------------------Segundo Parcial------------------------
 
-    // Server not player - Pendiente
+    // Cliente Autoritativo - Pendiente
+
+    // Server not player - Check
 
     // Server Indpendiente - Pendiente
 
+    // INetObj / NetObj - Check
+
     // Libreria Comun - Pendiente
 
-    // MachMaker Independiente - Pendiente 
+    // MatchMaker Independiente - Pendiente 
 
     // Criterio de ELO - Pendiente
 
-    // RollBack - Pendiente
+    // RollBack - Pendiente?
 
 }

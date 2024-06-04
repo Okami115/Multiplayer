@@ -1,8 +1,5 @@
-using System.Collections;
 using System.Collections.Generic;
-using System.Net;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class PlayerManager : MonoBehaviour
 {
@@ -11,6 +8,12 @@ public class PlayerManager : MonoBehaviour
     public List<GameObject> players;
     NetworkScreen netScreen;
 
+    private void OnEnable()
+    {
+        netScreen = FindAnyObjectByType<NetworkScreen>();
+
+        netScreen.start += StartGame;
+    }
     private void OnDestroy()
     {
         netScreen.start -= StartGame;
@@ -18,47 +21,30 @@ public class PlayerManager : MonoBehaviour
         NetworkManager.Instance.disconectPlayer -= DeletePlayer;
         NetworkManager.Instance.stopPlayer -= LockPlayer;
 
-        if (!NetworkManager.Instance.isServer)
-        {
-            NetworkManager.Instance.StartMap -= StartMap;
-            NetworkManager.Instance.connectPlayer -= SpawnNewPlayer;
-        }
+        NetworkManager.Instance.StartMap -= StartMap;
+        NetworkManager.Instance.connectPlayer -= SpawnNewPlayer;
     }
 
-    private void OnEnable()
-    {
-        netScreen = FindAnyObjectByType<NetworkScreen>();
-
-        netScreen.start += StartGame;
-    }
 
     private void Update()
     {
-        if(NetworkManager.Instance.isServer) 
+        for (int i = 0; i < players.Count; i++)
         {
-            for (int i = 1; i < NetworkManager.Instance.playerList.Count; i++) 
-            {
-                if (NetworkManager.Instance.playerList[i].HP <= 0)
-                {
-                    NetDisconect dis = new NetDisconect();
-                
-                    IPEndPoint ip = NetworkManager.Instance.GetIpById(NetworkManager.Instance.playerList[i].id);
-                    dis.data = NetworkManager.Instance.playerList[i].id;
-                    NetworkManager.Instance.Broadcast(dis.Serialize());
-                    NetworkManager.Instance.RemoveClient(NetworkManager.Instance.playerList[i].id, ip);
-                }
-            }
-        }
+            Vector3 pos = new Vector3();
 
-        if (!NetworkManager.Instance.isServer)
-        {
-            for (int i = 0; i < players.Count; i++)
-            {
-                players[i].transform.position = NetworkManager.Instance.playerList[i].pos;
+            pos.x = NetworkManager.Instance.playerList[i].pos.X;
+            pos.y = NetworkManager.Instance.playerList[i].pos.Y;
+            pos.z = NetworkManager.Instance.playerList[i].pos.Z;
 
-                players[i].transform.rotation = Quaternion.Euler(0, NetworkManager.Instance.playerList[i].rotation.y, 0);
-                players[i].transform.GetChild(0).transform.rotation = Quaternion.Euler(NetworkManager.Instance.playerList[i].rotation.x, NetworkManager.Instance.playerList[i].rotation.y, 0);
-            }
+            players[i].transform.position = pos;
+
+            Vector2 rot = new Vector2();
+
+            rot.x = NetworkManager.Instance.playerList[i].rotation.X;
+            rot.y = NetworkManager.Instance.playerList[i].rotation.Y;
+
+            players[i].transform.rotation = Quaternion.Euler(0, rot.y, 0);
+            players[i].transform.GetChild(0).transform.rotation = Quaternion.Euler(rot.x, rot.y, 0);
         }
     }
 
@@ -122,19 +108,31 @@ public class PlayerManager : MonoBehaviour
     {
         players = new List<GameObject>();
 
-        if (NetworkManager.Instance.isServer)
-        {
-            SpawnNewPlayer(NetworkManager.Instance.player.id);
-        }
-
         NetworkManager.Instance.spawnPlayer += SpawnNewPlayer;
         NetworkManager.Instance.disconectPlayer += DeletePlayer;
         NetworkManager.Instance.stopPlayer += LockPlayer;
 
-        if (!NetworkManager.Instance.isServer)
+        NetworkManager.Instance.StartMap += StartMap;
+        NetworkManager.Instance.connectPlayer += SpawnNewPlayer;
+    }
+
+    /*
+    
+    Desconectar players si su vida es 0.
+        
+    Esto deberia ir en el update de cada jugador, cuando detecta que se quedo sin vida, se desconecta solo.
+
+    for (int i = 1; i < NetworkManager.Instance.playerList.Count; i++) 
+    {
+        if (NetworkManager.Instance.playerList[i].HP <= 0)
         {
-            NetworkManager.Instance.StartMap += StartMap;
-            NetworkManager.Instance.connectPlayer += SpawnNewPlayer;
+            NetDisconect dis = new NetDisconect();
+                
+            IPEndPoint ip = NetworkManager.Instance.GetIpById(NetworkManager.Instance.playerList[i].id);
+            dis.data = NetworkManager.Instance.playerList[i].id;
+            NetworkManager.Instance.Broadcast(dis.Serialize());
+            NetworkManager.Instance.RemoveClient(NetworkManager.Instance.playerList[i].id, ip);
         }
     }
+     */
 }

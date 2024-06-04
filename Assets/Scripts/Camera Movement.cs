@@ -6,17 +6,21 @@ public class CameraMovement : MonoBehaviour
 
     private PlayerManager playerManager;
 
-    private NetRotation rotationData;
-    private NetworkScreen netScreen;
+    private NetVector2 rotationData;
 
     private void OnEnable()
     {
         NetworkManager.Instance.updateRot += RotatePlayer;
     }
 
+    private void OnDestroy()
+    {
+        NetworkManager.Instance.updateRot -= RotatePlayer;
+    }
+
     private void Start()
     {
-        rotationData = new NetRotation();
+        rotationData = new NetVector2();
         Cursor.lockState = CursorLockMode.Locked;
         playerManager = FindFirstObjectByType<PlayerManager>();
     }
@@ -26,35 +30,16 @@ public class CameraMovement : MonoBehaviour
         float mouseX = Input.GetAxis("Mouse X");
         float mouseY = Input.GetAxis("Mouse Y");
 
-        rotationData.data.y += mouseX;
+        rotationData.data.Y += mouseX;
 
-        rotationData.data.x -= mouseY;
+        rotationData.data.X -= mouseY;
 
-        rotationData.data.x = Mathf.Clamp(rotationData.data.x, -90f, 90f);
+        rotationData.data.X = Mathf.Clamp(rotationData.data.X, -90f, 90f);
 
-        if(NetworkManager.Instance != null)
-        {
-            if (NetworkManager.Instance.isServer)
-            {
-                Player character = NetworkManager.Instance.playerList[NetworkManager.Instance.player.id];
-
-                transform.rotation = Quaternion.Euler(0, rotationData.data.y, 0);
-                transform.GetChild(0).transform.rotation = Quaternion.Euler(rotationData.data.x, rotationData.data.y, 0);
-
-                character = NetworkManager.Instance.playerList[NetworkManager.Instance.player.id];
-
-                character.rotation = rotationData.data;
-
-                NetworkManager.Instance.playerList[NetworkManager.Instance.player.id] = character;
-            }
-            else
-            {
-                NetworkManager.Instance.SendToServer(rotationData.Serialize());
-            }
-        }
+        NetworkManager.Instance.SendToServer(rotationData.Serialize());
     }
 
-    private void RotatePlayer(Vector2 newRotation, int id)
+    private void RotatePlayer(System.Numerics.Vector2 newRotation, int id)
     {
         int ed = 0;
 
@@ -66,8 +51,8 @@ public class CameraMovement : MonoBehaviour
 
         Player character = NetworkManager.Instance.playerList[ed];
 
-        playerManager.players[ed].transform.rotation = Quaternion.Euler(0, newRotation.y, 0);
-        playerManager.players[ed].transform.GetChild(0).transform.rotation = Quaternion.Euler(newRotation.x, newRotation.y, 0);
+        playerManager.players[ed].transform.rotation = Quaternion.Euler(0, newRotation.Y, 0);
+        playerManager.players[ed].transform.GetChild(0).transform.rotation = Quaternion.Euler(newRotation.X, newRotation.Y, 0);
 
         character = NetworkManager.Instance.playerList[ed];
 
@@ -76,8 +61,20 @@ public class CameraMovement : MonoBehaviour
         NetworkManager.Instance.playerList[ed] = character;
     }
 
-    private void StartGame()
-    {
+    /*
+     
+    Esto lo deberia hacer cada player por su cuenta y luego updatear el resultado o tambien mandar el input
 
-    }
+    Player character = NetworkManager.Instance.playerList[NetworkManager.Instance.player.id];
+
+    transform.rotation = Quaternion.Euler(0, rotationData.data.y, 0);
+    transform.GetChild(0).transform.rotation = Quaternion.Euler(rotationData.data.x, rotationData.data.y, 0);
+
+    character = NetworkManager.Instance.playerList[NetworkManager.Instance.player.id];
+
+    character.rotation = rotationData.data;
+
+    NetworkManager.Instance.playerList[NetworkManager.Instance.player.id] = character; 
+
+     */
 }
