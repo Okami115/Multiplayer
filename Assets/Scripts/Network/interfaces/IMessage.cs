@@ -45,9 +45,6 @@ public class NetString : BaseMenssaje<string>
             result2 -= outData[i];
         }
 
-        Console.WriteLine("Check1 : " + result1);
-        Console.WriteLine("Check2 : " + result2);
-
         outData.AddRange(BitConverter.GetBytes(result1));
         outData.AddRange(BitConverter.GetBytes(result2));
 
@@ -92,9 +89,6 @@ public class NetFloat : BaseMenssaje<float>
             result2 -= outData[i];
         }
 
-        Console.WriteLine("Check1 : " + result1);
-        Console.WriteLine("Check2 : " + result2);
-
         outData.AddRange(BitConverter.GetBytes(result1));
         outData.AddRange(BitConverter.GetBytes(result2));
 
@@ -135,9 +129,6 @@ public class NetInt : BaseMenssaje<int>
             result1 += outData[i];
             result2 -= outData[i];
         }
-
-        Console.WriteLine("Check1 : " + result1);
-        Console.WriteLine("Check2 : " + result2);
 
         outData.AddRange(BitConverter.GetBytes(result1));
         outData.AddRange(BitConverter.GetBytes(result2));
@@ -188,9 +179,6 @@ public class NetVector3 : BaseMenssaje<Vector3>
             result2 -= outData[i];
         }
 
-        Console.WriteLine("Check1 : " + result1);
-        Console.WriteLine("Check2 : " + result2);
-
         outData.AddRange(BitConverter.GetBytes(result1));
         outData.AddRange(BitConverter.GetBytes(result2));
 
@@ -238,9 +226,6 @@ public class NetVector2 : BaseMenssaje<Vector2>
             result2 -= outData[i];
         }
 
-        Console.WriteLine("Check1 : " + result1);
-        Console.WriteLine("Check2 : " + result2);
-
         outData.AddRange(BitConverter.GetBytes(result1));
         outData.AddRange(BitConverter.GetBytes(result2));
 
@@ -281,9 +266,6 @@ public class NetDisconect : BaseMenssaje<int>
             result1 += outData[i];
             result2 -= outData[i];
         }
-
-        Console.WriteLine("Check1 : " + result1);
-        Console.WriteLine("Check2 : " + result2);
 
         outData.AddRange(BitConverter.GetBytes(result1));
         outData.AddRange(BitConverter.GetBytes(result2));
@@ -345,9 +327,6 @@ public class AddPlayer : BaseMenssaje<Player>
             result2 -= outData[i];
         }
 
-        Console.WriteLine("Check1 : " + result1);
-        Console.WriteLine("Check2 : " + result2);
-
         outData.AddRange(BitConverter.GetBytes(result1));
         outData.AddRange(BitConverter.GetBytes(result2));
 
@@ -396,9 +375,6 @@ public class C2SHandShake : BaseMenssaje<string>
             result1 += outData[i];
             result2 -= outData[i];
         }
-
-        Console.WriteLine("Check1 : " + result1);
-        Console.WriteLine("Check2 : " + result2);
 
         outData.AddRange(BitConverter.GetBytes(result1));
         outData.AddRange(BitConverter.GetBytes(result2));
@@ -479,9 +455,6 @@ public class S2CHandShake : BaseMenssaje<List<Player>>
             result2 -= outData[i];
         }
 
-        Console.WriteLine("Check1 : " + result1);
-        Console.WriteLine("Check2 : " + result2);
-
         outData.AddRange(BitConverter.GetBytes(result1));
         outData.AddRange(BitConverter.GetBytes(result2));
 
@@ -522,9 +495,6 @@ public class NetPing : BaseMenssaje<int>
             result1 += outData[i];
             result2 -= outData[i];
         }
-
-        Console.WriteLine("Check1 : " + result1);
-        Console.WriteLine("Check2 : " + result2);
 
         outData.AddRange(BitConverter.GetBytes(result1));
         outData.AddRange(BitConverter.GetBytes(result2));
@@ -604,9 +574,6 @@ public class NetPlayerListUpdate : BaseMenssaje<List<Player>>
             result2 -= outData[i];
         }
 
-        Console.WriteLine("Check1 : " + result1);
-        Console.WriteLine("Check2 : " + result2);
-
         outData.AddRange(BitConverter.GetBytes(result1));
         outData.AddRange(BitConverter.GetBytes(result2));
         return outData.ToArray();
@@ -650,9 +617,6 @@ public class DeniedNet : BaseMenssaje<string>
             result2 -= outData[i];
         }
 
-        Console.WriteLine("Check1 : " + result1);
-        Console.WriteLine("Check2 : " + result2);
-
         outData.AddRange(BitConverter.GetBytes(result1));
         outData.AddRange(BitConverter.GetBytes(result2));
 
@@ -678,11 +642,6 @@ public static class Checksum
         }
 
         bool aux = checkSum1 == result1 && checkSum2 == result2;
-        Console.WriteLine("Check1 : " + checkSum1);
-        Console.WriteLine("Check2 : " + checkSum2);
-        Console.WriteLine("res1 : " + result1);
-        Console.WriteLine("res2 : " + result2);
-        Console.WriteLine("Checksum? : " + aux);
 
         return checkSum1 == result1 && checkSum2 == result2;
     }

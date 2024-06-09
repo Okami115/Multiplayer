@@ -395,6 +395,12 @@ public class NetworkManager : MonoBehaviour, IReceiveData
             Instance = this;
         else
             Destroy(gameObject);
+
+#if UNITY_SERVER
+        Console.WriteLine("Init Server");
+        Instance.StartServer(55555);
+#endif
+
     }
 
     // mover a funcion generica
@@ -437,12 +443,13 @@ public class NetworkManager : MonoBehaviour, IReceiveData
             }
         }
 
-
-        if(Instance.isServer && playerList != null)
+#if UNITY_SERVER
+        if(playerList != null)
         {
             NetPlayerListUpdate updating = new NetPlayerListUpdate(playerList);
             Instance.Broadcast(updating.Serialize());
         }
+#endif
     }
 
     public IPEndPoint GetIpById(int id)

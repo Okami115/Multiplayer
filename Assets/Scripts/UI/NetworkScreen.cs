@@ -6,15 +6,12 @@ using UnityEngine.UI;
 public class NetworkScreen : MonoBehaviour
 {
     public Button connectBtn;
-    public Button startServerBtn;
-    public InputField portInputField;
     public InputField addressInputField;
     public InputField nameInputField;
     public GameObject messages;
     public GameObject messages2;
 
     private IPAddress ipAddress;
-    private int port;
     private string playerName;
 
     public Action start;
@@ -26,28 +23,22 @@ public class NetworkScreen : MonoBehaviour
 
     private void Start()
     {
+#if UNITY_SERVER
+        gameObject.SetActive(false);
+#endif
         connectBtn.onClick.AddListener(OnConnectBtnClick);
-        startServerBtn.onClick.AddListener(OnStartServerBtnClick);
     }
 
     void OnConnectBtnClick()
     {
         ipAddress = IPAddress.Parse(addressInputField.text);
-        port = Convert.ToInt32(portInputField.text);
-        name = Convert.ToString(nameInputField.text);
+        playerName = Convert.ToString(nameInputField.text);
 
         C2SHandShake c2SHandShake = new C2SHandShake(playerName);
 
         NetworkManager.Instance.deniedConnection += SwitchToChatScreen;
-        NetworkManager.Instance.StartClient(ipAddress, port, c2SHandShake.data);
+        NetworkManager.Instance.StartClient(ipAddress, 55555, c2SHandShake.data);
         NetworkManager.Instance.SendToServer(c2SHandShake.Serialize());
-    }
-
-    void OnStartServerBtnClick()
-    {
-        port = Convert.ToInt32(portInputField.text);
-        NetworkManager.Instance.StartServer(port);
-        SwitchToChatScreen("Authorized");
     }
 
     // Sintetizar
@@ -57,8 +48,7 @@ public class NetworkScreen : MonoBehaviour
         {
             start?.Invoke();
             gameObject.SetActive(false);
-            if(!NetworkManager.Instance.isServer)
-                NetworkManager.Instance.player.name = playerName;
+            NetworkManager.Instance.player.name = playerName;
         }
 
         if (set == "Name")
