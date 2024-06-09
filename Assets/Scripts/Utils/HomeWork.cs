@@ -35,7 +35,7 @@ public class HomeWork
 
     // Server not player - Check
 
-    // Server Indpendiente - Pendiente
+    // Server Indpendiente - Check
 
     // INetObj / NetObj - Check
 

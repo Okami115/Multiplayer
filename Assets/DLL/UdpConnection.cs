@@ -78,6 +78,7 @@ public class UdpConnection
         {
             lock (handler)
             {
+                // PORQUE CARAJO SE ROMPE???
                 dataReceivedQueue.Enqueue(dataReceived);
             }
 
