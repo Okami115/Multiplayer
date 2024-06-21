@@ -1,3 +1,5 @@
+using OkamiNet.Menssage;
+using OkamiNet.Network;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -27,17 +29,9 @@ public class ChatScreen : MonoBehaviour
     {
         if (inputMessage.text != "")
         {
-            if (NetworkManager.Instance.isServer)
-            {
-                NetString consoleMensajes = new NetString("Server: " + inputMessage.text + System.Environment.NewLine);
-                messages.text += consoleMensajes.data;
-                NetworkManager.Instance.Broadcast(consoleMensajes.Serialize());
-            }
-            else
-            {
-                NetString consoleMensajes = new NetString(NetworkManager.Instance.player.name + ": " + inputMessage.text + System.Environment.NewLine);
-                NetworkManager.Instance.SendToServer(consoleMensajes.Serialize());
-            }
+
+            NetString consoleMensajes = new NetString(NetworkManager.Instance.player.name + ": " + inputMessage.text + System.Environment.NewLine);
+            //NetworkManager.Instance.SendToServer(consoleMensajes.Serialize());
 
             inputMessage.ActivateInputField();
             inputMessage.Select();

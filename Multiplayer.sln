@@ -5,9 +5,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParrelSync", "ParrelSync.cs
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp", "Assembly-CSharp.csproj", "{D46A65ED-87AD-D2D3-0493-4CF8807E7B5A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetOkamiSystem", "NetOkamiSystem.csproj", "{DF6FE824-171A-D0A7-D4B9-1F372EEDBE4E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OkamiServer", "OkamiServer\OkamiServer.csproj", "{9099F475-ECA8-41B1-8055-9D55020CFD1C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetLibByOkami", "..\NetLibByOkami\NetLibByOkami.csproj", "{42BFA243-0462-4625-98EA-F64A26342713}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OkamiNet", "OkamiNet\OkamiNet.csproj", "{37BFC8A0-0C24-4403-9A5B-A8C4BD971373}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,14 +23,14 @@ Global
 		{D46A65ED-87AD-D2D3-0493-4CF8807E7B5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D46A65ED-87AD-D2D3-0493-4CF8807E7B5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D46A65ED-87AD-D2D3-0493-4CF8807E7B5A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DF6FE824-171A-D0A7-D4B9-1F372EEDBE4E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DF6FE824-171A-D0A7-D4B9-1F372EEDBE4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DF6FE824-171A-D0A7-D4B9-1F372EEDBE4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DF6FE824-171A-D0A7-D4B9-1F372EEDBE4E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{42BFA243-0462-4625-98EA-F64A26342713}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{42BFA243-0462-4625-98EA-F64A26342713}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{42BFA243-0462-4625-98EA-F64A26342713}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{42BFA243-0462-4625-98EA-F64A26342713}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9099F475-ECA8-41B1-8055-9D55020CFD1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9099F475-ECA8-41B1-8055-9D55020CFD1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9099F475-ECA8-41B1-8055-9D55020CFD1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9099F475-ECA8-41B1-8055-9D55020CFD1C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{37BFC8A0-0C24-4403-9A5B-A8C4BD971373}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37BFC8A0-0C24-4403-9A5B-A8C4BD971373}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37BFC8A0-0C24-4403-9A5B-A8C4BD971373}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37BFC8A0-0C24-4403-9A5B-A8C4BD971373}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

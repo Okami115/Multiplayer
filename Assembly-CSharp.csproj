@@ -63,7 +63,6 @@
   <ItemGroup>
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_TextEventHandler.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexShakeA.cs" />
-    <Compile Include="Assets\Scripts\Network\interfaces\IMessage.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\EnvMapAnimator.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_TextSelector_A.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark01_UGUI.cs" />
@@ -75,6 +74,7 @@
     <Compile Include="Assets\Scripts\Bullet.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_DigitValidator.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_FrameRateCounter.cs" />
+    <Compile Include="Assets\Scripts\Utils\Tools.cs" />
     <Compile Include="Assets\Scripts\InputController.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark01.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TextMeshSpawner.cs" />
@@ -92,7 +92,6 @@
     <Compile Include="Assets\Scripts\PlayerManager.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\ObjectSpin.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_PhoneNumberValidator.cs" />
-    <Compile Include="Assets\Scripts\Network\NetworkManager.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexJitter.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TextConsoleSimulator.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TeleType.cs" />
@@ -101,6 +100,7 @@
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexZoom.cs" />
     <Compile Include="Assets\Scripts\GameManager.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_TextSelector_B.cs" />
+    <Compile Include="Assets\Scripts\NetClient.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\SkewTextExample.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\WarpTextExample.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TextMeshProFloatingText.cs" />
@@ -590,6 +590,10 @@
     </Reference>
     <Reference Include="Unity.Analytics.Editor">
       <HintPath>Library\PackageCache\com.unity.analytics@3.8.1\Unity.Analytics.Editor.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="OkamiNet">
+      <HintPath>Assets\Plugins\OkamiDLL\OkamiNet.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json">
@@ -1238,10 +1242,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="NetOkamiSystem.csproj">
-      <Project>{DF6FE824-171A-D0A7-D4B9-1F372EEDBE4E}</Project>
-      <Name>NetOkamiSystem</Name>
-    </ProjectReference>
     <ProjectReference Include="ParrelSync.csproj">
       <Project>{DA3744C5-4E05-B9FD-F7D2-6DD89356F147}</Project>
       <Name>ParrelSync</Name>

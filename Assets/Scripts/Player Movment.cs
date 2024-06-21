@@ -1,3 +1,5 @@
+using OkamiNet.Menssage;
+using OkamiNet.Network;
 using UnityEngine;
 
 public class PlayerMovment : MonoBehaviour
@@ -37,7 +39,7 @@ public class PlayerMovment : MonoBehaviour
 
         pos.data = new System.Numerics.Vector3(movimientoHorizontal, 0.0f, movimientoVertical);
 
-        NetworkManager.Instance.SendToServer(pos.Serialize());
+        //NetworkManager.Instance.SendToServer(pos.Serialize());
     }
 
     private void MovePlayer(System.Numerics.Vector3 newPos, int id)

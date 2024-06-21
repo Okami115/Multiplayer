@@ -1,0 +1,36 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v8.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v8.0": {
+      "OkamiServer/1.0.0": {
+        "dependencies": {
+          "OkamiNet": "1.0.0"
+        },
+        "runtime": {
+          "OkamiServer.dll": {}
+        }
+      },
+      "OkamiNet/1.0.0": {
+        "runtime": {
+          "OkamiNet.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "OkamiServer/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "OkamiNet/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

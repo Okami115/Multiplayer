@@ -1,3 +1,5 @@
+using OkamiNet.Menssage;
+using OkamiNet.Network;
 using UnityEngine;
 
 public class CameraMovement : MonoBehaviour
@@ -36,7 +38,7 @@ public class CameraMovement : MonoBehaviour
 
         rotationData.data.X = Mathf.Clamp(rotationData.data.X, -90f, 90f);
 
-        NetworkManager.Instance.SendToServer(rotationData.Serialize());
+        //NetworkManager.Instance.SendToServer(rotationData.Serialize());
     }
 
     private void RotatePlayer(System.Numerics.Vector2 newRotation, int id)

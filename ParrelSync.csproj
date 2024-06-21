@@ -559,6 +559,10 @@
       <HintPath>Library\PackageCache\com.unity.collab-proxy@2.2.0\Lib\Editor\PlasticSCM\log4netPlastic.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="OkamiNet">
+      <HintPath>Assets\Plugins\OkamiDLL\OkamiNet.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>Library\PackageCache\com.unity.nuget.newtonsoft-json@3.2.1\Runtime\Newtonsoft.Json.dll</HintPath>
       <Private>False</Private>

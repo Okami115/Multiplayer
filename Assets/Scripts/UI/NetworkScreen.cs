@@ -1,4 +1,6 @@
-﻿using System;
+﻿using OkamiNet.Menssage;
+using OkamiNet.Network;
+using System;
 using System.Net;
 using UnityEngine;
 using UnityEngine.UI;
@@ -23,9 +25,6 @@ public class NetworkScreen : MonoBehaviour
 
     private void Start()
     {
-#if UNITY_SERVER
-        gameObject.SetActive(false);
-#endif
         connectBtn.onClick.AddListener(OnConnectBtnClick);
     }
 
@@ -37,14 +36,14 @@ public class NetworkScreen : MonoBehaviour
         C2SHandShake c2SHandShake = new C2SHandShake(playerName);
 
         NetworkManager.Instance.deniedConnection += SwitchToChatScreen;
-        NetworkManager.Instance.StartClient(ipAddress, 55555, c2SHandShake.data);
+        NetworkManager.Instance.StartClient(ipAddress, 55557, c2SHandShake.data);
         NetworkManager.Instance.SendToServer(c2SHandShake.Serialize());
     }
 
     // Sintetizar
     void SwitchToChatScreen(string set)
     {
-        if(set == "Authorized")
+        if (set == "Authorized")
         {
             start?.Invoke();
             gameObject.SetActive(false);
@@ -56,8 +55,8 @@ public class NetworkScreen : MonoBehaviour
             messages.SetActive(true);
             messages2.SetActive(false);
         }
-        
-        if(set == "Full")
+
+        if (set == "Full")
         {
             messages.SetActive(false);
             messages2.SetActive(true);

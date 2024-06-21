@@ -1,3 +1,5 @@
+using OkamiNet.Menssage;
+using OkamiNet.Network;
 using UnityEngine;
 
 public class Shoot : MonoBehaviour
@@ -26,10 +28,10 @@ public class Shoot : MonoBehaviour
 
     void Update()
     {
-        if(Input.GetMouseButtonUp(0))
+        if (Input.GetMouseButtonUp(0))
         {
             shootData.data = NetworkManager.Instance.player.id;
-            NetworkManager.Instance.SendToServer(shootData.Serialize());
+            //NetworkManager.Instance.SendToServer(shootData.Serialize());
         }
     }
 

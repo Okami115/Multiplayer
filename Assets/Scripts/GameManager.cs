@@ -1,3 +1,5 @@
+using OkamiNet.Menssage;
+using OkamiNet.Network;
 using TMPro;
 using UnityEngine;
 

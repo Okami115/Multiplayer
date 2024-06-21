@@ -1,3 +1,4 @@
+using OkamiNet.Network;
 using System.Collections.Generic;
 using UnityEngine;
 

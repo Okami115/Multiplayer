@@ -1,5 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
+using OkamiNet.Network;
 using UnityEngine;
 
 // Optimizar
@@ -7,14 +6,14 @@ public class Bullet : MonoBehaviour
 {
     private void OnTriggerEnter(Collider other)
     {
-        if(NetworkManager.Instance.isServer && other.tag == "Player")
+        if (NetworkManager.Instance.isServer && other.tag == "Player")
         {
-            for(int i = 0; i < NetworkManager.Instance.playerList.Count; i++)
+            for (int i = 0; i < NetworkManager.Instance.playerList.Count; i++)
             {
-                if(other.gameObject.name == gameObject.name)
+                if (other.gameObject.name == gameObject.name)
                     return;
 
-                if(other.gameObject.name == NetworkManager.Instance.playerList[i].id.ToString())
+                if (other.gameObject.name == NetworkManager.Instance.playerList[i].id.ToString())
                 {
                     Player player = NetworkManager.Instance.playerList[i];
 
