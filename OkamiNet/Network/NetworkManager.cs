@@ -3,7 +3,9 @@ using OkamiNet.Menssage;
 using OkamiNet.Utils;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net;
+using System.Reflection;
 
 namespace OkamiNet.Network
 {
@@ -123,7 +125,7 @@ namespace OkamiNet.Network
 
                 newPlayer.data = player;    
 
-                Instance.Broadcast(newPlayer.Serialize());
+                Instance.Broadcast(newPlayer.Serialize(0));
 
                 playerList.Add(player);
 
@@ -180,7 +182,7 @@ namespace OkamiNet.Network
 
             switch (aux)
             {
-                case NetMenssage.Console:
+                case NetMenssage.String:
 
                     UtilsTools.LOG?.Invoke("New mensages");
                     NetString consoleMensajes = new NetString("");
@@ -190,15 +192,22 @@ namespace OkamiNet.Network
                     if (Instance.isServer)
                         Instance.Broadcast(data);
                     break;
-                case NetMenssage.Position:
+                case NetMenssage.Vector3:
                     NetVector3 pos = new NetVector3();
-                    if(Instance.isServer && ipToId.Count != 0)
+                    System.Numerics.Vector3 newPos = pos.Deserialize(data);
+
+                    if (isServer && ipToId.Count != 0)
                     {
                         id = ipToId[ip];
-                        System.Numerics.Vector3 newPos = pos.Deserialize(data);
 
-                        updatePos?.Invoke(newPos, id);
+                        Player player = Instance.playerList[id];
+
+                        player.pos = newPos;
+
+                        Instance.playerList[id] = player;
+                        //updatePos?.Invoke(newPos, pos.GetOwner(data));
                     }
+
                     break;
                 case NetMenssage.Rotation:
                     NetVector2 rot = new NetVector2();
@@ -217,7 +226,7 @@ namespace OkamiNet.Network
                     {
                         id = ipToId[ip];
                         dis.data = id;
-                        Broadcast(dis.Serialize());
+                        Broadcast(dis.Serialize(0));
                         RemoveClient(id, ip);
                     }
                     else
@@ -249,14 +258,14 @@ namespace OkamiNet.Network
                             temp.data = "Name";
                     }
 
-                    SendToClient(temp.Serialize(), ip);
+                    SendToClient(temp.Serialize(0), ip);
 
                     if(temp.data == "Authorized")
                     {
                         Instance.AddClient(ip, name);
 
                         S2CHandShake s2CHandShake = new S2CHandShake(Instance.playerList);
-                        byte[] players = s2CHandShake.Serialize();
+                        byte[] players = s2CHandShake.Serialize(0);
                         Instance.Broadcast(players);
                         UtilsTools.LOG?.Invoke("Send S2C");
                     }
@@ -276,7 +285,7 @@ namespace OkamiNet.Network
                     NetPing Startping = new NetPing();
                     Startping.data = Instance.player.id;
                     Instance.lastPingSend.Add(DateTime.UtcNow);
-                    Instance.SendToServer(Startping.Serialize());
+                    Instance.SendToServer(Startping.Serialize(0));
                     break;
                 case NetMenssage.Ping:
                     NetPing ping = new NetPing();
@@ -294,14 +303,14 @@ namespace OkamiNet.Network
                     if (Instance.isServer)
                     {
                         ping.data = 0;
-                        Instance.SendToClient(ping.Serialize(), ip);
+                        Instance.SendToClient(ping.Serialize(0), ip);
                         UtilsTools.LOG?.Invoke("Cliente " + idPing + " : ping : " + latencyMilliseconds);
                     }
                     else
                     {
                         UtilsTools.LOG?.Invoke("ping : " + latencyMilliseconds);
                         ping.data = Instance.player.id;
-                        Instance.SendToServer(ping.Serialize());
+                        Instance.SendToServer(ping.Serialize(0));
                     }
                     break;
                 case NetMenssage.PlayerList:
@@ -323,7 +332,7 @@ namespace OkamiNet.Network
                     deniedConnection?.Invoke(denied.data);
 
                     break;
-                case NetMenssage.Timer:
+                case NetMenssage.Float:
                     NetFloat timer = new NetFloat();
                     timer.data = timer.Deserialize(data);
                     updateTimer?.Invoke(timer.data);
@@ -357,7 +366,7 @@ namespace OkamiNet.Network
                 for (int i = 1; i < playerList.Count; i++)
                 {
                     dis.data = playerList[i].id;
-                    SendToClient(dis.Serialize(), GetIpById(playerList[i].id));
+                    SendToClient(dis.Serialize(0), GetIpById(playerList[i].id));
                 }
                 connection.Close();
                 playerList.Clear();
@@ -369,7 +378,7 @@ namespace OkamiNet.Network
             {
                 NetDisconect dis = new NetDisconect();
                 dis.data = Instance.player.id;
-                Instance.SendToServer(dis.Serialize());
+                Instance.SendToServer(dis.Serialize(0));
             }
         }
 
@@ -408,11 +417,8 @@ namespace OkamiNet.Network
 
             DisconetForPing(Instance.isServer);
 
-            if (playerList != null)
-            {
-                NetPlayerListUpdate updating = new NetPlayerListUpdate(playerList);
-                Instance.Broadcast(updating.Serialize());
-            }
+            NetPlayerListUpdate playerListData = new NetPlayerListUpdate(playerList);
+            Broadcast(playerListData.Serialize(0));
         }
 
         public void UpdateClient()
@@ -421,6 +427,7 @@ namespace OkamiNet.Network
                 connection.FlushReceiveData();
 
             DisconetForPing(Instance.isServer);
+
         }
 
         public IPEndPoint GetIpById(int id)
@@ -454,7 +461,7 @@ namespace OkamiNet.Network
                             {
                                 IPEndPoint ip = Instance.GetIpById(Instance.playerList[i].id);
                                 dis.data = Instance.playerList[i].id;
-                                Instance.Broadcast(dis.Serialize());
+                                Instance.Broadcast(dis.Serialize(0));
                                 Instance.RemoveClient(Instance.playerList[i].id, ip);
                             }
                         }
@@ -470,8 +477,67 @@ namespace OkamiNet.Network
                 }
             }
         }
-
-
     }
 
+    public class NetValue : Attribute
+    {
+        int id;
+        public NetValue(int id)
+        {
+            this.id = id;
+        }
+    }
+    
+    public class NetValueTypeMessage : Attribute
+    {
+        public NetMenssage netMenssage;
+        public Type type;  
+        public NetValueTypeMessage(NetMenssage netmessage, Type type)
+        {
+            this.netMenssage = netmessage;
+            this.type = type;
+        }
+    }
+
+    public static class Reflection
+    {
+        public static void Inspect(Type type, object obj)
+        {
+            if (obj != null)
+            {
+
+                foreach (FieldInfo info in type.GetFields(
+                    BindingFlags.NonPublic |
+                    BindingFlags.Public |
+                    BindingFlags.Instance | BindingFlags.DeclaredOnly))
+                {
+                    ReadValue(info, obj);
+                }
+
+                if (type.BaseType != null)
+                {
+                    Inspect(type.BaseType, obj);
+                }
+            }
+        }
+
+        public static void ReadValue(FieldInfo info, object obj)
+        {
+            if (info.FieldType.IsValueType || info.FieldType == typeof(string) || info.FieldType.IsEnum)
+            {
+                UtilsTools.LOG(info.Name + ": " + info.GetValue(obj));
+            }
+            else if (typeof(System.Collections.ICollection).IsAssignableFrom(info.FieldType))
+            {
+                foreach (object item in (info.GetValue(obj) as System.Collections.ICollection))
+                {
+                    Inspect(item.GetType(), item);
+                }
+            }
+            else
+            {
+                Inspect(info.FieldType, info.GetValue(obj));
+            }
+        }
+    }
 }

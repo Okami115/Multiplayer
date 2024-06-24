@@ -14,13 +14,11 @@ public class PlayerMovment : MonoBehaviour
 
     private void OnEnable()
     {
-        NetworkManager.Instance.updatePos += MovePlayer;
         NetworkManager.Instance.stopPlayer += LockPlayer;
     }
 
     private void OnDestroy()
     {
-        NetworkManager.Instance.updatePos -= MovePlayer;
         NetworkManager.Instance.stopPlayer -= LockPlayer;
     }
 
@@ -39,65 +37,39 @@ public class PlayerMovment : MonoBehaviour
 
         pos.data = new System.Numerics.Vector3(movimientoHorizontal, 0.0f, movimientoVertical);
 
-        //NetworkManager.Instance.SendToServer(pos.Serialize());
+        Move();
     }
 
-    private void MovePlayer(System.Numerics.Vector3 newPos, int id)
+    private void Move()
     {
-        int ed = 0;
+        Vector3 aux = new Vector3();
 
-        for (int i = 0; i < NetworkManager.Instance.playerList.Count; i++)
-        {
-            if (NetworkManager.Instance.playerList[i].id == id)
-                ed = i;
-        }
+        aux.x = pos.data.X;
+        aux.y = pos.data.Y;
+        aux.z = pos.data.Z;
 
-        Vector3 pos = new Vector3();
+        aux = Camera.main.transform.TransformDirection(aux);
+        aux.y = 0.0f;
 
-        pos.x = newPos.X;
-        pos.y = newPos.Y;
-        pos.z = newPos.Z;
+        rb.AddForce(aux * speed);
 
-        pos = playerManager.players[ed].transform.GetChild(0).transform.TransformDirection(pos);
-        pos.y = 0.0f;
+        Player character = NetworkManager.Instance.playerList[NetworkManager.Instance.player.id];
 
-        Rigidbody RB = playerManager.players[ed].GetComponent<Rigidbody>();
+        character = NetworkManager.Instance.playerList[NetworkManager.Instance.player.id];
 
-        RB.AddForce(pos * speed);
+        character.pos.X = transform.position.x;
+        character.pos.Y = transform.position.y;
+        character.pos.Z = transform.position.z;
 
-        Player character = NetworkManager.Instance.playerList[ed];
+        NetworkManager.Instance.playerList[NetworkManager.Instance.player.id] = character;
 
-        character = NetworkManager.Instance.playerList[ed];
+        pos.data = character.pos;
 
-        character.pos.X = playerManager.players[ed].transform.position.x;
-        character.pos.Y = playerManager.players[ed].transform.position.y;
-        character.pos.Z = playerManager.players[ed].transform.position.z;
-
-        NetworkManager.Instance.playerList[ed] = character;
+        NetworkManager.Instance.SendToServer(pos.Serialize(NetworkManager.Instance.player.id));
     }
 
     private void LockPlayer()
     {
         gameObject.SetActive(false);
     }
-
-
-    /*
-     
-    cada Player se mueve a si mismo y luego envia su posicion en el update (terrorismo)
-
-    pos.data = Camera.main.transform.TransformDirection(pos.data);
-    pos.data.y = 0.0f;
-
-    rb.AddForce(pos.data * speed);
-
-    Player character = NetworkManager.Instance.playerList[NetworkManager.Instance.player.id];
-
-    character = NetworkManager.Instance.playerList[NetworkManager.Instance.player.id];
-
-    character.pos = transform.position;
-
-    NetworkManager.Instance.playerList[NetworkManager.Instance.player.id] = character;
-     
-     */
 }

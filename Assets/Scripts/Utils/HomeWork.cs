@@ -31,7 +31,7 @@ public class HomeWork
 
     //------------------Segundo Parcial------------------------
 
-    // Cliente Autoritativo - Pendiente
+    // Cliente Autoritativo - Check
 
     // Server not player - Check
 
@@ -39,9 +39,11 @@ public class HomeWork
 
     // INetObj / NetObj - Check
 
-    // Libreria Comun - Pendiente
+    // Libreria Comun - Check
 
     // MatchMaker Independiente - Pendiente 
+
+    // Reflection - Pendiente
 
     // Criterio de ELO - Pendiente
 

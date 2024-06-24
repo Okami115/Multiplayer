@@ -12,12 +12,12 @@ public class PlayerManager : MonoBehaviour
     private void OnEnable()
     {
         netScreen = FindAnyObjectByType<NetworkScreen>();
-
         netScreen.start += StartGame;
     }
     private void OnDestroy()
     {
         netScreen.start -= StartGame;
+        NetworkManager.Instance.updatePos -= MovePlayers;
         NetworkManager.Instance.spawnPlayer -= SpawnNewPlayer;
         NetworkManager.Instance.disconectPlayer -= DeletePlayer;
         NetworkManager.Instance.stopPlayer -= LockPlayer;
@@ -26,11 +26,24 @@ public class PlayerManager : MonoBehaviour
         NetworkManager.Instance.connectPlayer -= SpawnNewPlayer;
     }
 
+    private void MovePlayers(System.Numerics.Vector3 pos, int id)
+    {
+        Vector3 newPos = new Vector3();
+
+        newPos.x = pos.X;
+        newPos.y = pos.Y;
+        newPos.z = pos.Z;
+
+        players[id].transform.position = newPos;
+    }
 
     private void Update()
     {
         for (int i = 0; i < players.Count; i++)
         {
+            if (i == NetworkManager.Instance.player.id)
+                return;
+
             Vector3 pos = new Vector3();
 
             pos.x = NetworkManager.Instance.playerList[i].pos.X;
@@ -115,6 +128,7 @@ public class PlayerManager : MonoBehaviour
 
         NetworkManager.Instance.StartMap += StartMap;
         NetworkManager.Instance.connectPlayer += SpawnNewPlayer;
+        NetworkManager.Instance.updatePos += MovePlayers;
     }
 
     /*
@@ -135,5 +149,6 @@ public class PlayerManager : MonoBehaviour
             NetworkManager.Instance.RemoveClient(NetworkManager.Instance.playerList[i].id, ip);
         }
     }
+
      */
 }

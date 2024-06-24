@@ -6,8 +6,8 @@ namespace OkamiNet.Menssage
 {
     public enum NetMenssage
     {
-        Console = 0,
-        Position,
+        String = 0,
+        Vector3,
         Rotation,
         Shoot,
         Disconect,
@@ -17,7 +17,7 @@ namespace OkamiNet.Menssage
         PlayerList,
         Ping,
         Denied,
-        Timer,
+        Float,
     }
     public abstract class BaseMenssaje<PayLoadType>
     {
@@ -25,7 +25,7 @@ namespace OkamiNet.Menssage
         public abstract NetMenssage GetMessageType();
 
         public static Action<PayLoadType> OnDispatch;
-        public abstract byte[] Serialize();
+        public abstract byte[] Serialize(int Owner);
 
         public abstract PayLoadType Deserialize(byte[] message);
 

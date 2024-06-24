@@ -66,7 +66,6 @@ namespace OkamiNet.Network
 
             try
             {
-                UtilsTools.LOG?.Invoke("[UdpConnection] TRY!");
                 if (!isDisposed)
                 {
                     dataReceived.data = connection.EndReceive(ar, ref dataReceived.ipEndPoint);
@@ -81,13 +80,10 @@ namespace OkamiNet.Network
             {
                 lock (handler)
                 {
-                    // PORQUE CARAJO SE ROMPE??? 
-                    UtilsTools.LOG?.Invoke("[UdpConnection] In progress");
                     dataReceivedQueue.Enqueue(dataReceived);
                 }
 
                 connection.BeginReceive(OnReceive, null);
-                UtilsTools.LOG?.Invoke("[UdpConnection] GOOD!");
             }
         }
 

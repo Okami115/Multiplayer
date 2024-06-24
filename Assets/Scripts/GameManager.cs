@@ -31,6 +31,7 @@ public class GameManager : MonoBehaviour
         input.setChat -= SetChatScreen;
         NetworkManager.Instance.updateTimer -= UpdateTimer;
     }
+
     private void SetChatScreen()
     {
         if (canvas.active)

@@ -1,4 +1,5 @@
 using OkamiNet.Network;
+using OkamiNet.Utils;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
@@ -27,10 +28,10 @@ namespace OkamiNet.Menssage
 
         public override NetMenssage GetMessageType()
         {
-            return NetMenssage.Console;
+            return NetMenssage.String;
         }
 
-        public override byte[] Serialize()
+        public override byte[] Serialize(int Owner)
         {
             List<byte> outData = new List<byte>();
 
@@ -54,6 +55,7 @@ namespace OkamiNet.Menssage
         }
     }
 
+    [NetValueTypeMessage(NetMenssage.Float, typeof(float))]
     public class NetFloat : BaseMenssaje<float>
     {
         public override float Deserialize(byte[] message)
@@ -71,10 +73,10 @@ namespace OkamiNet.Menssage
 
         public override NetMenssage GetMessageType()
         {
-            return NetMenssage.Timer;
+            return NetMenssage.Float;
         }
 
-        public override byte[] Serialize()
+        public override byte[] Serialize(int Owner)
         {
             List<byte> outData = new List<byte>();
 
@@ -114,7 +116,7 @@ namespace OkamiNet.Menssage
             return NetMenssage.Shoot;
         }
 
-        public override byte[] Serialize()
+        public override byte[] Serialize(int Owner)
         {
             List<byte> outData = new List<byte>();
 
@@ -156,10 +158,17 @@ namespace OkamiNet.Menssage
 
         public override NetMenssage GetMessageType()
         {
-            return NetMenssage.Position;
+            return NetMenssage.Vector3;
         }
 
-        public override byte[] Serialize()
+        public int GetOwner(byte[] message)
+        {
+            int id = BitConverter.ToInt32(message, message.Length - 12);
+            UtilsTools.LOG("Owner : " + id);
+            return id;
+        }
+
+        public override byte[] Serialize(int Owner)
         {
             List<byte> outData = new List<byte>();
 
@@ -177,7 +186,7 @@ namespace OkamiNet.Menssage
                 result1 += outData[i];
                 result2 -= outData[i];
             }
-
+            outData.AddRange(BitConverter.GetBytes(Owner));
             outData.AddRange(BitConverter.GetBytes(result1));
             outData.AddRange(BitConverter.GetBytes(result2));
 
@@ -206,7 +215,7 @@ namespace OkamiNet.Menssage
             return NetMenssage.Rotation;
         }
 
-        public override byte[] Serialize()
+        public override byte[] Serialize(int Owner)
         {
             List<byte> outData = new List<byte>();
 
@@ -248,7 +257,7 @@ namespace OkamiNet.Menssage
             return NetMenssage.Disconect;
         }
 
-        public override byte[] Serialize()
+        public override byte[] Serialize(int Owner)
         {
             List<byte> outData = new List<byte>();
 
@@ -299,7 +308,7 @@ namespace OkamiNet.Menssage
             return NetMenssage.AddPlayer;
         }
 
-        public override byte[] Serialize()
+        public override byte[] Serialize(int Owner)
         {
             List<byte> outData = new List<byte>();
 
@@ -354,7 +363,7 @@ namespace OkamiNet.Menssage
             return NetMenssage.C2S;
         }
 
-        public override byte[] Serialize()
+        public override byte[] Serialize(int Owner)
         {
             List<byte> outData = new List<byte>();
 
@@ -420,7 +429,7 @@ namespace OkamiNet.Menssage
             return NetMenssage.S2C;
         }
 
-        public override byte[] Serialize()
+        public override byte[] Serialize(int Owner)
         {
             List<byte> outData = new List<byte>();
 
@@ -473,7 +482,7 @@ namespace OkamiNet.Menssage
             return NetMenssage.Ping;
         }
 
-        public override byte[] Serialize()
+        public override byte[] Serialize(int Owner)
         {
             List<byte> outData = new List<byte>();
 
@@ -538,7 +547,7 @@ namespace OkamiNet.Menssage
             return NetMenssage.PlayerList;
         }
 
-        public override byte[] Serialize()
+        public override byte[] Serialize(int Owner)
         {
             List<byte> outData = new List<byte>();
 
@@ -592,7 +601,7 @@ namespace OkamiNet.Menssage
             return NetMenssage.Denied;
         }
 
-        public override byte[] Serialize()
+        public override byte[] Serialize(int Owner)
         {
             List<byte> outData = new List<byte>();
 
