@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
+using System.Numerics;
 using System.Reflection;
 
 namespace OkamiNet.Network
@@ -36,6 +37,36 @@ namespace OkamiNet.Network
             HP = 3;
             pos = System.Numerics.Vector3.Zero;
             rotation = System.Numerics.Vector2.Zero;
+        }
+    }
+
+    public struct FactoryData
+    {
+        public int id;
+        public Vector3 pos;
+        public Quaternion rot;
+        public Vector3 scale;
+        public int parentId;
+
+        public FactoryData(int id, Vector3 pos, Quaternion rot, Vector3 scale, int parentId)
+        {
+            this.id = id;
+            this.pos = pos;
+            this.rot = rot; 
+            this.scale = scale;
+            this.parentId = parentId;
+        }
+    }
+
+    public struct FactoryObj
+    {
+        public int clientId;
+        public int instanceId;
+
+        public FactoryObj(int clientId, int instanceId)
+        {
+            this.clientId = clientId;
+            this.instanceId = instanceId;
         }
     }
 
@@ -168,7 +199,6 @@ namespace OkamiNet.Network
                 ipToId.Clear();
             }
         }
-
         public void OnReceiveData(byte[] data, IPEndPoint ip)
         {
             if (data == null)
@@ -338,10 +368,16 @@ namespace OkamiNet.Network
                     updateTimer?.Invoke(timer.data);
 
                     break;
+                case NetMenssage.FactoryMessage:
+                    FactoryRequest factoryRequest = new FactoryRequest();
+                    factoryRequest.data = factoryRequest.Deserialize(data);
+
+                    break;
                 default:
                     break;
             }
         }
+
 
         public void SendToServer(byte[] data)
         {

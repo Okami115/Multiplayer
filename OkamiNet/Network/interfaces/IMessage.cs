@@ -625,6 +625,118 @@ namespace OkamiNet.Menssage
         }
     }
 
+    public class FactoryRequest : BaseMenssaje<FactoryData>
+    {
+        public override FactoryData Deserialize(byte[] message)
+        {
+            FactoryData data;
+
+            data.id = BitConverter.ToInt32(message, 4);
+            data.pos.X = BitConverter.ToSingle(message, 8);
+            data.pos.Y = BitConverter.ToSingle(message, 12);
+            data.pos.Z = BitConverter.ToSingle(message, 16);
+            data.rot.X = BitConverter.ToSingle(message, 20);
+            data.rot.Y = BitConverter.ToSingle(message, 24);
+            data.rot.Z = BitConverter.ToSingle(message, 28);
+            data.rot.W = BitConverter.ToSingle(message, 32);
+            data.scale.X = BitConverter.ToSingle(message, 36);
+            data.scale.Y = BitConverter.ToSingle(message, 40);
+            data.scale.Z = BitConverter.ToSingle(message, 44);
+            data.parentId = BitConverter.ToInt32(message, 48);
+
+            return data;
+        }
+
+        public override FactoryData GetData()
+        {
+            return data;
+        }
+
+        public override NetMenssage GetMessageType()
+        {
+            return NetMenssage.FactoryMessage;
+        }
+
+        public override byte[] Serialize(int Owner)
+        {
+            List<byte> outData = new List<byte>();
+
+            outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
+            //outData.AddRange(BitConverter.GetBytes(lastMsgID++));
+            outData.AddRange(BitConverter.GetBytes(data.id));
+            outData.AddRange(BitConverter.GetBytes(data.pos.X));
+            outData.AddRange(BitConverter.GetBytes(data.pos.Y));
+            outData.AddRange(BitConverter.GetBytes(data.pos.Z));
+            outData.AddRange(BitConverter.GetBytes(data.rot.X));
+            outData.AddRange(BitConverter.GetBytes(data.rot.Y));
+            outData.AddRange(BitConverter.GetBytes(data.rot.Z));
+            outData.AddRange(BitConverter.GetBytes(data.scale.X));
+            outData.AddRange(BitConverter.GetBytes(data.scale.Y));
+            outData.AddRange(BitConverter.GetBytes(data.scale.Z));
+            outData.AddRange(BitConverter.GetBytes(data.parentId));
+
+            int result1 = 0;
+            int result2 = 0;
+
+            for (int i = 0; i < outData.Count; i++)
+            {
+                result1 += outData[i];
+                result2 -= outData[i];
+            }
+            outData.AddRange(BitConverter.GetBytes(result1));
+            outData.AddRange(BitConverter.GetBytes(result2));
+
+            return outData.ToArray();
+        }
+    }
+
+    public class FactoryMenssage : BaseMenssaje<FactoryObj>
+    {
+        public override FactoryObj Deserialize(byte[] message)
+        {
+            FactoryObj obj;
+
+            obj.clientId = BitConverter.ToInt32(message, 4);
+            obj.instanceId = BitConverter.ToInt32(message, 8);
+
+            return obj;
+        }
+
+        public override FactoryObj GetData()
+        {
+            return data;
+        }
+
+        public override NetMenssage GetMessageType()
+        {
+            return NetMenssage.FactoryMessage;
+        }
+
+        public override byte[] Serialize(int Owner)
+        {
+            List<byte> outData = new List<byte>();
+
+            outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
+            //outData.AddRange(BitConverter.GetBytes(lastMsgID++));
+            outData.AddRange(BitConverter.GetBytes(data.clientId));
+            outData.AddRange(BitConverter.GetBytes(data.instanceId));
+
+
+            int result1 = 0;
+            int result2 = 0;
+
+            for (int i = 0; i < outData.Count; i++)
+            {
+                result1 += outData[i];
+                result2 -= outData[i];
+            }
+            outData.AddRange(BitConverter.GetBytes(result1));
+            outData.AddRange(BitConverter.GetBytes(result2));
+
+            return outData.ToArray();
+        }
+    }
+
     public static class Checksum
 {
     public static bool ChecksumConfirm(byte[] data)

@@ -8,6 +8,7 @@ namespace OkamiNet.Menssage
     {
         String = 0,
         Vector3,
+        Float,
         Rotation,
         Shoot,
         Disconect,
@@ -17,7 +18,8 @@ namespace OkamiNet.Menssage
         PlayerList,
         Ping,
         Denied,
-        Float,
+        FactoryRequest,
+        FactoryMessage
     }
     public abstract class BaseMenssaje<PayLoadType>
     {
