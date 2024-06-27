@@ -15,6 +15,7 @@ public class PlayerMovment : MonoBehaviour
     private void OnEnable()
     {
         NetworkManager.Instance.stopPlayer += LockPlayer;
+        
     }
 
     private void OnDestroy()
@@ -52,18 +53,6 @@ public class PlayerMovment : MonoBehaviour
         aux.y = 0.0f;
 
         rb.AddForce(aux * speed);
-
-        Player character = NetworkManager.Instance.playerList[NetworkManager.Instance.player.id];
-
-        character = NetworkManager.Instance.playerList[NetworkManager.Instance.player.id];
-
-        character.pos.X = transform.position.x;
-        character.pos.Y = transform.position.y;
-        character.pos.Z = transform.position.z;
-
-        NetworkManager.Instance.playerList[NetworkManager.Instance.player.id] = character;
-
-        pos.data = character.pos;
 
         NetworkManager.Instance.SendToServer(pos.Serialize(NetworkManager.Instance.player.id));
     }

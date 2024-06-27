@@ -37,24 +37,6 @@ public class Shoot : MonoBehaviour
 
     private void ShootBullet(int id)
     {
-        int ed = 0;
 
-        for (int i = 0; i < NetworkManager.Instance.playerList.Count; i++)
-        {
-            if (NetworkManager.Instance.playerList[i].id == id)
-                ed = i;
-        }
-
-        GameObject aux = Instantiate(gameManager.bullet, playerManager.players[ed].transform.GetChild(0).transform.position, Quaternion.identity);
-
-        aux.name = playerManager.players[ed].name;
-
-        Rigidbody rb = aux.GetComponent<Rigidbody>();
-
-        rb.AddForce(playerManager.players[ed].transform.GetChild(0).transform.forward * 5000);
-
-        Destroy(aux, 3);
-
-        shootData.data = id;
     }
 }

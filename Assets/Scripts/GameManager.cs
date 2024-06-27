@@ -1,5 +1,6 @@
 using OkamiNet.Menssage;
 using OkamiNet.Network;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -14,6 +15,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private float timerInSecons;
 
     [SerializeField] private InputController input;
+
+    [SerializeField] public List<GameObject> prefabs;
 
     private NetFloat netTimer;
     private NetworkScreen netScreen;

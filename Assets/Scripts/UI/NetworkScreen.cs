@@ -35,8 +35,9 @@ public class NetworkScreen : MonoBehaviour
 
         C2SHandShake c2SHandShake = new C2SHandShake(playerName);
 
+        Debug.Log("Send C2S");
         NetworkManager.Instance.deniedConnection += SwitchToChatScreen;
-        NetworkManager.Instance.StartClient(ipAddress, 55557, c2SHandShake.data);
+        NetworkManager.Instance.StartClient(ipAddress, 55555, c2SHandShake.data);
         NetworkManager.Instance.SendToServer(c2SHandShake.Serialize(0));
     }
 

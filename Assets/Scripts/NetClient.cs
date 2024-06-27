@@ -4,7 +4,7 @@ using UnityEngine;
 public class NetClient : MonoBehaviour
 {
     private NetworkManager networkManager;
-    void Start()
+    void Awake()
     {
         networkManager = new NetworkManager();
         NetworkManager.Instance = networkManager;

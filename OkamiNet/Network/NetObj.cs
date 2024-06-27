@@ -2,8 +2,8 @@
 {
     public class NetObj
     {
-        int id;
-        int owner;
+        public int id;
+        public int owner;
     }
 
     public interface INetObj

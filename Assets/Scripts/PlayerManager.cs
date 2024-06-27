@@ -1,3 +1,4 @@
+using OkamiNet.Menssage;
 using OkamiNet.Network;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,7 +7,6 @@ public class PlayerManager : MonoBehaviour
 {
     [SerializeField] private Transform[] spawns;
     [SerializeField] private GameObject player;
-    public List<GameObject> players;
     NetworkScreen netScreen;
 
     private void OnEnable()
@@ -17,86 +17,7 @@ public class PlayerManager : MonoBehaviour
     private void OnDestroy()
     {
         netScreen.start -= StartGame;
-        NetworkManager.Instance.updatePos -= MovePlayers;
-        NetworkManager.Instance.spawnPlayer -= SpawnNewPlayer;
-        NetworkManager.Instance.disconectPlayer -= DeletePlayer;
         NetworkManager.Instance.stopPlayer -= LockPlayer;
-
-        NetworkManager.Instance.StartMap -= StartMap;
-        NetworkManager.Instance.connectPlayer -= SpawnNewPlayer;
-    }
-
-    private void MovePlayers(System.Numerics.Vector3 pos, int id)
-    {
-        Vector3 newPos = new Vector3();
-
-        newPos.x = pos.X;
-        newPos.y = pos.Y;
-        newPos.z = pos.Z;
-
-        players[id].transform.position = newPos;
-    }
-
-    private void Update()
-    {
-        for (int i = 0; i < players.Count; i++)
-        {
-            if (i == NetworkManager.Instance.player.id)
-                return;
-
-            Vector3 pos = new Vector3();
-
-            pos.x = NetworkManager.Instance.playerList[i].pos.X;
-            pos.y = NetworkManager.Instance.playerList[i].pos.Y;
-            pos.z = NetworkManager.Instance.playerList[i].pos.Z;
-
-            players[i].transform.position = pos;
-
-            Vector2 rot = new Vector2();
-
-            rot.x = NetworkManager.Instance.playerList[i].rotation.X;
-            rot.y = NetworkManager.Instance.playerList[i].rotation.Y;
-
-            players[i].transform.rotation = Quaternion.Euler(0, rot.y, 0);
-            players[i].transform.GetChild(0).transform.rotation = Quaternion.Euler(rot.x, rot.y, 0);
-        }
-    }
-
-    private void SpawnNewPlayer(int id)
-    {
-        for (int i = 0; i < players.Count; i++)
-        {
-            if (players[i].transform.name == id.ToString())
-                return;
-        }
-
-        GameObject aux = Instantiate(player);
-        aux.name = id.ToString();
-
-        if (id == NetworkManager.Instance.player.id)
-        {
-            Camera temp = aux.transform.GetComponentInChildren<Camera>();
-            temp.tag = "MainCamera";
-            aux.AddComponent<PlayerMovment>();
-            aux.AddComponent<CameraMovement>();
-            aux.AddComponent<Shoot>();
-        }
-        else
-        {
-            Camera temp = aux.transform.GetComponentInChildren<Camera>();
-
-            Destroy(temp);
-        }
-
-        players.Add(aux);
-    }
-
-    private void StartMap()
-    {
-        for (int i = 0; i < NetworkManager.Instance.playerList.Count; i++)
-        {
-            SpawnNewPlayer(NetworkManager.Instance.playerList[i].id);
-        }
     }
 
     private void LockPlayer()
@@ -104,31 +25,9 @@ public class PlayerManager : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    private void DeletePlayer(int id)
-    {
-        int ed = 0;
-
-        for (int i = 0; i < NetworkManager.Instance.playerList.Count; i++)
-        {
-            if (NetworkManager.Instance.playerList[i].id == id)
-                ed = i;
-        }
-
-        Destroy(players[ed]);
-        players.Remove(players[ed]);
-    }
-
     private void StartGame()
     {
-        players = new List<GameObject>();
-
-        NetworkManager.Instance.spawnPlayer += SpawnNewPlayer;
-        NetworkManager.Instance.disconectPlayer += DeletePlayer;
         NetworkManager.Instance.stopPlayer += LockPlayer;
-
-        NetworkManager.Instance.StartMap += StartMap;
-        NetworkManager.Instance.connectPlayer += SpawnNewPlayer;
-        NetworkManager.Instance.updatePos += MovePlayers;
     }
 
     /*

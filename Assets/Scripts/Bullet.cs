@@ -8,22 +8,7 @@ public class Bullet : MonoBehaviour
     {
         if (NetworkManager.Instance.isServer && other.tag == "Player")
         {
-            for (int i = 0; i < NetworkManager.Instance.playerList.Count; i++)
-            {
-                if (other.gameObject.name == gameObject.name)
-                    return;
-
-                if (other.gameObject.name == NetworkManager.Instance.playerList[i].id.ToString())
-                {
-                    Player player = NetworkManager.Instance.playerList[i];
-
-                    player.HP--;
-
-                    NetworkManager.Instance.playerList[i] = player;
-
-                    Destroy(gameObject);
-                }
-            }
+            
         }
     }
 }

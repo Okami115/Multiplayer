@@ -387,19 +387,39 @@ namespace OkamiNet.Menssage
         }
     }
 
-    public class S2CHandShake : BaseMenssaje<int>
+    public class S2CHandShake : BaseMenssaje<List<Player>>
     {
-        public S2CHandShake(int data)
+        public S2CHandShake(List<Player> data)
         {
             this.data = data;
         }
 
-        public override int Deserialize(byte[] message)
+        public override List<Player> Deserialize(byte[] message)
         {
-            return BitConverter.ToInt32(message, 4);
+            List<Player> aux = new List<Player>();
+
+            int playersAmmount = BitConverter.ToInt32(message, 4);
+            int offset = 0;
+            for (int i = 0; i < playersAmmount; i++)
+            {
+                Player temp = new Player();
+                temp.id = BitConverter.ToInt32(message, offset + 8);
+                int stringlength = BitConverter.ToInt32(message, offset + 12);
+                temp.HP = BitConverter.ToInt32(message, offset + 16);
+                temp.pos.X = BitConverter.ToSingle(message, offset + 20);
+                temp.pos.Y = BitConverter.ToSingle(message, offset + 24);
+                temp.pos.Z = BitConverter.ToSingle(message, offset + 28);
+                temp.rotation.X = BitConverter.ToSingle(message, offset + 32);
+                temp.rotation.Y = BitConverter.ToSingle(message, offset + 36);
+                temp.name = Encoding.UTF8.GetString(message, offset + 40, stringlength);
+                aux.Add(temp);
+                offset += 32 + stringlength;
+            }
+
+            return aux;
         }
 
-        public override int GetData()
+        public override List<Player> GetData()
         {
             return data;
         }
@@ -414,7 +434,20 @@ namespace OkamiNet.Menssage
             List<byte> outData = new List<byte>();
 
             outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
-            outData.AddRange(BitConverter.GetBytes(data));
+            outData.AddRange(BitConverter.GetBytes(data.Count));
+
+            foreach (var player in data)
+            {
+                outData.AddRange(BitConverter.GetBytes(player.id));
+                outData.AddRange(BitConverter.GetBytes(player.name.Length));
+                outData.AddRange(BitConverter.GetBytes(player.HP));
+                outData.AddRange(BitConverter.GetBytes(player.pos.X));
+                outData.AddRange(BitConverter.GetBytes(player.pos.Y));
+                outData.AddRange(BitConverter.GetBytes(player.pos.Z));
+                outData.AddRange(BitConverter.GetBytes(player.rotation.X));
+                outData.AddRange(BitConverter.GetBytes(player.rotation.Y));
+                outData.AddRange(Encoding.UTF8.GetBytes(player.name));
+            }
 
             int result1 = 0;
             int result2 = 0;
@@ -624,7 +657,7 @@ namespace OkamiNet.Menssage
 
         public override NetMenssage GetMessageType()
         {
-            return NetMenssage.FactoryRequest;
+            return NetMenssage.FactoryMessage;
         }
 
         public override byte[] Serialize(int Owner)
@@ -641,12 +674,10 @@ namespace OkamiNet.Menssage
             outData.AddRange(BitConverter.GetBytes(data.rot.X));
             outData.AddRange(BitConverter.GetBytes(data.rot.Y));
             outData.AddRange(BitConverter.GetBytes(data.rot.Z));
-            outData.AddRange(BitConverter.GetBytes(data.rot.W));
             outData.AddRange(BitConverter.GetBytes(data.scale.X));
             outData.AddRange(BitConverter.GetBytes(data.scale.Y));
             outData.AddRange(BitConverter.GetBytes(data.scale.Z));
             outData.AddRange(BitConverter.GetBytes(data.parentId));
-            outData.AddRange(BitConverter.GetBytes(data.prefabId));
 
             int result1 = 0;
             int result2 = 0;
@@ -683,7 +714,6 @@ namespace OkamiNet.Menssage
             data.scale.Y = BitConverter.ToSingle(message, 44);
             data.scale.Z = BitConverter.ToSingle(message, 48);
             data.parentId = BitConverter.ToInt32(message, 52);
-            data.prefabId = BitConverter.ToInt32(message, 56);
 
             return data;
         }
@@ -712,12 +742,10 @@ namespace OkamiNet.Menssage
             outData.AddRange(BitConverter.GetBytes(data.rot.X));
             outData.AddRange(BitConverter.GetBytes(data.rot.Y));
             outData.AddRange(BitConverter.GetBytes(data.rot.Z));
-            outData.AddRange(BitConverter.GetBytes(data.rot.W));
             outData.AddRange(BitConverter.GetBytes(data.scale.X));
             outData.AddRange(BitConverter.GetBytes(data.scale.Y));
             outData.AddRange(BitConverter.GetBytes(data.scale.Z));
             outData.AddRange(BitConverter.GetBytes(data.parentId));
-            outData.AddRange(BitConverter.GetBytes(data.prefabId));
 
             int result1 = 0;
             int result2 = 0;

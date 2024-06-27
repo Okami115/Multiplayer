@@ -4,6 +4,7 @@ using OkamiNet.Utils;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Net;
 using System.Numerics;
 using System.Reflection;
@@ -42,31 +43,21 @@ namespace OkamiNet.Network
 
     public struct FactoryData
     {
-        public int id;
+        public NetObj netObj;
         public Vector3 pos;
         public Quaternion rot;
         public Vector3 scale;
         public int parentId;
+        public int prefabId;
 
-        public FactoryData(int id, Vector3 pos, Quaternion rot, Vector3 scale, int parentId)
+        public FactoryData(NetObj netObj, Vector3 pos, Quaternion rot, Vector3 scale, int parentId, int prefabId)
         {
-            this.id = id;
+            this.netObj = netObj;
             this.pos = pos;
             this.rot = rot; 
             this.scale = scale;
             this.parentId = parentId;
-        }
-    }
-
-    public struct FactoryObj
-    {
-        public int clientId;
-        public int instanceId;
-
-        public FactoryObj(int clientId, int instanceId)
-        {
-            this.clientId = clientId;
-            this.instanceId = instanceId;
+            this.prefabId = prefabId;
         }
     }
 
@@ -109,9 +100,13 @@ namespace OkamiNet.Network
         private UdpConnection connection;
 
         public int idClient = 0;
+        public int idObjs = 0;
 
-        public List<Player> playerList;
         public Player player;
+
+        public List<NetObj> netObjs;
+
+        public List<string> netNames;
 
         private readonly Dictionary<int, Client> clients = new Dictionary<int, Client>();
         private readonly Dictionary<IPEndPoint, int> ipToId = new Dictionary<IPEndPoint, int>();
@@ -122,8 +117,9 @@ namespace OkamiNet.Network
             this.port = port;
             connection = new UdpConnection(port, this);
 
-            playerList = new List<Player>();
+            netNames = new List<string>();
             lastPingSend = new List<DateTime>();
+            netObjs = new List<NetObj>();
         }
 
         public void StartClient(IPAddress ip, int port, string name)
@@ -134,10 +130,10 @@ namespace OkamiNet.Network
             this.ipAddress = ip;
 
             connection = new UdpConnection(ip, port, this);
-            playerList = new List<Player>();
 
             player = new Player(-1, name);
             lastPingSend = new List<DateTime>();
+            netObjs = new List<NetObj>();
         }
 
         public void AddClient(IPEndPoint ip, string name)
@@ -148,6 +144,10 @@ namespace OkamiNet.Network
 
                 ipToId[ip] = idClient;
 
+                S2CHandShake s2CHandShake = new S2CHandShake(idClient);
+                UtilsTools.LOG?.Invoke("Send S2C");
+                Instance.SendToClient(s2CHandShake.Serialize(0), ip);
+
                 Player player = new Player(ipToId[ip], name);
 
                 clients.Add(player.id, new Client(ip, player.id));
@@ -157,8 +157,6 @@ namespace OkamiNet.Network
                 newPlayer.data = player;    
 
                 Instance.Broadcast(newPlayer.Serialize(0));
-
-                playerList.Add(player);
 
                 lastPingSend.Add(DateTime.UtcNow);
 
@@ -180,28 +178,20 @@ namespace OkamiNet.Network
 
                 int ed = 0;
 
-                for (int i = 0; i < Instance.playerList.Count; i++)
-                {
-                    if (Instance.playerList[i].id == id)
-                        ed = i;
-                }
-
-                lastPingSend.Remove(lastPingSend[ed]);
-                playerList.Remove(playerList[ed]);
             }
 
             if (Instance.player.id == id)
             {
                 stopPlayer?.Invoke();
                 connection.Close();
-                playerList.Clear();
                 lastPingSend.Clear();
                 ipToId.Clear();
             }
         }
+
         public void OnReceiveData(byte[] data, IPEndPoint ip)
         {
-            if (data == null)
+            if (data.Count() <= 0)
                 return;
 
             if (!Checksum.ChecksumConfirm(data))
@@ -230,12 +220,7 @@ namespace OkamiNet.Network
                     {
                         id = ipToId[ip];
 
-                        Player player = Instance.playerList[id];
-
-                        player.pos = newPos;
-
-                        Instance.playerList[id] = player;
-                        //updatePos?.Invoke(newPos, pos.GetOwner(data));
+                        updatePos?.Invoke(newPos, pos.GetOwner(data));
                     }
 
                     break;
@@ -249,27 +234,17 @@ namespace OkamiNet.Network
                         updateRot?.Invoke(newRotation, id);
                     }
                     break;
-                case NetMenssage.Disconect:
-                    NetDisconect dis = new NetDisconect();
+                case NetMenssage.Shoot:
+                    NetInt shoot = new NetInt();
 
-                    if(Instance.isServer)
-                    {
-                        id = ipToId[ip];
-                        dis.data = id;
-                        Broadcast(dis.Serialize(0));
-                        RemoveClient(id, ip);
-                    }
-                    else
-                    {
-                        id = dis.Deserialize(data);
-                        RemoveClient(id, ip);
-                    }
-
+                    updateShoot?.Invoke(shoot.Deserialize(data));
 
                     break;
-                case NetMenssage.AddPlayer:
-                    AddPlayer addPlayer = new AddPlayer();
-                    addPlayer.data = addPlayer.Deserialize(data);
+                case NetMenssage.Float:
+                    NetFloat timer = new NetFloat();
+                    timer.data = timer.Deserialize(data);
+                    updateTimer?.Invoke(timer.data);
+
                     break;
                 case NetMenssage.C2S:
                     UtilsTools.LOG?.Invoke("New C2S");
@@ -282,9 +257,9 @@ namespace OkamiNet.Network
                     if (idClient >= 5)
                         temp.data = "Full";
 
-                    for (int i = 0; i < Instance.playerList.Count; i++)
+                    for (int i = 0; i < Instance.netNames.Count; i++)
                     {
-                        if(Instance.playerList[i].name == name)
+                        if(Instance.netNames[i] == name)
                             temp.data = "Name";
                     }
 
@@ -293,27 +268,18 @@ namespace OkamiNet.Network
                     if(temp.data == "Authorized")
                     {
                         Instance.AddClient(ip, name);
-
-                        S2CHandShake s2CHandShake = new S2CHandShake(Instance.playerList);
-                        byte[] players = s2CHandShake.Serialize(0);
-                        Instance.Broadcast(players);
-                        UtilsTools.LOG?.Invoke("Send S2C");
                     }
                     break;
                 case NetMenssage.S2C:
                     UtilsTools.LOG?.Invoke("New S2C");
-                    S2CHandShake s2cHandShake = new S2CHandShake(Instance.playerList);
-                    Instance.playerList = s2cHandShake.Deserialize(data);
+                    S2CHandShake s2cHandShake = new S2CHandShake(0);
+                    Instance.idClient = s2cHandShake.Deserialize(data);
 
-                    for (int i = 0; i < Instance.playerList.Count; i++)
-                        if (Instance.player.name == Instance.playerList[i].name)
-                            Instance.player.id = Instance.playerList[i].id;
-
-                    UtilsTools.LOG?.Invoke("Updating player list...");
+                    UtilsTools.LOG?.Invoke("Start Player...");
                     StartMap?.Invoke();
 
                     NetPing Startping = new NetPing();
-                    Startping.data = Instance.player.id;
+                    Startping.data = Instance.idClient;
                     Instance.lastPingSend.Add(DateTime.UtcNow);
                     Instance.SendToServer(Startping.Serialize(0));
                     break;
@@ -339,19 +305,9 @@ namespace OkamiNet.Network
                     else
                     {
                         UtilsTools.LOG?.Invoke("ping : " + latencyMilliseconds);
-                        ping.data = Instance.player.id;
+                        ping.data = Instance.idClient;
                         Instance.SendToServer(ping.Serialize(0));
                     }
-                    break;
-                case NetMenssage.PlayerList:
-                    NetPlayerListUpdate updating = new NetPlayerListUpdate(playerList);
-                    playerList = updating.Deserialize(data);
-                     break;
-                case NetMenssage.Shoot:
-                    NetInt shoot = new NetInt();
-
-                    updateShoot?.Invoke(shoot.Deserialize(data));
-
                     break;
                 case NetMenssage.Denied:
 
@@ -362,22 +318,56 @@ namespace OkamiNet.Network
                     deniedConnection?.Invoke(denied.data);
 
                     break;
-                case NetMenssage.Float:
-                    NetFloat timer = new NetFloat();
-                    timer.data = timer.Deserialize(data);
-                    updateTimer?.Invoke(timer.data);
+                case NetMenssage.AddPlayer:
+                    AddPlayer addPlayer = new AddPlayer();
+                    addPlayer.data = addPlayer.Deserialize(data);
+                    break;
+                case NetMenssage.Disconect:
+                    NetDisconect dis = new NetDisconect();
+
+                    if(Instance.isServer)
+                    {
+                        id = ipToId[ip];
+                        dis.data = id;
+                        Broadcast(dis.Serialize(0));
+                        RemoveClient(id, ip);
+                    }
+                    else
+                    {
+                        id = dis.Deserialize(data);
+                        RemoveClient(id, ip);
+                    }
+
 
                     break;
-                case NetMenssage.FactoryMessage:
+                case NetMenssage.FactoryRequest:
+                    UtilsTools.LOG?.Invoke("Recive Factory Request");
                     FactoryRequest factoryRequest = new FactoryRequest();
                     factoryRequest.data = factoryRequest.Deserialize(data);
 
+                    factoryRequest.data.netObj.owner = id = ipToId[ip];
+                    factoryRequest.data.netObj.id = idObjs;
+                    idObjs++;
+
+                    FactoryMenssage factoryMenssage = new FactoryMenssage();
+                    factoryMenssage.data = factoryRequest.data;
+                    UtilsTools.LOG?.Invoke("Send Factory Message");
+                    Broadcast(factoryMenssage.Serialize(0));
+                    break;
+                case NetMenssage.FactoryMessage:
+                    UtilsTools.LOG?.Invoke("Recive Factory Message");
+                    FactoryMenssage factoryMenssageClient = new FactoryMenssage();
+
+                    factoryMenssageClient.data = factoryMenssageClient.Deserialize(data);
+
+                    netObjs.Add(factoryMenssageClient.data.netObj);
+
+                    UtilsTools.Intanciate?.Invoke(factoryMenssageClient.data);
                     break;
                 default:
                     break;
             }
         }
-
 
         public void SendToServer(byte[] data)
         {
@@ -399,13 +389,7 @@ namespace OkamiNet.Network
             {
                 NetDisconect dis = new NetDisconect();
 
-                for (int i = 1; i < playerList.Count; i++)
-                {
-                    dis.data = playerList[i].id;
-                    SendToClient(dis.Serialize(0), GetIpById(playerList[i].id));
-                }
                 connection.Close();
-                playerList.Clear();
                 lastPingSend.Clear();
                 ipToId.Clear();
                 idClient = 0;
@@ -435,7 +419,7 @@ namespace OkamiNet.Network
                 Instance = this;
          
             UtilsTools.LOG?.Invoke("----- Init Server V0.1 - Okami Industries -----");
-            Instance.StartServer(55557);
+            Instance.StartServer(55555);
 
         }
 
@@ -447,14 +431,10 @@ namespace OkamiNet.Network
 
         public void UpdateServer()
         {
-            // Flush the data in main thread
             if (connection != null)
                 connection.FlushReceiveData();
 
             DisconetForPing(Instance.isServer);
-
-            NetPlayerListUpdate playerListData = new NetPlayerListUpdate(playerList);
-            Broadcast(playerListData.Serialize(0));
         }
 
         public void UpdateClient()
@@ -463,7 +443,6 @@ namespace OkamiNet.Network
                 connection.FlushReceiveData();
 
             DisconetForPing(Instance.isServer);
-
         }
 
         public IPEndPoint GetIpById(int id)
@@ -493,19 +472,11 @@ namespace OkamiNet.Network
                         {
                             NetDisconect dis = new NetDisconect();
 
-                            if (Instance.playerList[i].id != Instance.player.id)
-                            {
-                                IPEndPoint ip = Instance.GetIpById(Instance.playerList[i].id);
-                                dis.data = Instance.playerList[i].id;
-                                Instance.Broadcast(dis.Serialize(0));
-                                Instance.RemoveClient(Instance.playerList[i].id, ip);
-                            }
                         }
                         else
                         {
                             stopPlayer?.Invoke();
                             connection.Close();
-                            playerList.Clear();
                             lastPingSend.Clear();
                             ipToId.Clear();
                         }

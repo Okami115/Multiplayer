@@ -16,7 +16,6 @@ namespace OkamiServer
 
             while(isRunning)
             {
-                Console.Clear();
                 networkManager.UpdateServer();
                 Thread.Sleep(10);
             }
