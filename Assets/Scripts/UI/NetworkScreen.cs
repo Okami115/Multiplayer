@@ -20,7 +20,7 @@ public class NetworkScreen : MonoBehaviour
 
     private void OnDestroy()
     {
-        NetworkManager.Instance.deniedConnection -= SwitchToChatScreen;
+        ClientManager.Instance.deniedConnection -= SwitchToChatScreen;
     }
 
     private void Start()
@@ -36,9 +36,9 @@ public class NetworkScreen : MonoBehaviour
         C2SHandShake c2SHandShake = new C2SHandShake(playerName);
 
         Debug.Log("Send C2S");
-        NetworkManager.Instance.deniedConnection += SwitchToChatScreen;
-        NetworkManager.Instance.StartClient(ipAddress, 55555, c2SHandShake.data);
-        NetworkManager.Instance.SendToServer(c2SHandShake.Serialize(0));
+        ClientManager.Instance.deniedConnection += SwitchToChatScreen;
+        ClientManager.Instance.StartClient(ipAddress, 55555, c2SHandShake.data);
+        ClientManager.Instance.SendToServer(c2SHandShake.Serialize(0));
     }
 
     // Sintetizar
@@ -48,7 +48,7 @@ public class NetworkScreen : MonoBehaviour
         {
             start?.Invoke();
             gameObject.SetActive(false);
-            NetworkManager.Instance.player.name = playerName;
+            ClientManager.Instance.player.name = playerName;
         }
 
         if (set == "Name")

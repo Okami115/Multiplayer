@@ -12,12 +12,12 @@ public class CameraMovement : MonoBehaviour
 
     private void OnEnable()
     {
-        NetworkManager.Instance.updateRot += RotatePlayer;
+        ClientManager.Instance.updateRot += RotatePlayer;
     }
 
     private void OnDestroy()
     {
-        NetworkManager.Instance.updateRot -= RotatePlayer;
+        ClientManager.Instance.updateRot -= RotatePlayer;
     }
 
     private void Start()

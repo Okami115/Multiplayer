@@ -184,11 +184,9 @@ MonoBehaviour:
   bullet: {fileID: 2585657352083979254, guid: 3b754ffc26fb510458972680f1f702cb, type: 3}
   canvas: {fileID: 1571777266}
   timerText: {fileID: 314771511}
-  timerInSecons: 60
   input: {fileID: 58112417}
   prefabs:
-  - {fileID: 7051717508041504172, guid: 243f7e1769d57784daadf10e38449f4a, type: 3}
-  - {fileID: 2585657352083979254, guid: 3b754ffc26fb510458972680f1f702cb, type: 3}
+  - {fileID: 7953542505830829174, guid: 541e68b1380669743a8a16ee8147a418, type: 3}
 --- !u!4 &58112416
 Transform:
   m_ObjectHideFlags: 0

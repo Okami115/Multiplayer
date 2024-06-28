@@ -8,11 +8,11 @@
 
     public interface INetObj
     {
-        void getID();
-        void getOwner();
-        void getNetObj();
-        void SetID();
-        void SetOwner();
+        int getID();
+        int getOwner();
+        NetObj getNetObj();
+        void SetID(int id);
+        void SetOwner(int owner);
     }
 
 }

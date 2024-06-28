@@ -11,7 +11,7 @@ public class InputController : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.M))
         {
-            NetworkManager.Instance.Disconnect();
+            //ClientManager.Instance.Disconnect();
             quit?.Invoke();
         }
 

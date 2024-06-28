@@ -17,7 +17,7 @@ public class Tools : MonoBehaviour
     {
         UtilsTools.LOG += DebugLogs;
         UtilsTools.Intanciate += Instanciate;
-        NetworkManager.Instance.StartMap += InitPlayer;
+        ClientManager.Instance.StartMap += InitPlayer;
         gameManager = FindAnyObjectByType<GameManager>();
     }
 
@@ -25,7 +25,7 @@ public class Tools : MonoBehaviour
     {
         UtilsTools.LOG -= DebugLogs;
         UtilsTools.Intanciate -= Instanciate;
-        NetworkManager.Instance.StartMap -= InitPlayer;
+        ClientManager.Instance.StartMap -= InitPlayer;
     }
 
     private void DebugLogs(string msg)
@@ -36,6 +36,9 @@ public class Tools : MonoBehaviour
     private void Instanciate (FactoryData factoryData)
     {
         GameObject aux = Instantiate(gameManager.prefabs[factoryData.prefabId]);
+
+        OkamiNet.Network.Reflection.netObjets.Add(aux.GetComponent<INetObj>());
+
 
         Vector3 newPos = new Vector3();
         Quaternion quat = new Quaternion();
@@ -63,13 +66,14 @@ public class Tools : MonoBehaviour
         switch (factoryData.prefabId)
         {
             case 0 :
+                /*
                 if (factoryData.netObj.id == NetworkManager.Instance.idClient)
                 {
                     Camera temp = aux.transform.GetComponentInChildren<Camera>();
                     temp.tag = "MainCamera";
-                    aux.AddComponent<PlayerMovment>();
-                    aux.AddComponent<CameraMovement>();
-                    aux.AddComponent<Shoot>();
+                    //aux.AddComponent<PlayerMovment>();
+                    //aux.AddComponent<CameraMovement>();
+                    //aux.AddComponent<Shoot>();
                 }
                 else
                 {
@@ -77,15 +81,13 @@ public class Tools : MonoBehaviour
 
                     Destroy(temp);
                 }
+                 */
                 break;
             case 1 :
                 break;
-
             default:
                 break;
         }
-
-
     }
 
     private void InitPlayer()
@@ -98,6 +100,6 @@ public class Tools : MonoBehaviour
 
         factoryMenssage.data = factoryData;
 
-        NetworkManager.Instance.SendToServer(factoryMenssage.Serialize(NetworkManager.Instance.idClient));
+        ClientManager.Instance.SendToServer(factoryMenssage.Serialize(ClientManager.Instance.idClient));
     }
 }

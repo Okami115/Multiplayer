@@ -11,12 +11,12 @@ public class Shoot : MonoBehaviour
 
     private void OnEnable()
     {
-        NetworkManager.Instance.updateShoot += ShootBullet;
+        ClientManager.Instance.updateShoot += ShootBullet;
     }
 
     private void OnDestroy()
     {
-        NetworkManager.Instance.updateShoot -= ShootBullet;
+        ClientManager.Instance.updateShoot -= ShootBullet;
     }
 
     void Start()
@@ -30,7 +30,7 @@ public class Shoot : MonoBehaviour
     {
         if (Input.GetMouseButtonUp(0))
         {
-            shootData.data = NetworkManager.Instance.player.id;
+            shootData.data = ClientManager.Instance.player.id;
             //NetworkManager.Instance.SendToServer(shootData.Serialize());
         }
     }

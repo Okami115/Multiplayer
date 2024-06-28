@@ -12,12 +12,12 @@ public class ChatScreen : MonoBehaviour
     {
         inputMessage.onEndEdit.AddListener(OnEndEdit);
 
-        NetworkManager.Instance.newText += UpdateTextBox;
+        ClientManager.Instance.newText += UpdateTextBox;
     }
 
     private void OnDisable()
     {
-        NetworkManager.Instance.newText -= UpdateTextBox;
+        ClientManager.Instance.newText -= UpdateTextBox;
     }
 
     void UpdateTextBox(string text)
@@ -30,7 +30,7 @@ public class ChatScreen : MonoBehaviour
         if (inputMessage.text != "")
         {
 
-            NetString consoleMensajes = new NetString(NetworkManager.Instance.player.name + ": " + inputMessage.text + System.Environment.NewLine);
+            NetString consoleMensajes = new NetString(ClientManager.Instance.player.name + ": " + inputMessage.text + System.Environment.NewLine);
             //NetworkManager.Instance.SendToServer(consoleMensajes.Serialize());
 
             inputMessage.ActivateInputField();

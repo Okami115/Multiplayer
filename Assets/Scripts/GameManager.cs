@@ -12,7 +12,7 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private TextMeshProUGUI timerText;
 
-    [SerializeField] private float timerInSecons;
+    private float timerInSecons;
 
     [SerializeField] private InputController input;
 
@@ -32,7 +32,7 @@ public class GameManager : MonoBehaviour
     private void OnDestroy()
     {
         input.setChat -= SetChatScreen;
-        NetworkManager.Instance.updateTimer -= UpdateTimer;
+        ClientManager.Instance.updateTimer -= UpdateTimer;
     }
 
     private void SetChatScreen()
@@ -54,7 +54,7 @@ public class GameManager : MonoBehaviour
     {
         timerText.gameObject.SetActive(true);
         input.setChat += SetChatScreen;
-        NetworkManager.Instance.updateTimer += UpdateTimer;
+        ClientManager.Instance.updateTimer += UpdateTimer;
         netTimer = new NetFloat();
     }
 

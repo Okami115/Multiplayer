@@ -15,7 +15,7 @@ namespace OkamiNet.Menssage
         AddPlayer,
         C2S,
         S2C,
-        PlayerList,
+        FactoryDataSpawn,
         Ping,
         Denied,
         FactoryRequest,

@@ -3,16 +3,16 @@ using UnityEngine;
 
 public class NetClient : MonoBehaviour
 {
-    private NetworkManager networkManager;
+    private ClientManager clientManager;
     void Awake()
     {
-        networkManager = new NetworkManager();
-        NetworkManager.Instance = networkManager;
+        clientManager = new ClientManager();
+        ClientManager.Instance = clientManager;
     }
 
 
     void Update()
     {
-        networkManager.UpdateClient();
+        clientManager.UpdateClient();
     }
 }

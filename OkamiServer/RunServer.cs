@@ -7,16 +7,16 @@ namespace OkamiServer
     {
         static bool isRunning = true;
 
-        static NetworkManager networkManager = new NetworkManager();
+        static ServerManager serverManager = new ServerManager();
 
         static void Main(string[] args)
         {
             UtilsTools.LOG += DrawText;
-            networkManager.StartServer();
+            serverManager.StartServer();
 
             while(isRunning)
             {
-                networkManager.UpdateServer();
+                serverManager.UpdateServer();
                 Thread.Sleep(10);
             }
         }

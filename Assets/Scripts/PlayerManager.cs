@@ -17,7 +17,7 @@ public class PlayerManager : MonoBehaviour
     private void OnDestroy()
     {
         netScreen.start -= StartGame;
-        NetworkManager.Instance.stopPlayer -= LockPlayer;
+        ClientManager.Instance.stopPlayer -= LockPlayer;
     }
 
     private void LockPlayer()
@@ -27,7 +27,7 @@ public class PlayerManager : MonoBehaviour
 
     private void StartGame()
     {
-        NetworkManager.Instance.stopPlayer += LockPlayer;
+        ClientManager.Instance.stopPlayer += LockPlayer;
     }
 
     /*
