@@ -37,8 +37,15 @@ public class Tools : MonoBehaviour
     {
         GameObject aux = Instantiate(gameManager.prefabs[factoryData.prefabId]);
 
-        OkamiNet.Network.Reflection.netObjets.Add(aux.GetComponent<INetObj>());
+        Debug.Log("Init prefab" + aux.ToString());
+        INetObj auxObj = aux.GetComponent<INetObj>();
 
+        OkamiNet.Network.Reflection.netObjets.Add(auxObj);
+
+        Debug.Log("Get component" + auxObj.ToString());
+        auxObj.SetID(factoryData.netObj.id);
+        auxObj.SetOwner(factoryData.netObj.id);
+        Debug.Log($"{aux.name} : Owner {auxObj.getOwner()} : ID {auxObj.getID()}");
 
         Vector3 newPos = new Vector3();
         Quaternion quat = new Quaternion();
@@ -61,7 +68,7 @@ public class Tools : MonoBehaviour
         aux.transform.rotation = quat;
         aux.transform.localScale = scale;
 
-        aux.name = factoryData.netObj.id.ToString();
+        aux.name = auxObj.getID().ToString();
 
         switch (factoryData.prefabId)
         {
@@ -100,6 +107,6 @@ public class Tools : MonoBehaviour
 
         factoryMenssage.data = factoryData;
 
-        ClientManager.Instance.SendToServer(factoryMenssage.Serialize(ClientManager.Instance.idClient));
+        ClientManager.Instance.SendToServer(factoryMenssage.Serialize());
     }
 }

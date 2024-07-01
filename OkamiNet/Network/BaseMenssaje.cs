@@ -27,7 +27,7 @@ namespace OkamiNet.Menssage
         public abstract NetMenssage GetMessageType();
 
         public static Action<PayLoadType> OnDispatch;
-        public abstract byte[] Serialize(int Owner);
+        public abstract byte[] Serialize();
 
         public abstract PayLoadType Deserialize(byte[] message);
 

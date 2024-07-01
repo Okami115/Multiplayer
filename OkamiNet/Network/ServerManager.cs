@@ -109,10 +109,10 @@ namespace OkamiNet.Network
 
                 S2CHandShake s2CHandShake = new S2CHandShake(idClient);
                 UtilsTools.LOG?.Invoke("Send S2C");
-                Instance.SendToClient(s2CHandShake.Serialize(0), ip);
+                Instance.SendToClient(s2CHandShake.Serialize(), ip);
 
                 NetFactoryDataSpawn netFactoryDataSpawn = new NetFactoryDataSpawn(FactoryData);
-                Instance.SendToClient(netFactoryDataSpawn.Serialize(0), ip);
+                Instance.SendToClient(netFactoryDataSpawn.Serialize(), ip);
 
                 Player player = new Player(ipToId[ip], name);
 
@@ -122,7 +122,7 @@ namespace OkamiNet.Network
 
                 newPlayer.data = player;    
 
-                Instance.Broadcast(newPlayer.Serialize(0));
+                Instance.Broadcast(newPlayer.Serialize());
 
                 lastPingSend.Add(DateTime.UtcNow);
 
@@ -157,7 +157,7 @@ namespace OkamiNet.Network
 
         public void OnReceiveData(byte[] data, IPEndPoint ip)
         {
-            if (data.Count() <= 0)
+            if (data == null || data.Count() <= 0)
                 return;
 
             if (!Checksum.ChecksumConfirm(data))
@@ -185,9 +185,8 @@ namespace OkamiNet.Network
                     NetInt shoot = new NetInt();
                     break;
                 case NetMenssage.Float:
-                    NetFloat timer = new NetFloat();
-                    timer.data = timer.Deserialize(data);
-                    updateTimer?.Invoke(timer.data);
+                    UtilsTools.LOG?.Invoke("New NetFloat");
+                    Broadcast(data);
 
                     break;
                 case NetMenssage.C2S:
@@ -207,7 +206,7 @@ namespace OkamiNet.Network
                             temp.data = "Name";
                     }
 
-                    SendToClient(temp.Serialize(0), ip);
+                    SendToClient(temp.Serialize(), ip);
 
                     if(temp.data == "Authorized")
                     {
@@ -228,7 +227,7 @@ namespace OkamiNet.Network
                     }
 
                     ping.data = 0;
-                    Instance.SendToClient(ping.Serialize(0), ip);
+                    Instance.SendToClient(ping.Serialize(), ip);
                     UtilsTools.LOG?.Invoke("Cliente " + idPing + " : ping : " + latencyMilliseconds);
                     break;
                 case NetMenssage.AddPlayer:
@@ -239,7 +238,7 @@ namespace OkamiNet.Network
                     NetDisconect dis = new NetDisconect();
                     id = ipToId[ip];
                     dis.data = id;
-                    Broadcast(dis.Serialize(0));
+                    Broadcast(dis.Serialize());
                     RemoveClient(id, ip);
                     break;
                 case NetMenssage.FactoryRequest:
@@ -255,7 +254,7 @@ namespace OkamiNet.Network
                     factoryMenssage.data = factoryRequest.data;
                     FactoryData.Add(factoryMenssage.data);
                     UtilsTools.LOG?.Invoke("Send Factory Message");
-                    Broadcast(factoryMenssage.Serialize(0));
+                    Broadcast(factoryMenssage.Serialize());
                     break;
                 default:
                     break;
@@ -295,7 +294,8 @@ namespace OkamiNet.Network
         {
             if (Instance == null)
                 Instance = this;
-         
+
+            Reflection.Init();
             UtilsTools.LOG?.Invoke("----- Init Server V0.1 - Okami Industries -----");
             Instance.StartServer(55555);
 
@@ -319,228 +319,6 @@ namespace OkamiNet.Network
                 }
             }
             return null;
-        }
-
-        private void DisconetForPing(bool isServer)
-        {
-            if (lastPingSend != null)
-            {
-                for (int i = 0; i < lastPingSend.Count; i++)
-                {
-                    TimeSpan latency = DateTime.UtcNow - Instance.lastPingSend[i];
-                    int latencySeconds = (int)latency.TotalSeconds;
-
-                    if (latencySeconds > TimeOut)
-                    {
-                        if (isServer)
-                        {
-                            NetDisconect dis = new NetDisconect();
-
-                        }
-                        else
-                        {
-                            stopPlayer?.Invoke();
-                            connection.Close();
-                            lastPingSend.Clear();
-                            ipToId.Clear();
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    public class ClientManager : IReceiveData
-    {
-        public IPAddress ipAddress
-        {
-            get; private set;
-        }
-        public int port
-        {
-            get; private set;
-        }
-
-        public int TimeOut = 30;
-
-        public static ClientManager Instance;
-
-        public List<DateTime> lastPingSend;
-
-        public Action<string> newText;
-        public Action<int> spawnPlayer;
-        public Action StartMap;
-
-        public Action<System.Numerics.Vector3, int> updatePos;
-        public Action<System.Numerics.Vector2, int> updateRot;
-        public Action<int> updateShoot;
-        public Action<float> updateTimer;
-
-        public Action<int> disconectPlayer;
-        public Action stopPlayer;
-        public Action<int> connectPlayer;
-        public Action<string> deniedConnection;
-
-        private UdpConnection connection;
-
-        public int idClient = 0;
-        public int idObjs = 0;
-
-        public Player player;
-
-        public List<FactoryData> FactoryData;
-
-        public List<string> netNames;
-
-        private readonly Dictionary<int, Client> clients = new Dictionary<int, Client>();
-        private readonly Dictionary<IPEndPoint, int> ipToId = new Dictionary<IPEndPoint, int>();
-
-        public void OnReceiveData(byte[] data, IPEndPoint ipEndpoint)
-        {
-            if (data.Count() <= 0)
-                return;
-
-            if (!Checksum.ChecksumConfirm(data))
-                return;
-
-            NetMenssage aux = (NetMenssage)BitConverter.ToInt32(data, 0);
-            int id;
-
-            switch (aux)
-            {
-                case NetMenssage.String:
-
-                    UtilsTools.LOG?.Invoke("New mensages");
-                    NetString consoleMensajes = new NetString("");
-                    string text = consoleMensajes.Deserialize(data);
-                    newText?.Invoke(text);
-                    UtilsTools.LOG?.Invoke(text);
-                    break;
-                case NetMenssage.Vector3:
-                    NetVector3 pos = new NetVector3();
-                    System.Numerics.Vector3 newPos = pos.Deserialize(data);
-
-                    break;
-                case NetMenssage.Rotation:
-                    NetVector2 rot = new NetVector2();
-                    break;
-                case NetMenssage.Shoot:
-                    NetInt shoot = new NetInt();
-                    updateShoot?.Invoke(shoot.Deserialize(data));
-
-                    break;
-                case NetMenssage.Float:
-                    NetFloat timer = new NetFloat();
-                    timer.data = timer.Deserialize(data);
-                    updateTimer?.Invoke(timer.data);
-
-                    break;
-                case NetMenssage.S2C:
-                    UtilsTools.LOG?.Invoke("New S2C");
-                    S2CHandShake s2cHandShake = new S2CHandShake(0);
-                    Instance.idClient = s2cHandShake.Deserialize(data);
-
-                    UtilsTools.LOG?.Invoke("Start Player...");
-                    StartMap?.Invoke();
-
-                    NetPing Startping = new NetPing();
-                    Startping.data = Instance.idClient;
-                    Instance.lastPingSend.Add(DateTime.UtcNow);
-                    Instance.SendToServer(Startping.Serialize(0));
-                    break;
-                case NetMenssage.Ping:
-                    NetPing ping = new NetPing();
-
-                    int idPing = ping.Deserialize(data);
-                    int latencyMilliseconds = 0;
-
-                    if (Instance.lastPingSend.Count >= idPing + 1)
-                    {
-                        TimeSpan latency = DateTime.UtcNow - Instance.lastPingSend[idPing];
-                        latencyMilliseconds = (int)latency.TotalMilliseconds;
-                        Instance.lastPingSend[idPing] = DateTime.UtcNow;
-                    }
-                    UtilsTools.LOG?.Invoke("ping : " + latencyMilliseconds);
-                    ping.data = Instance.idClient;
-                    Instance.SendToServer(ping.Serialize(0));
-
-                    break;
-                case NetMenssage.Denied:
-
-                    DeniedNet denied = new DeniedNet();
-
-                    denied.data = denied.Deserialize(data);
-
-                    deniedConnection?.Invoke(denied.data);
-
-                    break;
-                case NetMenssage.AddPlayer:
-                    AddPlayer addPlayer = new AddPlayer();
-                    addPlayer.data = addPlayer.Deserialize(data);
-                    break;
-                case NetMenssage.Disconect:
-                    NetDisconect dis = new NetDisconect();
-                    id = dis.Deserialize(data);
-
-
-                    break;
-                case NetMenssage.FactoryMessage:
-                    UtilsTools.LOG?.Invoke("Recive Factory Message");
-                    FactoryMenssage factoryMenssageClient = new FactoryMenssage();
-
-                    factoryMenssageClient.data = factoryMenssageClient.Deserialize(data);
-
-                    UtilsTools.Intanciate?.Invoke(factoryMenssageClient.data);
-                    break;
-                case NetMenssage.FactoryDataSpawn:
-                    UtilsTools.LOG("Recive Factroy Data Spawn");
-                    NetFactoryDataSpawn netFactoryDataSpawn = new NetFactoryDataSpawn(FactoryData);
-                    FactoryData = netFactoryDataSpawn.Deserialize(data);
-
-                    for (int i = 0; i < FactoryData.Count; i++)
-                    {
-                        UtilsTools.LOG("Objet : " + i);
-                        UtilsTools.Intanciate?.Invoke(FactoryData[i]);
-                    }
-
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        public void SendToServer(byte[] data)
-        {
-            if (connection != null)
-                connection.Send(data);
-        }
-
-        public void StartClient(IPAddress ip, int port, string name)
-        {
-            this.port = port;
-            this.ipAddress = ip;
-
-            connection = new UdpConnection(ip, port, this);
-
-            player = new Player(-1, name);
-            lastPingSend = new List<DateTime>();
-            FactoryData = new List<FactoryData>();
-        }
-
-        public void StartClient()
-        {
-            if (Instance == null)
-                Instance = this;
-        }
-
-        public void UpdateClient()
-        {
-            if (connection != null)
-                connection.FlushReceiveData();
-
-            DisconetForPing(false);
-
-            Reflection.UpdateNetObjts();
         }
 
         private void DisconetForPing(bool isServer)

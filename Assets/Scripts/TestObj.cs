@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class TestObj : MonoBehaviour, INetObj
 {
-    private NetObj netObj;
+    public NetObj netObj = new NetObj();
 
     [NetValue(0)] public float testFloat;
 
@@ -32,15 +32,8 @@ public class TestObj : MonoBehaviour, INetObj
         netObj.owner = owner;
     }
 
-    // Start is called before the first frame update
-    void Start()
+    private void Update()
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        Debug.LogWarning($"I {ClientManager.Instance.idClient} try read : Test Obj Owner to read : {netObj.owner}  ID : {netObj.id}");
     }
 }

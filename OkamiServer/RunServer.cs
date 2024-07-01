@@ -19,6 +19,8 @@ namespace OkamiServer
                 serverManager.UpdateServer();
                 Thread.Sleep(10);
             }
+
+            UtilsTools.LOG -= DrawText;
         }
 
         private static void DrawText(string text)

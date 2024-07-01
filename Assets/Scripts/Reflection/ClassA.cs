@@ -1,29 +1,20 @@
+using OkamiNet.Network;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 
 public class ClassA
 {
-    [NetValue(0)] public float publicFloat;
-    [NetValue(1)] private string privateString;
-    [NetValue(2)] protected bool protectedBool;
-    public ClassA()
-    {
-        publicFloat = 10.0f;
-        privateString = "patata";
-        protectedBool = true;
-    }
-}
-
-public class NetValue : Attribute 
-{
-    int id;
-    public NetValue(int id) 
-    {
-        this.id = id;
-    }
+    //[NetValue(0)] public float publicFloat;
+    //[NetValue(1)] private string privateString;
+    //[NetValue(2)] protected bool protectedBool;
+    //public ClassA()
+    //{
+    //    publicFloat = 10.0f;
+    //    privateString = "patata";
+    //    protectedBool = true;
+    //}
 }
 
 public static class FieldInfoExtensions 

@@ -10,6 +10,10 @@ public class NetClient : MonoBehaviour
         ClientManager.Instance = clientManager;
     }
 
+    private void Start()
+    {
+        clientManager.StartClient();
+    }
 
     void Update()
     {
