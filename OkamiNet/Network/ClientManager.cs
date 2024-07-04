@@ -91,12 +91,12 @@ namespace OkamiNet.Network
                 case NetMenssage.Float:
                     UtilsTools.LOG?.Invoke("Recive new netFloat");
                     NetFloat netFloat = new NetFloat();
-                    int ValueId;
-                    int ObjId;
-                    netFloat.data = netFloat.DeserializeWithNetValueId(data, out ValueId, out ObjId);
-                    UtilsTools.LOG?.Invoke($"Recive attribute Id{ObjId} : ObjId {ObjId}");
+                    int ObjID;
+                    int AttributeID;
+                    netFloat.data = netFloat.DeserializeWithNetValueId(data, out ObjID, out AttributeID);
+                    UtilsTools.LOG?.Invoke($"Recive attribute Id {AttributeID} : ObjId {ObjID}");
 
-                    SetNetValueFloat(netFloat.data, ValueId, ObjId);
+                    SetNetValueFloat(netFloat.data, AttributeID, ObjID);
 
                     break;
                 case NetMenssage.S2C:
