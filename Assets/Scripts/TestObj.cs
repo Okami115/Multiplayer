@@ -1,3 +1,4 @@
+using NUnit.Framework.Constraints;
 using OkamiNet.Network;
 using UnityEngine;
 
@@ -6,6 +7,7 @@ public class TestObj : MonoBehaviour, INetObj
     public NetObj netObj = new NetObj();
 
     [NetValue(0)] public float testFloat;
+    [NetValue(1)] public int testInt;
 
     public int getID()
     {

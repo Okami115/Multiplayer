@@ -7,8 +7,10 @@ namespace OkamiNet.Menssage
     public enum NetMenssage
     {
         String = 0,
-        Vector3,
         Float,
+        Int,
+        Vector3,
+        Vector2,
         Rotation,
         Shoot,
         Disconect,

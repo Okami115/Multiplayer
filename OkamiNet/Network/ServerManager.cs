@@ -189,6 +189,10 @@ namespace OkamiNet.Network
                     Broadcast(data);
 
                     break;
+                case NetMenssage.Int:
+                    UtilsTools.LOG?.Invoke("New NetInt");
+                    Broadcast(data);
+                    break;
                 case NetMenssage.C2S:
                     UtilsTools.LOG?.Invoke("New C2S");
                     C2SHandShake C2SHandShake = new C2SHandShake("");

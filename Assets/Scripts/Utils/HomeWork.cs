@@ -45,8 +45,7 @@ public class HomeWork
 
     // Reflection - Pendiente
 
-    // Criterio de ELO - Pendiente
+    //-------------------------FINAL---------------------------
 
-    // RollBack - Pendiente?
 
 }

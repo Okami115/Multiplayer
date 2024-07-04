@@ -64,6 +64,8 @@ namespace OkamiNet.Network
 
             NetMenssage aux = (NetMenssage)BitConverter.ToInt32(data, 0);
             int id;
+            int ObjID;
+            int AttributeID;
 
             switch (aux)
             {
@@ -91,13 +93,20 @@ namespace OkamiNet.Network
                 case NetMenssage.Float:
                     UtilsTools.LOG?.Invoke("Recive new netFloat");
                     NetFloat netFloat = new NetFloat();
-                    int ObjID;
-                    int AttributeID;
+
                     netFloat.data = netFloat.DeserializeWithNetValueId(data, out ObjID, out AttributeID);
                     UtilsTools.LOG?.Invoke($"Recive attribute Id {AttributeID} : ObjId {ObjID}");
 
-                    SetNetValueFloat(netFloat.data, AttributeID, ObjID);
+                    SetNetValue(netFloat.data, AttributeID, ObjID);
 
+                    break;
+                case NetMenssage.Int:
+                    UtilsTools.LOG?.Invoke("Recive new netInt");
+                    NetInt netInt = new NetInt();
+                    netInt.data = netInt.DeserializeWithNetValueId(data, out ObjID, out AttributeID);
+                    UtilsTools.LOG?.Invoke($"Recive attribute Id {AttributeID} : ObjId {ObjID}");
+
+                    SetNetValue(netInt.data, AttributeID, ObjID);
                     break;
                 case NetMenssage.S2C:
                     UtilsTools.LOG?.Invoke("New S2C");
@@ -238,12 +247,10 @@ namespace OkamiNet.Network
             }
         }
 
-        public void SetNetValueFloat(float value, int id, int objId)
+        public void SetNetValue(object value, int id, int objId)
         {
             if (Reflection.netObjets.Count <= 0)
                 return;
-
-            reciveFloat?.Invoke(value, id);
 
             UtilsTools.LOG($"Value to Read : {value}, Value ID to Read : {id}, Obj ID to Read : {objId}");
 
@@ -271,7 +278,7 @@ namespace OkamiNet.Network
                         }
                         else
                         {
-                            UtilsTools.LOG("Property : " + info.ToString() + " : NULL");
+                            UtilsTools.LOG("Property : " + info.ToString() + " : NULL : ID " + id);
                         }
                     }
                 }

@@ -7,6 +7,7 @@ using System.Text;
 
 namespace OkamiNet.Menssage
 {
+    [NetValueTypeMessage(NetMenssage.String, typeof(string))]
     public class NetString : BaseMenssaje<string>
     {
         public NetString(string data) 
@@ -26,12 +27,17 @@ namespace OkamiNet.Menssage
             return data;
         }
 
+        public void SetData(string data)
+        {
+            this.data = data;
+        }
+
         public override NetMenssage GetMessageType()
         {
             return NetMenssage.String;
         }
 
-        public override byte[] Serialize(   )
+        public override byte[] Serialize()
         {
             List<byte> outData = new List<byte>();
 
@@ -52,6 +58,41 @@ namespace OkamiNet.Menssage
             outData.AddRange(BitConverter.GetBytes(result2));
 
             return outData.ToArray();
+        }
+
+        public byte[] SerializeWithValueID(int NetValueId, int NetObjId)
+        {
+            List<byte> outData = new List<byte>();
+
+            outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
+            outData.AddRange(BitConverter.GetBytes(data.Length));
+            outData.AddRange(BitConverter.GetBytes(NetValueId));
+            outData.AddRange(BitConverter.GetBytes(NetObjId));
+            outData.AddRange(Encoding.UTF8.GetBytes(data));
+
+            int result1 = 0;
+            int result2 = 0;
+
+            for (int i = 0; i < outData.Count; i++)
+            {
+                result1 += outData[i];
+                result2 -= outData[i];
+            }
+
+            outData.AddRange(BitConverter.GetBytes(result1));
+            outData.AddRange(BitConverter.GetBytes(result2));
+
+            return outData.ToArray();
+        }
+
+        public string DeserializeWithNetValueId(byte[] message, out int valueID, out int objID)
+        {
+            int stringlength = BitConverter.ToInt32(message, 4);
+
+            objID = BitConverter.ToInt32(message, 12);
+            valueID = BitConverter.ToInt32(message, 16);
+
+            return Encoding.UTF8.GetString(message, 16, stringlength);
         }
     }
 
@@ -138,6 +179,7 @@ namespace OkamiNet.Menssage
         }
     }
 
+    [NetValueTypeMessage(NetMenssage.Int, typeof(int))]
     public class NetInt : BaseMenssaje<int>
     {
         public override int Deserialize(byte[] message)
@@ -149,10 +191,14 @@ namespace OkamiNet.Menssage
         {
             return data;
         }
+        public void SetData(int data)
+        {
+            this.data = data;
+        }
 
         public override NetMenssage GetMessageType()
         {
-            return NetMenssage.Shoot;
+            return NetMenssage.Int;
         }
 
         public override byte[] Serialize()
@@ -176,8 +222,43 @@ namespace OkamiNet.Menssage
 
             return outData.ToArray();
         }
+
+        public byte[] SerializeWithValueID(int NetValueId, int NetObjId)
+        {
+            List<byte> outData = new List<byte>();
+
+            outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
+            outData.AddRange(BitConverter.GetBytes(data));
+            outData.AddRange(BitConverter.GetBytes(NetValueId));
+            outData.AddRange(BitConverter.GetBytes(NetObjId));
+
+            int result1 = 0;
+            int result2 = 0;
+
+            for (int i = 0; i < outData.Count; i++)
+            {
+                result1 += outData[i];
+                result2 -= outData[i];
+            }
+
+            outData.AddRange(BitConverter.GetBytes(result1));
+            outData.AddRange(BitConverter.GetBytes(result2));
+
+            return outData.ToArray();
+        }
+
+        public int DeserializeWithNetValueId(byte[] message, out int valueID, out int objID)
+        {
+            int outData;
+            outData = BitConverter.ToInt32(message, 4);
+            objID = BitConverter.ToInt32(message, 8);
+            valueID = BitConverter.ToInt32(message, 12);
+
+            return outData;
+        }
     }
 
+    [NetValueTypeMessage(NetMenssage.Vector3, typeof(Vector3))]
     public class NetVector3 : BaseMenssaje<Vector3>
     {
         public override Vector3 Deserialize(byte[] message)
@@ -230,8 +311,49 @@ namespace OkamiNet.Menssage
 
             return outData.ToArray();
         }
+
+        public byte[] SerializeWithValueID(int NetValueId, int NetObjId)
+        {
+            List<byte> outData = new List<byte>();
+
+
+            outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
+            //outData.AddRange(BitConverter.GetBytes(lastMsgID++));
+            outData.AddRange(BitConverter.GetBytes(data.X));
+            outData.AddRange(BitConverter.GetBytes(data.Y));
+            outData.AddRange(BitConverter.GetBytes(data.Z));
+            outData.AddRange(BitConverter.GetBytes(NetValueId));
+            outData.AddRange(BitConverter.GetBytes(NetObjId));
+
+            int result1 = 0;
+            int result2 = 0;
+
+            for (int i = 0; i < outData.Count; i++)
+            {
+                result1 += outData[i];
+                result2 -= outData[i];
+            }
+
+            outData.AddRange(BitConverter.GetBytes(result1));
+            outData.AddRange(BitConverter.GetBytes(result2));
+
+            return outData.ToArray();
+        }
+
+        public Vector3 DeserializeWithNetValueId(byte[] message, out int valueID, out int objID)
+        {
+            Vector3 outData;
+            outData.X = BitConverter.ToSingle(message, 4);
+            outData.Y = BitConverter.ToSingle(message, 8);
+            outData.Z = BitConverter.ToSingle(message, 12);
+            objID = BitConverter.ToInt32(message, 16);
+            valueID = BitConverter.ToInt32(message, 20);
+
+            return outData;
+        }
     }
 
+    [NetValueTypeMessage(NetMenssage.Vector2, typeof(Vector2))]
     public class NetVector2 : BaseMenssaje<Vector2>
     {
         public override Vector2 Deserialize(byte[] message)
@@ -275,6 +397,44 @@ namespace OkamiNet.Menssage
             outData.AddRange(BitConverter.GetBytes(result2));
 
             return outData.ToArray();
+        }
+
+        public byte[] SerializeWithValueID(int NetValueId, int NetObjId)
+        {
+            List<byte> outData = new List<byte>();
+
+
+            outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
+            //outData.AddRange(BitConverter.GetBytes(lastMsgID++));
+            outData.AddRange(BitConverter.GetBytes(data.X));
+            outData.AddRange(BitConverter.GetBytes(data.Y));
+            outData.AddRange(BitConverter.GetBytes(NetValueId));
+            outData.AddRange(BitConverter.GetBytes(NetObjId));
+
+            int result1 = 0;
+            int result2 = 0;
+
+            for (int i = 0; i < outData.Count; i++)
+            {
+                result1 += outData[i];
+                result2 -= outData[i];
+            }
+
+            outData.AddRange(BitConverter.GetBytes(result1));
+            outData.AddRange(BitConverter.GetBytes(result2));
+
+            return outData.ToArray();
+        }
+
+        public Vector2 DeserializeWithNetValueId(byte[] message, out int valueID, out int objID)
+        {
+            Vector2 outData;
+            outData.X = BitConverter.ToSingle(message, 4);
+            outData.Y = BitConverter.ToSingle(message, 8);
+            objID = BitConverter.ToInt32(message, 12);
+            valueID = BitConverter.ToInt32(message, 16);
+
+            return outData;
         }
     }
 
