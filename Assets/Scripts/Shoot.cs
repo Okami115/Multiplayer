@@ -7,8 +7,6 @@ public class Shoot : MonoBehaviour
     private GameManager gameManager;
     private PlayerManager playerManager;
 
-    private NetInt shootData;
-
     private void OnEnable()
     {
         ClientManager.Instance.updateShoot += ShootBullet;
@@ -21,7 +19,6 @@ public class Shoot : MonoBehaviour
 
     void Start()
     {
-        shootData = new NetInt();
         gameManager = FindAnyObjectByType<GameManager>();
         playerManager = FindFirstObjectByType<PlayerManager>();
     }
@@ -30,7 +27,6 @@ public class Shoot : MonoBehaviour
     {
         if (Input.GetMouseButtonUp(0))
         {
-            shootData.data = ClientManager.Instance.player.id;
             //NetworkManager.Instance.SendToServer(shootData.Serialize());
         }
     }

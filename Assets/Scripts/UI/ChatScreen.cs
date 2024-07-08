@@ -29,8 +29,6 @@ public class ChatScreen : MonoBehaviour
     {
         if (inputMessage.text != "")
         {
-
-            NetString consoleMensajes = new NetString(ClientManager.Instance.player.name + ": " + inputMessage.text + System.Environment.NewLine);
             //NetworkManager.Instance.SendToServer(consoleMensajes.Serialize());
 
             inputMessage.ActivateInputField();

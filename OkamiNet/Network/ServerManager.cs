@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 
 namespace OkamiNet.Network
 {
@@ -14,8 +15,27 @@ namespace OkamiNet.Network
         public int id;
         public IPEndPoint ipEndPoint;
 
+        public Dictionary<NetMenssage, uint> MessageHistorial;
+        public Dictionary<NetMenssage, uint> MessageReciveHistorial;
+
         public Client(IPEndPoint ipEndPoint, int id)
         {
+            MessageHistorial = new Dictionary<NetMenssage, uint>();
+            MessageReciveHistorial = new Dictionary<NetMenssage, uint>();
+
+            foreach (Type type in Assembly.GetExecutingAssembly().GetTypes())
+            {
+                List<Attribute> attribute = new List<Attribute>(type.GetCustomAttributes<NetValueTypeMessage>());
+
+                if (attribute.Count > 0)
+                {
+                    NetValueTypeMessage netMessageValue = attribute[0] as NetValueTypeMessage;
+
+                    MessageHistorial.Add(netMessageValue.netMenssage, 0);
+                    MessageReciveHistorial.Add(netMessageValue.netMenssage, 0);
+                }
+            }
+
             this.id = id;
             this.ipEndPoint = ipEndPoint;
         }
@@ -164,29 +184,47 @@ namespace OkamiNet.Network
                 return;
 
             NetMenssage aux = (NetMenssage)BitConverter.ToInt32(data, 0);
+
+
+            MenssageFlags flags = Menssage.Flags.FlagsCheck(data);
+
+            bool isOrdenable = flags.HasFlag(MenssageFlags.Ordenable);
+            bool isImportant = flags.HasFlag(MenssageFlags.Importants);
+            uint idMessage = 0;
+
+            if (isOrdenable)
+            {
+                idMessage = BitConverter.ToUInt32(data, 12);
+            }
+
             int id;
 
             switch (aux)
             {
-                case NetMenssage.String:
-                    NetString consoleMensajes = new NetString("");
-                    string text = consoleMensajes.Deserialize(data);
-                    UtilsTools.LOG?.Invoke("New mensages : " + text);
-                    Instance.Broadcast(data);
-                    break;
-                case NetMenssage.Vector3:
-                    NetVector3 pos = new NetVector3();
-                    System.Numerics.Vector3 newPos = pos.Deserialize(data);
-                    break;
-                case NetMenssage.Rotation:
-                    NetVector2 rot = new NetVector2();
-                    break;
-                case NetMenssage.Shoot:
-                    NetInt shoot = new NetInt();
-                    break;
                 case NetMenssage.Float:
                     UtilsTools.LOG?.Invoke("New NetFloat");
-                    Broadcast(data);
+
+                    if(isOrdenable)
+                    {
+                        if (idMessage > clients[ipToId[ip]].MessageHistorial[aux])
+                        {
+                            clients[ipToId[ip]].MessageHistorial[aux] = idMessage;
+
+                            NetFloat netFloat = new NetFloat();
+
+                            List<ParentsTree> parents = new List<ParentsTree>();
+
+                            int objID;
+
+                            netFloat.data = netFloat.DeserializeWithNetValueId(data, out parents, out objID);
+
+                            Broadcast(netFloat.SerializeWithValueID(parents, objID, flags));
+                        }
+                    }
+                    else
+                    {
+                        Broadcast(data);
+                    }
 
                     break;
                 case NetMenssage.Int:

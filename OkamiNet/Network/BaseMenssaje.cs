@@ -1,6 +1,6 @@
-﻿// Sintetizar
-
+﻿using OkamiNet.Network;
 using System;
+using System.Collections.Generic;
 
 namespace OkamiNet.Menssage
 {
@@ -9,10 +9,6 @@ namespace OkamiNet.Menssage
         String = 0,
         Float,
         Int,
-        Vector3,
-        Vector2,
-        Rotation,
-        Shoot,
         Disconect,
         AddPlayer,
         C2S,
@@ -22,6 +18,16 @@ namespace OkamiNet.Menssage
         Denied,
         FactoryRequest,
         FactoryMessage
+    }
+
+    [Flags]
+    public enum MenssageFlags
+    {
+        None = 0,
+        Ordenable,
+        Importants,
+        Descartables,
+        NonDescartables
     }
     public abstract class BaseMenssaje<PayLoadType>
     {
@@ -34,6 +40,29 @@ namespace OkamiNet.Menssage
         public abstract PayLoadType Deserialize(byte[] message);
 
         public abstract PayLoadType GetData();
+    }
+
+    public abstract class BaseNetMenssaje<PayLoadType>
+    {
+        public PayLoadType data;
+
+        public static uint messageID = 0;
+
+        public MenssageFlags flags;
+        public abstract NetMenssage GetMessageType();
+
+        public static Action<PayLoadType> OnDispatch;
+        public abstract byte[] SerializeWithValueID(List<ParentsTree> parentsTree, int NetObjId, MenssageFlags menssageFlags);
+
+        public abstract PayLoadType DeserializeWithNetValueId(byte[] message, out List<ParentsTree> parentsTree, out int objID);
+
+        public abstract PayLoadType GetData();
+
+        public abstract uint GetMessageID();
+
+        public abstract void SetMessageID(uint id);
+
+        public abstract void SetData(float data);
     }
 
 }

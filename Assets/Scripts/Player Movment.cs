@@ -10,11 +10,8 @@ public class PlayerMovment : NetObj
 
     private PlayerManager playerManager;
 
-    private NetVector3 pos;
-
     private void Start()
     {
-        pos = new NetVector3();
         speed = 20;
     }
 
@@ -22,8 +19,6 @@ public class PlayerMovment : NetObj
     {
         float movimientoHorizontal = Input.GetAxis("Horizontal");
         float movimientoVertical = Input.GetAxis("Vertical");
-
-        pos.data = new System.Numerics.Vector3(movimientoHorizontal, 0.0f, movimientoVertical);
 
     }
 

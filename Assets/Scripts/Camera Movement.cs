@@ -8,7 +8,6 @@ public class CameraMovement : MonoBehaviour
 
     private PlayerManager playerManager;
 
-    private NetVector2 rotationData;
 
     private void OnEnable()
     {
@@ -22,7 +21,6 @@ public class CameraMovement : MonoBehaviour
 
     private void Start()
     {
-        rotationData = new NetVector2();
         Cursor.lockState = CursorLockMode.Locked;
         playerManager = FindFirstObjectByType<PlayerManager>();
     }
@@ -31,12 +29,6 @@ public class CameraMovement : MonoBehaviour
     {
         float mouseX = Input.GetAxis("Mouse X");
         float mouseY = Input.GetAxis("Mouse Y");
-
-        rotationData.data.Y += mouseX;
-
-        rotationData.data.X -= mouseY;
-
-        rotationData.data.X = Mathf.Clamp(rotationData.data.X, -90f, 90f);
 
         //NetworkManager.Instance.SendToServer(rotationData.Serialize());
     }
