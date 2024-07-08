@@ -230,6 +230,7 @@ namespace OkamiNet.Menssage
             outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
             outData.AddRange(BitConverter.GetBytes(data.Length));
             outData.AddRange(Encoding.UTF8.GetBytes(data));
+            outData.AddRange(BitConverter.GetBytes((int)MenssageFlags.None));
 
             int result1 = 0;
             int result2 = 0;

@@ -182,6 +182,7 @@ namespace OkamiNet.Network
                     UtilsTools.LOG?.Invoke("Recive Change The port");
                     changePort.data = changePort.Deserialize(data);
                     connection.Close();
+                    connection = null;
                     UtilsTools.LOG?.Invoke("Close Connection");
 
                     C2SHandShake c2SHandShake = new C2SHandShake(player.name);

@@ -346,7 +346,7 @@ class MatchMaker : IReceiveData
         currentServer = Process.Start(startInfo);
 
 
-        Thread.Sleep(10000);
+        Thread.Sleep(1000);
 
         ChangePort changePort = new ChangePort();
 

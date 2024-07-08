@@ -177,13 +177,17 @@ namespace OkamiNet.Network
 
         public void OnReceiveData(byte[] data, IPEndPoint ip)
         {
+            UtilsTools.LOG?.Invoke("Llego");
             if (data == null || data.Count() <= 0)
                 return;
+            UtilsTools.LOG?.Invoke("Tiene algo");
 
             if (!Checksum.ChecksumConfirm(data))
                 return;
+            UtilsTools.LOG?.Invoke("No esta roto");
 
             NetMenssage aux = (NetMenssage)BitConverter.ToInt32(data, 0);
+            UtilsTools.LOG?.Invoke("Es un " + aux.ToString());
 
 
             MenssageFlags flags = Menssage.Flags.FlagsCheck(data);
@@ -361,10 +365,15 @@ namespace OkamiNet.Network
         public void UpdateServer()
         {
             if (connection != null)
-                connection.FlushReceiveData();
+            {
 
-            TryToReSendImportantMessage();
-            DisconetForPing(Instance.isServer);
+                UtilsTools.LOG?.Invoke("Updating....");
+                connection.FlushReceiveData();
+                TryToReSendImportantMessage();
+                DisconetForPing(Instance.isServer);
+
+            }
+
         }
 
         public IPEndPoint GetIpById(int id)
@@ -398,19 +407,19 @@ namespace OkamiNet.Network
             TimeSpan latency = DateTime.UtcNow - Instance.lastMessageImportantSend;
             int latencySeconds = (int)latency.TotalSeconds;
 
-            Dictionary<int, Dictionary<NetMenssage, List<int>>> delete = new Dictionary<int, Dictionary<NetMenssage, List<int>>>(); 
+            Dictionary<int, Dictionary<NetMenssage, List<int>>> delete = new Dictionary<int, Dictionary<NetMenssage, List<int>>>();
 
             foreach (KeyValuePair<int, Client> client in clients)
             {
                 if (delete[client.Key] == null)
                     delete[client.Key] = new Dictionary<NetMenssage, List<int>>();
 
-                foreach(KeyValuePair<NetMenssage, List<DataCache>> cache in client.Value.messageCache)
+                foreach (KeyValuePair<NetMenssage, List<DataCache>> cache in client.Value.messageCache)
                 {
-                    if(delete[client.Key][cache.Key] == null)
+                    if (delete[client.Key][cache.Key] == null)
                         delete[client.Key][cache.Key] = new List<int>();
 
-                    for(int i = 0; i < cache.Value.Count; i++)
+                    for (int i = 0; i < cache.Value.Count; i++)
                     {
                         if ((cache.Value[i].sendTime - DateTime.UtcNow).TotalSeconds > 5 || cache.Value[i].checkClient.Count == clients.Count)
                         {
@@ -437,7 +446,7 @@ namespace OkamiNet.Network
                 {
                     for (int i = 0; i < cache.Value.Count; i++)
                     {
-                        if((cache.Value[i].sendTime - DateTime.UtcNow).TotalSeconds > 0.5f)
+                        if ((cache.Value[i].sendTime - DateTime.UtcNow).TotalSeconds > 0.5f)
                         {
                             if (!cache.Value[i].checkClient.Contains(client.Key))
                                 Broadcast(cache.Value[i].data, client.Key);
