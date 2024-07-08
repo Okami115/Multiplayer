@@ -124,7 +124,7 @@ namespace OkamiNet.Network
             this.port = port;
 
             IPAddress ipAddress = IPAddress.Parse(ip);
-            connection = new UdpConnection(ipAddress, port, this);
+            connection = new UdpConnection( port, this);
 
             netNames = new List<string>();
             lastPingSend = new List<DateTime>();

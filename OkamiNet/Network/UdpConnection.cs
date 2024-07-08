@@ -28,6 +28,8 @@ namespace OkamiNet.Network
 
             this.receiver = receiver;
 
+            connection.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+
             connection.BeginReceive(OnReceive, null);
         }
 
@@ -46,6 +48,8 @@ namespace OkamiNet.Network
             if (!isDisposed)
             {
                 isDisposed = true;
+                dataReceivedQueue.Clear();
+                connection.Dispose();
                 connection.Close();
             }
         }
