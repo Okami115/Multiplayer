@@ -1,5 +1,6 @@
 ﻿using OkamiNet.Network;
 using OkamiNet.Utils;
+using System.Diagnostics;
 
 namespace OkamiServer
 {
@@ -11,8 +12,9 @@ namespace OkamiServer
 
         static void Main(string[] args)
         {
+            Console.WriteLine(args[0] + " " + args[1]);
             UtilsTools.LOG += DrawText;
-            serverManager.StartServer();
+            serverManager.StartServer(int.Parse(args[0]), args[1]);
 
             while(isRunning)
             {

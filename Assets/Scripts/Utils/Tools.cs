@@ -17,7 +17,7 @@ public class Tools : MonoBehaviour
     {
         UtilsTools.LOG += DebugLogs;
         UtilsTools.Intanciate += Instanciate;
-        ClientManager.Instance.StartMap += InitPlayer;
+        ClientManager.Instance.StartMatch += InitPlayer;
         gameManager = FindAnyObjectByType<GameManager>();
     }
 
@@ -25,7 +25,7 @@ public class Tools : MonoBehaviour
     {
         UtilsTools.LOG -= DebugLogs;
         UtilsTools.Intanciate -= Instanciate;
-        ClientManager.Instance.StartMap -= InitPlayer;
+        ClientManager.Instance.StartMatch -= InitPlayer;
     }
 
     private void DebugLogs(string msg)

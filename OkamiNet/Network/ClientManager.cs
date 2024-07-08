@@ -30,7 +30,8 @@ namespace OkamiNet.Network
 
         public Action<string> newText;
         public Action<int> spawnPlayer;
-        public Action StartMap;
+        public Action StartClientScreen;
+        public Action StartMatch;
 
         public Action<System.Numerics.Vector3, int> updatePos;
         public Action<System.Numerics.Vector2, int> updateRot;
@@ -69,11 +70,13 @@ namespace OkamiNet.Network
 
             NetMenssage aux = (NetMenssage)BitConverter.ToInt32(data, 0);
 
-            if (Menssage.Flags.FlagsCheck(data) == (MenssageFlags.Ordenable | MenssageFlags.Descartables))
+            if (Menssage.Flags.FlagsCheck(data) == (MenssageFlags.Ordenable))
             {
                 if (BitConverter.ToUInt32(data, 12) < MessageReciveHistorial[aux])
                     return;
             }
+
+            bool isImportant = (Menssage.Flags.FlagsCheck(data) == (MenssageFlags.Importants));
 
             int id;
             int ObjID;
@@ -89,6 +92,11 @@ namespace OkamiNet.Network
 
                     MessageReciveHistorial[aux] = BitConverter.ToUInt32(data, 12);
 
+                    if(isImportant)
+                    {
+
+                    }
+
                     int objID;
 
                     netFloat.data = netFloat.DeserializeWithNetValueId(data, out parents, out objID);
@@ -97,13 +105,13 @@ namespace OkamiNet.Network
                     SetNetValueTree(netFloat.data, parents, objID);
 
                     break;
-                case NetMenssage.S2C:
+                case NetMenssage.TuVieja:
                     UtilsTools.LOG?.Invoke("New S2C");
                     S2CHandShake s2cHandShake = new S2CHandShake(0);
                     Instance.idClient = s2cHandShake.Deserialize(data);
 
                     UtilsTools.LOG?.Invoke("Start Player...");
-                    StartMap?.Invoke();
+                    StartClientScreen?.Invoke();
 
                     NetPing Startping = new NetPing();
                     Startping.data = Instance.idClient;
@@ -142,8 +150,11 @@ namespace OkamiNet.Network
                     break;
                 case NetMenssage.Disconect:
                     NetDisconect dis = new NetDisconect();
-                    id = dis.Deserialize(data);
 
+                    //stopPlayer?.Invoke();
+                    //connection.Close();
+                    //lastPingSend.Clear();
+                    //ipToId.Clear();
 
                     break;
                 case NetMenssage.FactoryMessage:
@@ -164,6 +175,29 @@ namespace OkamiNet.Network
                         UtilsTools.LOG("Objet : " + i);
                         UtilsTools.Intanciate?.Invoke(FactoryData[i]);
                     }
+
+                    break;
+                case NetMenssage.ChangePort:
+                    ChangePort changePort = new ChangePort();
+                    UtilsTools.LOG?.Invoke("Recive Change The port");
+                    changePort.data = changePort.Deserialize(data);
+                    connection.Close();
+                    UtilsTools.LOG?.Invoke("Close Connection");
+
+                    C2SHandShake c2SHandShake = new C2SHandShake(player.name);
+
+                    IPAddress ipAddress = IPAddress.Parse(changePort.data.Item2);
+                    UtilsTools.LOG?.Invoke($"IP : " + changePort.data.Item2);
+
+                    this.port = changePort.data.Item1;
+                    this.ipAddress = ipAddress;
+                    UtilsTools.LOG?.Invoke($"Port : " + changePort.data.Item1);
+
+                    connection = new UdpConnection(ipAddress, port, this);
+                    UtilsTools.LOG?.Invoke($"Init Connection");
+                    ClientManager.Instance.SendToServer(c2SHandShake.Serialize());
+                    UtilsTools.LOG?.Invoke($"Send C2S");
+                    StartMatch?.Invoke();
 
                     break;
                 default:
@@ -249,18 +283,7 @@ namespace OkamiNet.Network
 
                     if (latencySeconds > TimeOut)
                     {
-                        if (isServer)
-                        {
-                            NetDisconect dis = new NetDisconect();
 
-                        }
-                        else
-                        {
-                            stopPlayer?.Invoke();
-                            connection.Close();
-                            lastPingSend.Clear();
-                            ipToId.Clear();
-                        }
                     }
                 }
             }
@@ -319,27 +342,6 @@ namespace OkamiNet.Network
         {
             if (obj == null)
                 return obj;
-            /*
-            if (iterator >= parentTree.Count)
-            {
-                foreach (FieldInfo info in type.GetFields(BindingFlags.NonPublic | BindingFlags.Public |
-                                          BindingFlags.Instance | BindingFlags.DeclaredOnly))
-                {
-                    UtilsTools.LOG($"Value to Read A : {info.FieldType}");
-                    UtilsTools.LOG($"Value to Read B : {type.GenericTypeArguments[0]}");
-                    if (info.FieldType == type.GenericTypeArguments[0])
-                    {
-                        UtilsTools.LOG($"Value to Read : {info.Name}");
-                        obj = SetValue(info, obj, data);
-                        break;
-                    }
-                }
-
-            }
-            else
-            {
-            }
-             */
 
             foreach (MessageData info in Reflection.GetFieldsFromType(type))
             {

@@ -12,12 +12,15 @@ namespace OkamiNet.Menssage
         Disconect,
         AddPlayer,
         C2S,
-        S2C,
+        TuVieja,
         FactoryDataSpawn,
         Ping,
         Denied,
         FactoryRequest,
-        FactoryMessage
+        FactoryMessage,
+        CheckMessage,
+        Redirection,
+        ChangePort
     }
 
     [Flags]
@@ -26,8 +29,6 @@ namespace OkamiNet.Menssage
         None = 0,
         Ordenable,
         Importants,
-        Descartables,
-        NonDescartables
     }
     public abstract class BaseMenssaje<PayLoadType>
     {
@@ -62,7 +63,7 @@ namespace OkamiNet.Menssage
 
         public abstract void SetMessageID(uint id);
 
-        public abstract void SetData(float data);
+        public abstract void SetData(PayLoadType data);
     }
 
 }

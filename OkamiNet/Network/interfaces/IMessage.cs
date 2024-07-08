@@ -3,6 +3,7 @@ using OkamiNet.Utils;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Net;
 using System.Numerics;
 using System.Text;
 
@@ -265,7 +266,7 @@ namespace OkamiNet.Menssage
 
         public override NetMenssage GetMessageType()
         {
-            return NetMenssage.S2C;
+            return NetMenssage.TuVieja;
         }
 
         public override byte[] Serialize()
@@ -274,6 +275,7 @@ namespace OkamiNet.Menssage
 
             outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
             outData.AddRange(BitConverter.GetBytes(data));
+            outData.AddRange(BitConverter.GetBytes((int)MenssageFlags.None));
 
             int result1 = 0;
             int result2 = 0;
@@ -600,6 +602,122 @@ namespace OkamiNet.Menssage
                 result1 += outData[i];
                 result2 -= outData[i];
             }
+            outData.AddRange(BitConverter.GetBytes(result1));
+            outData.AddRange(BitConverter.GetBytes(result2));
+
+            return outData.ToArray();
+        }
+    }
+
+    public class CheckMessage : BaseNetMenssaje<(NetMenssage, uint)>
+    {
+        public override (NetMenssage, uint) DeserializeWithNetValueId(byte[] message, out List<ParentsTree> parentsTree, out int objID)
+        {
+            (NetMenssage, uint) data;
+
+            parentsTree = null;
+            objID = 0;
+
+            data.Item1 = (NetMenssage)BitConverter.ToInt32(message, 4);
+            data.Item2 = BitConverter.ToUInt32(message, 8);
+
+            return data;
+        }
+
+        public override (NetMenssage, uint) GetData()
+        {
+            return data;
+        }
+
+        public override uint GetMessageID()
+        {
+            return messageID;
+        }
+
+        public override NetMenssage GetMessageType()
+        {
+            return NetMenssage.CheckMessage;
+        }
+
+        public override byte[] SerializeWithValueID(List<ParentsTree> parentsTree, int NetObjId, MenssageFlags menssageFlags)
+        {
+            List<byte> outData = new List<byte>();
+
+            outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
+            outData.AddRange(BitConverter.GetBytes((int)data.Item1));
+            outData.AddRange(BitConverter.GetBytes(data.Item2));
+            outData.AddRange(BitConverter.GetBytes(messageID++));
+
+            outData.AddRange(BitConverter.GetBytes((int)menssageFlags));
+
+            int result1 = 0;
+            int result2 = 0;
+
+            for (int i = 0; i < outData.Count; i++)
+            {
+                result1 += outData[i];
+                result2 -= outData[i];
+            }
+
+            outData.AddRange(BitConverter.GetBytes(result1));
+            outData.AddRange(BitConverter.GetBytes(result2));
+
+            return outData.ToArray();
+        }
+
+        public override void SetData((NetMenssage, uint) data)
+        {
+            this.data = data;
+        }
+
+        public override void SetMessageID(uint id)
+        {
+            messageID = id;
+        }
+    }
+        
+    public class ChangePort : BaseMenssaje<(int, string)>
+    {
+        public override (int, string) Deserialize(byte[] message)
+        {
+            (int, string) data;
+
+            data.Item1 = BitConverter.ToInt32(message, 4);
+            int count = BitConverter.ToInt32(message, 8);
+            data.Item2 = Encoding.UTF8.GetString(message, 12, count);
+
+
+            return data;
+        }
+
+        public override (int, string) GetData()
+        {
+            return data;
+        }
+
+        public override NetMenssage GetMessageType()
+        {
+            return NetMenssage.ChangePort;
+        }
+
+        public override byte[] Serialize()
+        {
+            List<byte> outData = new List<byte>();
+
+            outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
+            outData.AddRange(BitConverter.GetBytes(data.Item1));
+            outData.AddRange(BitConverter.GetBytes(data.Item2.ToString().Length));
+            outData.AddRange(Encoding.UTF8.GetBytes(data.Item2.ToString()));
+
+            int result1 = 0;
+            int result2 = 0;
+
+            for (int i = 0; i < outData.Count; i++)
+            {
+                result1 += outData[i];
+                result2 -= outData[i];
+            }
+
             outData.AddRange(BitConverter.GetBytes(result1));
             outData.AddRange(BitConverter.GetBytes(result2));
 

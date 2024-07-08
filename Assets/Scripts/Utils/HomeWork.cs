@@ -24,7 +24,7 @@ public class HomeWork
 
     // Mensajes Ordenables - Check
 
-    // Descartables y no descartables - Pendiente
+    // Importantes - Pendiente
 
     //------------------Segundo Parcial------------------------
 

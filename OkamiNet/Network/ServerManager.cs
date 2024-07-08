@@ -17,11 +17,17 @@ namespace OkamiNet.Network
 
         public Dictionary<NetMenssage, uint> MessageHistorial;
         public Dictionary<NetMenssage, uint> MessageReciveHistorial;
+        public Dictionary<NetMenssage, List<DataCache>> messageCache;
+
+        public DateTime lastpingSend;
 
         public Client(IPEndPoint ipEndPoint, int id)
         {
             MessageHistorial = new Dictionary<NetMenssage, uint>();
             MessageReciveHistorial = new Dictionary<NetMenssage, uint>();
+            messageCache = new Dictionary<NetMenssage, List<DataCache>>();
+
+            lastpingSend = DateTime.MinValue;
 
             foreach (Type type in Assembly.GetExecutingAssembly().GetTypes())
             {
@@ -76,9 +82,11 @@ namespace OkamiNet.Network
 
         public int TimeOut = 30;
 
-        public static ServerManager  Instance;
+        public static ServerManager Instance;
 
         public List<DateTime> lastPingSend;
+
+        private DateTime lastMessageImportantSend;
 
         public Action<string> newText;
         public Action<int> spawnPlayer;
@@ -108,11 +116,15 @@ namespace OkamiNet.Network
         private readonly Dictionary<int, Client> clients = new Dictionary<int, Client>();
         private readonly Dictionary<IPEndPoint, int> ipToId = new Dictionary<IPEndPoint, int>();
 
-        public void StartServer(int port)
+        public void StartServer(int port, string ip)
         {
+            StartServer();
+
             isServer = true;
             this.port = port;
-            connection = new UdpConnection(port, this);
+
+            IPAddress ipAddress = IPAddress.Parse(ip);
+            connection = new UdpConnection(ipAddress, port, this);
 
             netNames = new List<string>();
             lastPingSend = new List<DateTime>();
@@ -140,7 +152,7 @@ namespace OkamiNet.Network
 
                 AddPlayer newPlayer = new AddPlayer();
 
-                newPlayer.data = player;    
+                newPlayer.data = player;
 
                 Instance.Broadcast(newPlayer.Serialize());
 
@@ -155,24 +167,12 @@ namespace OkamiNet.Network
 
         public void RemoveClient(int id, IPEndPoint ip)
         {
-            disconectPlayer?.Invoke(id);
+            NetDisconect netDisconect = new NetDisconect();
 
-            if(Instance.isServer)
-            {
-                clients.Remove(id);
-                ipToId.Remove(ip);
+            Instance.SendToClient(netDisconect.Serialize(), ip);
 
-                int ed = 0;
-
-            }
-
-            if (Instance.player.id == id)
-            {
-                stopPlayer?.Invoke();
-                connection.Close();
-                lastPingSend.Clear();
-                ipToId.Clear();
-            }
+            clients.Remove(id);
+            ipToId.Remove(ip);
         }
 
         public void OnReceiveData(byte[] data, IPEndPoint ip)
@@ -204,7 +204,29 @@ namespace OkamiNet.Network
                 case NetMenssage.Float:
                     UtilsTools.LOG?.Invoke("New NetFloat");
 
-                    if(isOrdenable)
+                    if (isImportant)
+                    {
+                        DataCache auxDataCache = new DataCache(data, DateTime.UtcNow);
+
+                        if (isOrdenable)
+                        {
+                            if (idMessage > clients[ipToId[ip]].MessageHistorial[aux])
+                            {
+                                clients[ipToId[ip]].MessageHistorial[aux] = idMessage;
+
+                                NetFloat netFloat = new NetFloat();
+
+                                List<ParentsTree> parents = new List<ParentsTree>();
+
+                                int objID;
+
+                                netFloat.data = netFloat.DeserializeWithNetValueId(data, out parents, out objID);
+
+                                Broadcast(netFloat.SerializeWithValueID(parents, objID, flags));
+                            }
+                        }
+                    }
+                    else if (isOrdenable)
                     {
                         if (idMessage > clients[ipToId[ip]].MessageHistorial[aux])
                         {
@@ -227,10 +249,6 @@ namespace OkamiNet.Network
                     }
 
                     break;
-                case NetMenssage.Int:
-                    UtilsTools.LOG?.Invoke("New NetInt");
-                    Broadcast(data);
-                    break;
                 case NetMenssage.C2S:
                     UtilsTools.LOG?.Invoke("New C2S");
                     C2SHandShake C2SHandShake = new C2SHandShake("");
@@ -239,21 +257,9 @@ namespace OkamiNet.Network
 
                     temp.data = "Authorized";
 
-                    if (idClient >= 5)
-                        temp.data = "Full";
-
-                    for (int i = 0; i < Instance.netNames.Count; i++)
-                    {
-                        if(Instance.netNames[i] == name)
-                            temp.data = "Name";
-                    }
-
                     SendToClient(temp.Serialize(), ip);
+                    Instance.AddClient(ip, name);
 
-                    if(temp.data == "Authorized")
-                    {
-                        Instance.AddClient(ip, name);
-                    }
                     break;
                 case NetMenssage.Ping:
                     NetPing ping = new NetPing();
@@ -298,6 +304,12 @@ namespace OkamiNet.Network
                     UtilsTools.LOG?.Invoke("Send Factory Message");
                     Broadcast(factoryMenssage.Serialize());
                     break;
+                case NetMenssage.ChangePort:
+                    ChangePort changePort = new ChangePort();
+                    changePort.data = changePort.Deserialize(data);
+
+                    StartServer(changePort.data.Item1, changePort.data.Item2);
+                    break;
                 default:
                     break;
             }
@@ -305,7 +317,7 @@ namespace OkamiNet.Network
 
         public void SendToClient(byte[] data, IPEndPoint ip)
         {
-            if(connection != null)
+            if (connection != null)
                 connection.Send(data, ip);
         }
 
@@ -332,6 +344,11 @@ namespace OkamiNet.Network
             }
         }
 
+        public void Broadcast(byte[] data, int clientsID)
+        {
+            connection.Send(data, clients[clientsID].ipEndPoint);
+        }
+
         public void StartServer()
         {
             if (Instance == null)
@@ -339,8 +356,6 @@ namespace OkamiNet.Network
 
             Reflection.Init();
             UtilsTools.LOG?.Invoke("----- Init Server V0.1 - Okami Industries -----");
-            Instance.StartServer(55555);
-
         }
 
         public void UpdateServer()
@@ -348,6 +363,7 @@ namespace OkamiNet.Network
             if (connection != null)
                 connection.FlushReceiveData();
 
+            TryToReSendImportantMessage();
             DisconetForPing(Instance.isServer);
         }
 
@@ -365,30 +381,85 @@ namespace OkamiNet.Network
 
         private void DisconetForPing(bool isServer)
         {
-            if (lastPingSend != null)
+            foreach (KeyValuePair<int, Client> client in clients)
             {
-                for (int i = 0; i < lastPingSend.Count; i++)
+                TimeSpan latency = DateTime.UtcNow - client.Value.lastpingSend;
+                int latencyMilliseconds = (int)latency.TotalMilliseconds;
+
+                if (latencyMilliseconds > TimeOut)
                 {
-                    TimeSpan latency = DateTime.UtcNow - Instance.lastPingSend[i];
-                    int latencySeconds = (int)latency.TotalSeconds;
+                    RemoveClient(client.Value.id, client.Value.ipEndPoint);
+                }
+            }
+        }
 
-                    if (latencySeconds > TimeOut)
+        private void TryToReSendImportantMessage()
+        {
+            TimeSpan latency = DateTime.UtcNow - Instance.lastMessageImportantSend;
+            int latencySeconds = (int)latency.TotalSeconds;
+
+            Dictionary<int, Dictionary<NetMenssage, List<int>>> delete = new Dictionary<int, Dictionary<NetMenssage, List<int>>>(); 
+
+            foreach (KeyValuePair<int, Client> client in clients)
+            {
+                if (delete[client.Key] == null)
+                    delete[client.Key] = new Dictionary<NetMenssage, List<int>>();
+
+                foreach(KeyValuePair<NetMenssage, List<DataCache>> cache in client.Value.messageCache)
+                {
+                    if(delete[client.Key][cache.Key] == null)
+                        delete[client.Key][cache.Key] = new List<int>();
+
+                    for(int i = 0; i < cache.Value.Count; i++)
                     {
-                        if (isServer)
+                        if ((cache.Value[i].sendTime - DateTime.UtcNow).TotalSeconds > 5 || cache.Value[i].checkClient.Count == clients.Count)
                         {
-                            NetDisconect dis = new NetDisconect();
-
+                            delete[client.Key][cache.Key].Add(i);
                         }
-                        else
+                    }
+                }
+            }
+
+            foreach (KeyValuePair<int, Dictionary<NetMenssage, List<int>>> ToDelete in delete)
+            {
+                foreach (KeyValuePair<NetMenssage, List<int>> ToDeletePerClient in ToDelete.Value)
+                {
+                    foreach (int DeleteMessageID in ToDeletePerClient.Value)
+                    {
+                        clients[ToDelete.Key].messageCache[ToDeletePerClient.Key].RemoveAt(DeleteMessageID);
+                    }
+                }
+            }
+
+            foreach (KeyValuePair<int, Client> client in clients)
+            {
+                foreach (KeyValuePair<NetMenssage, List<DataCache>> cache in client.Value.messageCache)
+                {
+                    for (int i = 0; i < cache.Value.Count; i++)
+                    {
+                        if((cache.Value[i].sendTime - DateTime.UtcNow).TotalSeconds > 0.5f)
                         {
-                            stopPlayer?.Invoke();
-                            connection.Close();
-                            lastPingSend.Clear();
-                            ipToId.Clear();
+                            if (!cache.Value[i].checkClient.Contains(client.Key))
+                                Broadcast(cache.Value[i].data, client.Key);
                         }
                     }
                 }
             }
         }
+    }
+
+    public struct DataCache
+    {
+        public byte[] data;
+        public DateTime sendTime;
+        public List<int> checkClient;
+
+        public DataCache(byte[] data, DateTime sendTime)
+        {
+            checkClient = new List<int>();
+            this.data = data;
+            this.sendTime = sendTime;
+        }
+
     }
 }
