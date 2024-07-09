@@ -82,13 +82,14 @@ namespace OkamiNet.Network
             int ObjID;
             int AttributeID;
 
+            List<ParentsTree> parents = new List<ParentsTree>();
+
             switch (aux)
             {
                 case NetMenssage.Float:
                     UtilsTools.LOG?.Invoke("Recive new netFloat");
                     NetFloat netFloat = new NetFloat();
 
-                    List<ParentsTree> parents = new List<ParentsTree>();
 
                     MessageReciveHistorial[aux] = BitConverter.ToUInt32(data, 12);
 
@@ -97,13 +98,27 @@ namespace OkamiNet.Network
 
                     }
 
-                    int objID;
+                    netFloat.data = netFloat.DeserializeWithNetValueId(data, out parents, out ObjID);
+                    UtilsTools.LOG?.Invoke($"Recive Obj Id {ObjID} : Parent Tree Count {parents.Count} : {parents[^1].collectionPos} : {parents[^1].collectionSize} : {parents[^1].ID}");
 
-                    netFloat.data = netFloat.DeserializeWithNetValueId(data, out parents, out objID);
-                    UtilsTools.LOG?.Invoke($"Recive Obj Id {objID} : Parent Tree Count {parents.Count} : {parents[^1].collectionPos} : {parents[^1].collectionSize} : {parents[^1].ID}");
+                    SetNetValueTree(netFloat.data, parents, ObjID);
 
-                    SetNetValueTree(netFloat.data, parents, objID);
+                    break;
+                case NetMenssage.Bool:
+                    UtilsTools.LOG?.Invoke("Recive new NetBool");
+                    NetBool netBool = new NetBool();
 
+                    MessageReciveHistorial[aux] = BitConverter.ToUInt32(data, 12);
+
+                    if (isImportant)
+                    {
+
+                    }
+
+                    netBool.data = netBool.DeserializeWithNetValueId(data, out parents, out ObjID);
+                    UtilsTools.LOG?.Invoke($"Recive Obj Id {ObjID} : Parent Tree Count {parents.Count} : {parents[^1].collectionPos} : {parents[^1].collectionSize} : {parents[^1].ID}");
+
+                    SetNetValueTree(netBool.data, parents, ObjID);
                     break;
                 case NetMenssage.TuVieja:
                     UtilsTools.LOG?.Invoke("New S2C");

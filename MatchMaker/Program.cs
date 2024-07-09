@@ -166,7 +166,6 @@ class MatchMaker : IReceiveData
                 }
                 break;
             case NetMenssage.Ping:
-                NetPing ping = new NetPing();
 
                 if (clients.Count >= 2)
                 {
@@ -179,6 +178,7 @@ class MatchMaker : IReceiveData
                 if (clients.Count <= 0)
                     return;
 
+                NetPing ping = new NetPing();
                 int latencyMilliseconds = 0;
 
                 TimeSpan latency = DateTime.UtcNow - Instance.clients[ipToId[ip]].lastpingSend;
@@ -339,7 +339,7 @@ class MatchMaker : IReceiveData
         startInfo.FileName = serverPath;
         startInfo.Arguments = numberPort.ToString() + " " + GetLocalIPAddress();
 
-        startInfo.UseShellExecute = true;
+        startInfo.UseShellExecute = false;
         startInfo.CreateNoWindow = false;
         startInfo.WindowStyle = ProcessWindowStyle.Normal;
 
@@ -375,77 +375,4 @@ class MatchMaker : IReceiveData
         }
         throw new Exception("No network adapters with an IPv4 address in the system!");
     }
-}
-
-class ServerInfo
-{
-    public static int serverCount = 0;
-    private int serverId = 0;
-    public int _currentPlayers;
-    private int maxPlayers = 2;
-    private DateTime _startTime;
-    public int port;
-    private Process _serverProcess;
-    private IPAddress _ipAddress;
-    public IPEndPoint ep;
-    public List<Player> playersInServer = new List<Player>();
-    public UdpConnection connection;
-
-    public ServerInfo(DateTime startTime, int port, string serverIp, IReceiveData receiver)
-    {
-        _startTime = startTime;
-        this.port = port;
-        serverId = serverCount++;
-        _serverProcess = new Process();
-        _ipAddress = IPAddress.Parse(serverIp);
-        _serverProcess.StartInfo.FileName = "Server.exe";
-        _serverProcess.StartInfo.Arguments = $"{port}";
-        _serverProcess.StartInfo.UseShellExecute = true;
-        _serverProcess.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
-        _serverProcess.Start();
-        Thread.Sleep(500);
-        //connection = new UdpConnection(_ipAddress, port, OnErrorMessage, serverId, receiver);
-    }
-
-    public void CloseProcess()
-    {
-        _serverProcess.Close();
-    }
-
-    public void SendToServer(byte[] data)
-    {
-        connection.Send(data);
-    }
-
-    private void OnErrorMessage(string errorMessage)
-    {
-        // Console.WriteLine($"Server {serverId}:{errorMessage}");
-    }
-
-    /*
-        public bool CanSendPlayer(string tag)
-        {
-            if (_currentPlayers >= maxPlayers)
-            {
-                return false;
-            }
-
-            foreach (Player player in playersInServer)
-            {
-                if (IsNameAlreadyInServer(player, tag))
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-
-        private bool IsNameAlreadyInServer(Player player, string name)
-        {
-            //string playerTag = player.nameTag;
-            return player.nameTag.ToLower() == name.ToLower() || player.nameTag.ToUpper() == name.ToUpper();
-        }
-     */
 }

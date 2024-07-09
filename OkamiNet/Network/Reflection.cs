@@ -140,7 +140,7 @@ namespace OkamiNet.Network
                 UtilsTools.LOG($"Find this method : {serializerMethod.Name} : parameters {serializerMethod.GetParameters().Length}");
 
                 UtilsTools.LOG($"Type del : {ClientManager.Instance.MessageHistorial[messagesNetDictionary[netMsg]].GetType().Name}");
-                object serializedMessage = serializerMethod.Invoke(netMsgInstance, new object[] { parents, ObjId, (MenssageFlags.Ordenable)});
+                object serializedMessage = serializerMethod.Invoke(netMsgInstance, new object[] { parents, ObjId, (MenssageFlags.None)});
                 UtilsTools.LOG($"ID del proximo mensaje : {ClientManager.Instance.MessageHistorial[messagesNetDictionary[netMsg]]}");
 
                 ClientManager.Instance.MessageHistorial[messagesNetDictionary[netMsg]]++;

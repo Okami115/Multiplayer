@@ -2,7 +2,7 @@ using OkamiNet.Menssage;
 using OkamiNet.Network;
 using UnityEngine;
 
-public class PlayerMovment : NetObj
+public class PlayerMovment : MonoBehaviour
 {
     [SerializeField] private float speed = 5;
 

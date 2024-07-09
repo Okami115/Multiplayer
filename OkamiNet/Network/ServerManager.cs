@@ -84,8 +84,6 @@ namespace OkamiNet.Network
 
         public static ServerManager Instance;
 
-        public List<DateTime> lastPingSend;
-
         private DateTime lastMessageImportantSend;
 
         public Action<string> newText;
@@ -127,7 +125,6 @@ namespace OkamiNet.Network
             connection = new UdpConnection( port, this);
 
             netNames = new List<string>();
-            lastPingSend = new List<DateTime>();
             FactoryData = new List<FactoryData>();
         }
 
@@ -156,8 +153,6 @@ namespace OkamiNet.Network
 
                 Instance.Broadcast(newPlayer.Serialize());
 
-                lastPingSend.Add(DateTime.UtcNow);
-
                 spawnPlayer?.Invoke(player.id);
 
                 idClient++;
@@ -177,18 +172,13 @@ namespace OkamiNet.Network
 
         public void OnReceiveData(byte[] data, IPEndPoint ip)
         {
-            UtilsTools.LOG?.Invoke("Llego");
             if (data == null || data.Count() <= 0)
                 return;
-            UtilsTools.LOG?.Invoke("Tiene algo");
 
             if (!Checksum.ChecksumConfirm(data))
                 return;
-            UtilsTools.LOG?.Invoke("No esta roto");
 
             NetMenssage aux = (NetMenssage)BitConverter.ToInt32(data, 0);
-            UtilsTools.LOG?.Invoke("Es un " + aux.ToString());
-
 
             MenssageFlags flags = Menssage.Flags.FlagsCheck(data);
 
@@ -253,6 +243,54 @@ namespace OkamiNet.Network
                     }
 
                     break;
+                case NetMenssage.Bool:
+                    UtilsTools.LOG?.Invoke("New NetBool");
+
+                    if (isImportant)
+                    {
+                        DataCache auxDataCache = new DataCache(data, DateTime.UtcNow);
+
+                        if (isOrdenable)
+                        {
+                            if (idMessage > clients[ipToId[ip]].MessageHistorial[aux])
+                            {
+                                clients[ipToId[ip]].MessageHistorial[aux] = idMessage;
+
+                                NetBool netBool = new NetBool();
+
+                                List<ParentsTree> parents = new List<ParentsTree>();
+
+                                int objID;
+
+                                netBool.data = netBool.DeserializeWithNetValueId(data, out parents, out objID);
+
+                                Broadcast(netBool.SerializeWithValueID(parents, objID, flags));
+                            }
+                        }
+                    }
+                    else if (isOrdenable)
+                    {
+                        if (idMessage > clients[ipToId[ip]].MessageHistorial[aux])
+                        {
+                            clients[ipToId[ip]].MessageHistorial[aux] = idMessage;
+
+                            NetBool netBool = new NetBool();
+
+                            List<ParentsTree> parents = new List<ParentsTree>();
+
+                            int objID;
+
+                            netBool.data = netBool.DeserializeWithNetValueId(data, out parents, out objID);
+
+                            Broadcast(netBool.SerializeWithValueID(parents, objID, flags));
+                        }
+                    }
+                    else
+                    {
+                        Broadcast(data);
+                    }
+
+                    break;
                 case NetMenssage.C2S:
                     UtilsTools.LOG?.Invoke("New C2S");
                     C2SHandShake C2SHandShake = new C2SHandShake("");
@@ -271,12 +309,14 @@ namespace OkamiNet.Network
                     int idPing = ping.Deserialize(data);
                     int latencyMilliseconds = 0;
 
-                    if (Instance.lastPingSend.Count >= idPing + 1)
-                    {
-                        TimeSpan latency = DateTime.UtcNow - Instance.lastPingSend[idPing];
-                        latencyMilliseconds = (int)latency.TotalMilliseconds;
-                        Instance.lastPingSend[idPing] = DateTime.UtcNow;
-                    }
+                    TimeSpan latency = DateTime.UtcNow - Instance.clients[ipToId[ip]].lastpingSend;
+                    latencyMilliseconds = (int)latency.TotalMilliseconds;
+
+                    Client auxClient = Instance.clients[ipToId[ip]];
+
+                    auxClient.lastpingSend = DateTime.UtcNow;
+
+                    Instance.clients[ipToId[ip]] = auxClient;
 
                     ping.data = 0;
                     Instance.SendToClient(ping.Serialize(), ip);
@@ -332,7 +372,6 @@ namespace OkamiNet.Network
             NetDisconect dis = new NetDisconect();
 
             connection.Close();
-            lastPingSend.Clear();
             ipToId.Clear();
             idClient = 0;
         }
@@ -369,8 +408,8 @@ namespace OkamiNet.Network
 
                 UtilsTools.LOG?.Invoke("Updating....");
                 connection.FlushReceiveData();
-                TryToReSendImportantMessage();
-                DisconetForPing(Instance.isServer);
+                //TryToReSendImportantMessage();
+                //DisconetForPing(Instance.isServer);
 
             }
 

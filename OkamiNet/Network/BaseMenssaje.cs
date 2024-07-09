@@ -8,6 +8,7 @@ namespace OkamiNet.Menssage
     {
         String = 0,
         Float,
+        Bool,
         Int,
         Disconect,
         AddPlayer,

@@ -70,31 +70,6 @@ public class Tools : MonoBehaviour
 
         aux.name = auxObj.getID().ToString();
 
-        switch (factoryData.prefabId)
-        {
-            case 0 :
-                /*
-                if (factoryData.netObj.id == NetworkManager.Instance.idClient)
-                {
-                    Camera temp = aux.transform.GetComponentInChildren<Camera>();
-                    temp.tag = "MainCamera";
-                    //aux.AddComponent<PlayerMovment>();
-                    //aux.AddComponent<CameraMovement>();
-                    //aux.AddComponent<Shoot>();
-                }
-                else
-                {
-                    Camera temp = aux.transform.GetComponentInChildren<Camera>();
-
-                    Destroy(temp);
-                }
-                 */
-                break;
-            case 1 :
-                break;
-            default:
-                break;
-        }
     }
 
     private void InitPlayer()
