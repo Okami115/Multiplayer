@@ -13,15 +13,24 @@ namespace OkamiNet.Menssage
         Disconect,
         AddPlayer,
         C2S,
-        TuVieja,
+        S2C,
         FactoryDataSpawn,
         Ping,
         Denied,
         FactoryRequest,
         FactoryMessage,
         CheckMessage,
-        Redirection,
-        ChangePort
+        ChangePort,
+        Byte,
+        SByte,
+        Short,
+        UShort,
+        UInt,
+        Long,
+        ULong,
+        Decimal,
+        Double,
+        Char
     }
 
     [Flags]

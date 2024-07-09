@@ -87,19 +87,11 @@ namespace OkamiNet.Network
             switch (aux)
             {
                 case NetMenssage.Float:
-                    UtilsTools.LOG?.Invoke("Recive new netFloat");
+                    UtilsTools.LOG?.Invoke("Recive new NetFloat");
                     NetFloat netFloat = new NetFloat();
 
-
-                    MessageReciveHistorial[aux] = BitConverter.ToUInt32(data, 12);
-
-                    if(isImportant)
-                    {
-
-                    }
-
                     netFloat.data = netFloat.DeserializeWithNetValueId(data, out parents, out ObjID);
-                    UtilsTools.LOG?.Invoke($"Recive Obj Id {ObjID} : Parent Tree Count {parents.Count} : {parents[^1].collectionPos} : {parents[^1].collectionSize} : {parents[^1].ID}");
+
 
                     SetNetValueTree(netFloat.data, parents, ObjID);
 
@@ -120,7 +112,128 @@ namespace OkamiNet.Network
 
                     SetNetValueTree(netBool.data, parents, ObjID);
                     break;
-                case NetMenssage.TuVieja:
+                case NetMenssage.Byte:
+                    UtilsTools.LOG?.Invoke("Recive new NetByte");
+                    NetByte netByte = new NetByte();
+
+                    netByte.data = netByte.DeserializeWithNetValueId(data, out parents, out ObjID);
+
+
+                    SetNetValueTree(netByte.data, parents, ObjID);
+
+                    break;
+                case NetMenssage.SByte:
+                    UtilsTools.LOG?.Invoke("Recive new NetSByte");
+                    NetSbyte netSbyte = new NetSbyte();
+
+                    netSbyte.data = netSbyte.DeserializeWithNetValueId(data, out parents, out ObjID);
+
+
+                    SetNetValueTree(netSbyte.data, parents, ObjID);
+
+                    break;
+                case NetMenssage.Short:
+                    UtilsTools.LOG?.Invoke("Recive new NetShort");
+                    NetShort netShort = new NetShort();
+
+                    netShort.data = netShort.DeserializeWithNetValueId(data, out parents, out ObjID);
+
+
+                    SetNetValueTree(netShort.data, parents, ObjID);
+
+                    break;
+                case NetMenssage.UShort:
+                    UtilsTools.LOG?.Invoke("Recive new NetUshort");
+                    NetUShort netUShort = new NetUShort();
+
+                    netUShort.data = netUShort.DeserializeWithNetValueId(data, out parents, out ObjID);
+
+
+                    SetNetValueTree(netUShort.data, parents, ObjID);
+
+                    break;
+                case NetMenssage.Int:
+                    UtilsTools.LOG?.Invoke("Recive new NetInt");
+                    NetInt netInt = new NetInt();
+
+                    netInt.data = netInt.DeserializeWithNetValueId(data, out parents, out ObjID);
+
+
+                    SetNetValueTree(netInt.data, parents, ObjID);
+
+                    break;
+                case NetMenssage.UInt:
+                    UtilsTools.LOG?.Invoke("Recive new NetUInt");
+                    NetUInt netUInt = new NetUInt();
+
+                    netUInt.data = netUInt.DeserializeWithNetValueId(data, out parents, out ObjID);
+
+
+                    SetNetValueTree(netUInt.data, parents, ObjID);
+
+                    break;
+                case NetMenssage.Long:
+                    UtilsTools.LOG?.Invoke("Recive new NetLong");
+                    NetLong netLong = new NetLong();
+
+                    netLong.data = netLong.DeserializeWithNetValueId(data, out parents, out ObjID);
+
+
+                    SetNetValueTree(netLong.data, parents, ObjID);
+
+                    break;
+                case NetMenssage.ULong:
+                    UtilsTools.LOG?.Invoke("Recive new NetULong");
+                    NetULong netULong = new NetULong();
+
+                    netULong.data = netULong.DeserializeWithNetValueId(data, out parents, out ObjID);
+
+
+                    SetNetValueTree(netULong.data, parents, ObjID);
+
+                    break;
+                case NetMenssage.Decimal:
+                    UtilsTools.LOG?.Invoke("Recive new NetDecimal");
+                    NetDecimal netDecimal = new NetDecimal();
+
+                    netDecimal.data = netDecimal.DeserializeWithNetValueId(data, out parents, out ObjID);
+
+
+                    SetNetValueTree(netDecimal.data, parents, ObjID);
+
+                    break;
+                case NetMenssage.Double:
+                    UtilsTools.LOG?.Invoke("Recive new NetDouble");
+                    NetDouble netDouble = new NetDouble();
+
+                    netDouble.data = netDouble.DeserializeWithNetValueId(data, out parents, out ObjID);
+
+
+                    SetNetValueTree(netDouble.data, parents, ObjID);
+
+                    break;
+                case NetMenssage.Char:
+                    UtilsTools.LOG?.Invoke("Recive new NetChar");
+                    NetChar netChar = new NetChar();
+
+                    netChar.data = netChar.DeserializeWithNetValueId(data, out parents, out ObjID);
+
+
+                    SetNetValueTree(netChar.data, parents, ObjID);
+
+                    break;
+                case NetMenssage.String:
+                    UtilsTools.LOG?.Invoke("Recive new NetString");
+                    NetString netString = new NetString();
+
+                    netString.data = netString.DeserializeWithNetValueId(data, out parents, out ObjID);
+
+
+                    UtilsTools.LOG?.Invoke("Recive : " + netString.data);
+                    SetNetValueTree(netString.data, parents, ObjID);
+
+                    break;
+                case NetMenssage.S2C:
                     UtilsTools.LOG?.Invoke("New S2C");
                     S2CHandShake s2cHandShake = new S2CHandShake(0);
                     Instance.idClient = s2cHandShake.Deserialize(data);

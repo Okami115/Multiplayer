@@ -103,12 +103,9 @@ namespace OkamiNet.Menssage
         public override bool DeserializeWithNetValueId(byte[] message, out List<ParentsTree> parentsTree, out int objID)
         {
             bool outData;
-            outData = BitConverter.ToBoolean(message, 4);//2
-            UtilsTools.LOG(outData.ToString());
-            objID = BitConverter.ToInt32(message, 5);//3
-            UtilsTools.LOG(objID.ToString());
-            int countList = BitConverter.ToInt32(message, 13);//5
-            UtilsTools.LOG(countList.ToString());
+            outData = BitConverter.ToBoolean(message, 4);
+            objID = BitConverter.ToInt32(message, 5);
+            int countList = BitConverter.ToInt32(message, 13);
 
             parentsTree = new List<ParentsTree>();
             int offset = 0;
@@ -146,9 +143,9 @@ namespace OkamiNet.Menssage
             List<byte> outData = new List<byte>();
 
             outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
-            outData.AddRange(BitConverter.GetBytes(data));//2
-            outData.AddRange(BitConverter.GetBytes(NetObjId));//3
-            outData.AddRange(BitConverter.GetBytes(messageID++));//4
+            outData.AddRange(BitConverter.GetBytes(data));
+            outData.AddRange(BitConverter.GetBytes(NetObjId));
+            outData.AddRange(BitConverter.GetBytes(messageID++));
             outData.AddRange(BitConverter.GetBytes(parentsTree.Count));
 
             foreach (ParentsTree tree in parentsTree)
@@ -176,6 +173,1056 @@ namespace OkamiNet.Menssage
         }
 
         public override void SetData(bool data)
+        {
+            this.data = data;
+        }
+
+        public override void SetMessageID(uint id)
+        {
+            messageID = id;
+        }
+    }
+
+    [NetValueTypeMessage(NetMenssage.Byte, typeof(byte))]
+    public class NetByte : BaseNetMenssaje<byte>
+    {
+        public override byte DeserializeWithNetValueId(byte[] message, out List<ParentsTree> parentsTree, out int objID)
+        {
+            byte outData;
+            outData = message[4];
+            objID = BitConverter.ToInt32(message, 5);
+            int countList = BitConverter.ToInt32(message, 13);
+
+            parentsTree = new List<ParentsTree>();
+            int offset = 0;
+
+            for (int i = 0; i < countList; i++)
+            {
+                int id = BitConverter.ToInt32(message, 17 + offset);
+                int colPos = (BitConverter.ToInt32(message, 21 + offset));
+                int colSize = (BitConverter.ToInt32(message, 25 + offset));
+
+                offset += 12;
+                parentsTree.Add(new ParentsTree(id, colPos, colSize));
+            }
+
+            return outData;
+        }
+
+        public override byte GetData()
+        {
+            return data;
+        }
+
+        public override uint GetMessageID()
+        {
+            return messageID;
+        }
+
+        public override NetMenssage GetMessageType()
+        {
+            return NetMenssage.Byte;
+        }
+
+        public override byte[] SerializeWithValueID(List<ParentsTree> parentsTree, int NetObjId, MenssageFlags menssageFlags)
+        {
+            List<byte> outData = new List<byte>();
+
+            outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
+            outData.Add(data);
+            outData.AddRange(BitConverter.GetBytes(NetObjId));
+            outData.AddRange(BitConverter.GetBytes(messageID++));
+            outData.AddRange(BitConverter.GetBytes(parentsTree.Count));
+
+            foreach (ParentsTree tree in parentsTree)
+            {
+                outData.AddRange(BitConverter.GetBytes(tree.ID));
+                outData.AddRange(BitConverter.GetBytes(tree.collectionPos));
+                outData.AddRange(BitConverter.GetBytes(tree.collectionSize));
+            }
+
+            outData.AddRange(BitConverter.GetBytes((int)menssageFlags));
+
+            int result1 = 0;
+            int result2 = 0;
+
+            for (int i = 0; i < outData.Count; i++)
+            {
+                result1 += outData[i];
+                result2 -= outData[i];
+            }
+
+            outData.AddRange(BitConverter.GetBytes(result1));
+            outData.AddRange(BitConverter.GetBytes(result2));
+
+            return outData.ToArray();
+        }
+
+        public override void SetData(byte data)
+        {
+            this.data = data;
+        }
+
+        public override void SetMessageID(uint id)
+        {
+            messageID = id;
+        }
+    }
+
+    [NetValueTypeMessage(NetMenssage.SByte, typeof(sbyte))]
+    public class NetSbyte : BaseNetMenssaje<sbyte>
+    {
+        public override sbyte DeserializeWithNetValueId(byte[] message, out List<ParentsTree> parentsTree, out int objID)
+        {
+            sbyte outData;
+            outData = (sbyte)message[4];
+            objID = BitConverter.ToInt32(message, 5);
+            int countList = BitConverter.ToInt32(message, 13);
+
+            parentsTree = new List<ParentsTree>();
+            int offset = 0;
+
+            for (int i = 0; i < countList; i++)
+            {
+                int id = BitConverter.ToInt32(message, 17 + offset);
+                int colPos = (BitConverter.ToInt32(message, 21 + offset));
+                int colSize = (BitConverter.ToInt32(message, 25 + offset));
+
+                offset += 12;
+                parentsTree.Add(new ParentsTree(id, colPos, colSize));
+            }
+
+            return outData;
+        }
+
+        public override sbyte GetData()
+        {
+            return data;
+        }
+
+        public override uint GetMessageID()
+        {
+            return messageID;
+        }
+
+        public override NetMenssage GetMessageType()
+        {
+            return NetMenssage.SByte;
+        }
+
+        public override byte[] SerializeWithValueID(List<ParentsTree> parentsTree, int NetObjId, MenssageFlags menssageFlags)
+        {
+            List<byte> outData = new List<byte>();
+
+            outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
+            outData.Add((byte)data);
+            outData.AddRange(BitConverter.GetBytes(NetObjId));
+            outData.AddRange(BitConverter.GetBytes(messageID++));
+            outData.AddRange(BitConverter.GetBytes(parentsTree.Count));
+
+            foreach (ParentsTree tree in parentsTree)
+            {
+                outData.AddRange(BitConverter.GetBytes(tree.ID));
+                outData.AddRange(BitConverter.GetBytes(tree.collectionPos));
+                outData.AddRange(BitConverter.GetBytes(tree.collectionSize));
+            }
+
+            outData.AddRange(BitConverter.GetBytes((int)menssageFlags));
+
+            int result1 = 0;
+            int result2 = 0;
+
+            for (int i = 0; i < outData.Count; i++)
+            {
+                result1 += outData[i];
+                result2 -= outData[i];
+            }
+
+            outData.AddRange(BitConverter.GetBytes(result1));
+            outData.AddRange(BitConverter.GetBytes(result2));
+
+            return outData.ToArray();
+        }
+
+        public override void SetData(sbyte data)
+        {
+            this.data = data;
+        }
+
+        public override void SetMessageID(uint id)
+        {
+            messageID = id;
+        }
+    }
+
+    [NetValueTypeMessage(NetMenssage.Short, typeof(short))]
+    public class NetShort : BaseNetMenssaje<short>
+    {
+        public override short DeserializeWithNetValueId(byte[] message, out List<ParentsTree> parentsTree, out int objID)
+        {
+            short outData;
+            outData = BitConverter.ToInt16(message, 4);
+            objID = BitConverter.ToInt32(message, 6);
+            int countList = BitConverter.ToInt32(message, 14);
+
+            parentsTree = new List<ParentsTree>();
+            int offset = 0;
+
+            for (int i = 0; i < countList; i++)
+            {
+                int id = BitConverter.ToInt32(message, 18 + offset);
+                int colPos = (BitConverter.ToInt32(message, 22 + offset));
+                int colSize = (BitConverter.ToInt32(message, 26 + offset));
+
+                offset += 12;
+                parentsTree.Add(new ParentsTree(id, colPos, colSize));
+            }
+
+            return outData;
+        }
+
+        public override short GetData()
+        {
+            return data;
+        }
+
+        public override uint GetMessageID()
+        {
+            return messageID;
+        }
+
+        public override NetMenssage GetMessageType()
+        {
+            return NetMenssage.Short;
+        }
+
+        public override byte[] SerializeWithValueID(List<ParentsTree> parentsTree, int NetObjId, MenssageFlags menssageFlags)
+        {
+            List<byte> outData = new List<byte>();
+
+            outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
+            outData.AddRange(BitConverter.GetBytes(data));
+            outData.AddRange(BitConverter.GetBytes(NetObjId));
+            outData.AddRange(BitConverter.GetBytes(messageID++));
+            outData.AddRange(BitConverter.GetBytes(parentsTree.Count));
+
+            foreach (ParentsTree tree in parentsTree)
+            {
+                outData.AddRange(BitConverter.GetBytes(tree.ID));
+                outData.AddRange(BitConverter.GetBytes(tree.collectionPos));
+                outData.AddRange(BitConverter.GetBytes(tree.collectionSize));
+            }
+
+            outData.AddRange(BitConverter.GetBytes((int)menssageFlags));
+
+            int result1 = 0;
+            int result2 = 0;
+
+            for (int i = 0; i < outData.Count; i++)
+            {
+                result1 += outData[i];
+                result2 -= outData[i];
+            }
+
+            outData.AddRange(BitConverter.GetBytes(result1));
+            outData.AddRange(BitConverter.GetBytes(result2));
+
+            return outData.ToArray();
+        }
+
+        public override void SetData(short data)
+        {
+            this.data = data;
+        }
+
+        public override void SetMessageID(uint id)
+        {
+            messageID = id;
+        }
+    }
+
+    [NetValueTypeMessage(NetMenssage.UShort, typeof(ushort))]
+    public class NetUShort : BaseNetMenssaje<ushort>
+    {
+        public override ushort DeserializeWithNetValueId(byte[] message, out List<ParentsTree> parentsTree, out int objID)
+        {
+            ushort outData;
+            outData = BitConverter.ToUInt16(message, 4);
+            objID = BitConverter.ToInt32(message, 6);
+            int countList = BitConverter.ToInt32(message, 14);
+
+            parentsTree = new List<ParentsTree>();
+            int offset = 0;
+
+            for (int i = 0; i < countList; i++)
+            {
+                int id = BitConverter.ToInt32(message, 18 + offset);
+                int colPos = (BitConverter.ToInt32(message, 22 + offset));
+                int colSize = (BitConverter.ToInt32(message, 26 + offset));
+
+                offset += 12;
+                parentsTree.Add(new ParentsTree(id, colPos, colSize));
+            }
+
+            return outData;
+        }
+
+        public override ushort GetData()
+        {
+            return data;
+        }
+
+        public override uint GetMessageID()
+        {
+            return messageID;
+        }
+
+        public override NetMenssage GetMessageType()
+        {
+            return NetMenssage.UShort;
+        }
+
+        public override byte[] SerializeWithValueID(List<ParentsTree> parentsTree, int NetObjId, MenssageFlags menssageFlags)
+        {
+            List<byte> outData = new List<byte>();
+
+            outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
+            outData.AddRange(BitConverter.GetBytes(data));
+            outData.AddRange(BitConverter.GetBytes(NetObjId));
+            outData.AddRange(BitConverter.GetBytes(messageID++));
+            outData.AddRange(BitConverter.GetBytes(parentsTree.Count));
+
+            foreach (ParentsTree tree in parentsTree)
+            {
+                outData.AddRange(BitConverter.GetBytes(tree.ID));
+                outData.AddRange(BitConverter.GetBytes(tree.collectionPos));
+                outData.AddRange(BitConverter.GetBytes(tree.collectionSize));
+            }
+
+            outData.AddRange(BitConverter.GetBytes((int)menssageFlags));
+
+            int result1 = 0;
+            int result2 = 0;
+
+            for (int i = 0; i < outData.Count; i++)
+            {
+                result1 += outData[i];
+                result2 -= outData[i];
+            }
+
+            outData.AddRange(BitConverter.GetBytes(result1));
+            outData.AddRange(BitConverter.GetBytes(result2));
+
+            return outData.ToArray();
+        }
+
+        public override void SetData(ushort data)
+        {
+            this.data = data;
+        }
+
+        public override void SetMessageID(uint id)
+        {
+            messageID = id;
+        }
+    }
+
+    [NetValueTypeMessage(NetMenssage.Int, typeof(int))]
+    public class NetInt : BaseNetMenssaje<int>
+    {
+        public override int DeserializeWithNetValueId(byte[] message, out List<ParentsTree> parentsTree, out int objID)
+        {
+            int outData;
+            outData = BitConverter.ToInt32(message, 4);
+            objID = BitConverter.ToInt32(message, 8);
+            int countList = BitConverter.ToInt32(message, 16);
+
+            parentsTree = new List<ParentsTree>();
+            int offset = 0;
+
+            for (int i = 0; i < countList; i++)
+            {
+                int id = BitConverter.ToInt32(message, 20 + offset);
+                int colPos = (BitConverter.ToInt32(message, 24 + offset));
+                int colSize = (BitConverter.ToInt32(message, 28 + offset));
+
+                offset += 12;
+                parentsTree.Add(new ParentsTree(id, colPos, colSize));
+            }
+
+            return outData;
+        }
+
+        public override int GetData()
+        {
+            return data;
+        }
+
+        public override uint GetMessageID()
+        {
+            return messageID;
+        }
+
+        public override NetMenssage GetMessageType()
+        {
+            return NetMenssage.Int;
+        }
+
+        public override byte[] SerializeWithValueID(List<ParentsTree> parentsTree, int NetObjId, MenssageFlags menssageFlags)
+        {
+            List<byte> outData = new List<byte>();
+
+            outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
+            outData.AddRange(BitConverter.GetBytes(data));
+            outData.AddRange(BitConverter.GetBytes(NetObjId));
+            outData.AddRange(BitConverter.GetBytes(messageID++));
+            outData.AddRange(BitConverter.GetBytes(parentsTree.Count));
+
+            foreach (ParentsTree tree in parentsTree)
+            {
+                outData.AddRange(BitConverter.GetBytes(tree.ID));
+                outData.AddRange(BitConverter.GetBytes(tree.collectionPos));
+                outData.AddRange(BitConverter.GetBytes(tree.collectionSize));
+            }
+
+            outData.AddRange(BitConverter.GetBytes((int)menssageFlags));
+
+            int result1 = 0;
+            int result2 = 0;
+
+            for (int i = 0; i < outData.Count; i++)
+            {
+                result1 += outData[i];
+                result2 -= outData[i];
+            }
+
+            outData.AddRange(BitConverter.GetBytes(result1));
+            outData.AddRange(BitConverter.GetBytes(result2));
+
+            return outData.ToArray();
+        }
+
+        public override void SetData(int data)
+        {
+            this.data = data;
+        }
+
+        public override void SetMessageID(uint id)
+        {
+            messageID = id;
+        }
+    }
+
+    [NetValueTypeMessage(NetMenssage.UInt, typeof(uint))]
+    public class NetUInt : BaseNetMenssaje<uint>
+    {
+        public override uint DeserializeWithNetValueId(byte[] message, out List<ParentsTree> parentsTree, out int objID)
+        {
+            uint outData;
+            outData = BitConverter.ToUInt32(message, 4);
+            objID = BitConverter.ToInt32(message, 8);
+            int countList = BitConverter.ToInt32(message, 16);
+
+            parentsTree = new List<ParentsTree>();
+            int offset = 0;
+
+            for (int i = 0; i < countList; i++)
+            {
+                int id = BitConverter.ToInt32(message, 20 + offset);
+                int colPos = (BitConverter.ToInt32(message, 24 + offset));
+                int colSize = (BitConverter.ToInt32(message, 28 + offset));
+
+                offset += 12;
+                parentsTree.Add(new ParentsTree(id, colPos, colSize));
+            }
+
+            return outData;
+        }
+
+        public override uint GetData()
+        {
+            return data;
+        }
+
+        public override uint GetMessageID()
+        {
+            return messageID;
+        }
+
+        public override NetMenssage GetMessageType()
+        {
+            return NetMenssage.UInt;
+        }
+
+        public override byte[] SerializeWithValueID(List<ParentsTree> parentsTree, int NetObjId, MenssageFlags menssageFlags)
+        {
+            List<byte> outData = new List<byte>();
+
+            outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
+            outData.AddRange(BitConverter.GetBytes(data));
+            outData.AddRange(BitConverter.GetBytes(NetObjId));
+            outData.AddRange(BitConverter.GetBytes(messageID++));
+            outData.AddRange(BitConverter.GetBytes(parentsTree.Count));
+
+            foreach (ParentsTree tree in parentsTree)
+            {
+                outData.AddRange(BitConverter.GetBytes(tree.ID));
+                outData.AddRange(BitConverter.GetBytes(tree.collectionPos));
+                outData.AddRange(BitConverter.GetBytes(tree.collectionSize));
+            }
+
+            outData.AddRange(BitConverter.GetBytes((int)menssageFlags));
+
+            int result1 = 0;
+            int result2 = 0;
+
+            for (int i = 0; i < outData.Count; i++)
+            {
+                result1 += outData[i];
+                result2 -= outData[i];
+            }
+
+            outData.AddRange(BitConverter.GetBytes(result1));
+            outData.AddRange(BitConverter.GetBytes(result2));
+
+            return outData.ToArray();
+        }
+
+        public override void SetData(uint data)
+        {
+            this.data = data;
+        }
+
+        public override void SetMessageID(uint id)
+        {
+            messageID = id;
+        }
+    }
+
+    [NetValueTypeMessage(NetMenssage.Long, typeof(long))]
+    public class NetLong : BaseNetMenssaje<long>
+    {
+        public override long DeserializeWithNetValueId(byte[] message, out List<ParentsTree> parentsTree, out int objID)
+        {
+            long outData;
+            outData = BitConverter.ToInt64(message, 4);
+            objID = BitConverter.ToInt32(message, 12);
+            int countList = BitConverter.ToInt32(message, 20);
+
+            parentsTree = new List<ParentsTree>();
+            int offset = 0;
+
+            for (int i = 0; i < countList; i++)
+            {
+                int id = BitConverter.ToInt32(message, 24 + offset);
+                int colPos = (BitConverter.ToInt32(message, 28 + offset));
+                int colSize = (BitConverter.ToInt32(message, 32 + offset));
+
+                offset += 12;
+                parentsTree.Add(new ParentsTree(id, colPos, colSize));
+            }
+
+            return outData;
+        }
+
+        public override long GetData()
+        {
+            return data;
+        }
+
+        public override uint GetMessageID()
+        {
+            return messageID;
+        }
+
+        public override NetMenssage GetMessageType()
+        {
+            return NetMenssage.Long;
+        }
+
+        public override byte[] SerializeWithValueID(List<ParentsTree> parentsTree, int NetObjId, MenssageFlags menssageFlags)
+        {
+            List<byte> outData = new List<byte>();
+
+            outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
+            outData.AddRange(BitConverter.GetBytes(data));
+            outData.AddRange(BitConverter.GetBytes(NetObjId));
+            outData.AddRange(BitConverter.GetBytes(messageID++));
+            outData.AddRange(BitConverter.GetBytes(parentsTree.Count));
+
+            foreach (ParentsTree tree in parentsTree)
+            {
+                outData.AddRange(BitConverter.GetBytes(tree.ID));
+                outData.AddRange(BitConverter.GetBytes(tree.collectionPos));
+                outData.AddRange(BitConverter.GetBytes(tree.collectionSize));
+            }
+
+            outData.AddRange(BitConverter.GetBytes((int)menssageFlags));
+
+            int result1 = 0;
+            int result2 = 0;
+
+            for (int i = 0; i < outData.Count; i++)
+            {
+                result1 += outData[i];
+                result2 -= outData[i];
+            }
+
+            outData.AddRange(BitConverter.GetBytes(result1));
+            outData.AddRange(BitConverter.GetBytes(result2));
+
+            return outData.ToArray();
+        }
+
+        public override void SetData(long data)
+        {
+            this.data = data;
+        }
+
+        public override void SetMessageID(uint id)
+        {
+            messageID = id;
+        }
+    }
+
+    [NetValueTypeMessage(NetMenssage.ULong, typeof(ulong))]
+    public class NetULong : BaseNetMenssaje<ulong>
+    {
+        public override ulong DeserializeWithNetValueId(byte[] message, out List<ParentsTree> parentsTree, out int objID)
+        {
+            ulong outData;
+            outData = BitConverter.ToUInt64(message, 4);
+            objID = BitConverter.ToInt32(message, 12);
+            int countList = BitConverter.ToInt32(message, 20);
+
+            parentsTree = new List<ParentsTree>();
+            int offset = 0;
+
+            for (int i = 0; i < countList; i++)
+            {
+                int id = BitConverter.ToInt32(message, 24 + offset);
+                int colPos = (BitConverter.ToInt32(message, 28 + offset));
+                int colSize = (BitConverter.ToInt32(message, 32 + offset));
+
+                offset += 12;
+                parentsTree.Add(new ParentsTree(id, colPos, colSize));
+            }
+
+            return outData;
+        }
+
+        public override ulong GetData()
+        {
+            return data;
+        }
+
+        public override uint GetMessageID()
+        {
+            return messageID;
+        }
+
+        public override NetMenssage GetMessageType()
+        {
+            return NetMenssage.ULong;
+        }
+
+        public override byte[] SerializeWithValueID(List<ParentsTree> parentsTree, int NetObjId, MenssageFlags menssageFlags)
+        {
+            List<byte> outData = new List<byte>();
+
+            outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
+            outData.AddRange(BitConverter.GetBytes(data));
+            outData.AddRange(BitConverter.GetBytes(NetObjId));
+            outData.AddRange(BitConverter.GetBytes(messageID++));
+            outData.AddRange(BitConverter.GetBytes(parentsTree.Count));
+
+            foreach (ParentsTree tree in parentsTree)
+            {
+                outData.AddRange(BitConverter.GetBytes(tree.ID));
+                outData.AddRange(BitConverter.GetBytes(tree.collectionPos));
+                outData.AddRange(BitConverter.GetBytes(tree.collectionSize));
+            }
+
+            outData.AddRange(BitConverter.GetBytes((int)menssageFlags));
+
+            int result1 = 0;
+            int result2 = 0;
+
+            for (int i = 0; i < outData.Count; i++)
+            {
+                result1 += outData[i];
+                result2 -= outData[i];
+            }
+
+            outData.AddRange(BitConverter.GetBytes(result1));
+            outData.AddRange(BitConverter.GetBytes(result2));
+
+            return outData.ToArray();
+        }
+
+        public override void SetData(ulong data)
+        {
+            this.data = data;
+        }
+
+        public override void SetMessageID(uint id)
+        {
+            messageID = id;
+        }
+    }
+
+    [NetValueTypeMessage(NetMenssage.Decimal, typeof(decimal))]
+    public class NetDecimal : BaseNetMenssaje<decimal>
+    {
+        public override decimal DeserializeWithNetValueId(byte[] message, out List<ParentsTree> parentsTree, out int objID)
+        {
+            decimal outData;
+
+            int[] bits = new int[4];
+
+            for (int i = 0; i < 4; i++)
+            {
+                bits[i] = BitConverter.ToInt32(message, 4 * i);
+            }
+
+            outData = new decimal(bits);
+
+            objID = BitConverter.ToInt32(message, 20);
+            int countList = BitConverter.ToInt32(message, 28);
+
+            parentsTree = new List<ParentsTree>();
+            int offset = 0;
+
+            for (int i = 0; i < countList; i++)
+            {
+                int id = BitConverter.ToInt32(message, 32 + offset);
+                int colPos = (BitConverter.ToInt32(message, 36 + offset));
+                int colSize = (BitConverter.ToInt32(message, 40 + offset));
+
+                offset += 12;
+                parentsTree.Add(new ParentsTree(id, colPos, colSize));
+            }
+
+            return outData;
+        }
+
+        public override decimal GetData()
+        {
+            return data;
+        }
+
+        public override uint GetMessageID()
+        {
+            return messageID;
+        }
+
+        public override NetMenssage GetMessageType()
+        {
+            return NetMenssage.Decimal;
+        }
+
+        public override byte[] SerializeWithValueID(List<ParentsTree> parentsTree, int NetObjId, MenssageFlags menssageFlags)
+        {
+            List<byte> outData = new List<byte>();
+
+            outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
+
+            int[] bits = Decimal.GetBits(data);
+
+            foreach(int bit in  bits)
+            {
+                outData.AddRange(BitConverter.GetBytes(bit));
+            }
+            outData.AddRange(BitConverter.GetBytes(NetObjId));
+            outData.AddRange(BitConverter.GetBytes(messageID++));
+            outData.AddRange(BitConverter.GetBytes(parentsTree.Count));
+
+            foreach (ParentsTree tree in parentsTree)
+            {
+                outData.AddRange(BitConverter.GetBytes(tree.ID));
+                outData.AddRange(BitConverter.GetBytes(tree.collectionPos));
+                outData.AddRange(BitConverter.GetBytes(tree.collectionSize));
+            }
+
+            outData.AddRange(BitConverter.GetBytes((int)menssageFlags));
+
+            int result1 = 0;
+            int result2 = 0;
+
+            for (int i = 0; i < outData.Count; i++)
+            {
+                result1 += outData[i];
+                result2 -= outData[i];
+            }
+
+            outData.AddRange(BitConverter.GetBytes(result1));
+            outData.AddRange(BitConverter.GetBytes(result2));
+
+            return outData.ToArray();
+        }
+
+        public override void SetData(decimal data)
+        {
+            this.data = data;
+        }
+
+        public override void SetMessageID(uint id)
+        {
+            messageID = id;
+        }
+    }
+
+    [NetValueTypeMessage(NetMenssage.Double, typeof(double))]
+    public class NetDouble : BaseNetMenssaje<double>
+    {
+        public override double DeserializeWithNetValueId(byte[] message, out List<ParentsTree> parentsTree, out int objID)
+        {
+            double outData;
+            outData = BitConverter.ToDouble(message, 4);
+            objID = BitConverter.ToInt32(message, 12);
+            int countList = BitConverter.ToInt32(message, 20);
+
+            parentsTree = new List<ParentsTree>();
+            int offset = 0;
+
+            for (int i = 0; i < countList; i++)
+            {
+                int id = BitConverter.ToInt32(message, 24 + offset);
+                int colPos = (BitConverter.ToInt32(message, 28 + offset));
+                int colSize = (BitConverter.ToInt32(message, 32 + offset));
+
+                offset += 12;
+                parentsTree.Add(new ParentsTree(id, colPos, colSize));
+            }
+
+            return outData;
+        }
+
+        public override double GetData()
+        {
+            return data;
+        }
+
+        public override uint GetMessageID()
+        {
+            return messageID;
+        }
+
+        public override NetMenssage GetMessageType()
+        {
+            return NetMenssage.Double;
+        }
+
+        public override byte[] SerializeWithValueID(List<ParentsTree> parentsTree, int NetObjId, MenssageFlags menssageFlags)
+        {
+            List<byte> outData = new List<byte>();
+
+            outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
+            outData.AddRange(BitConverter.GetBytes(data));
+            outData.AddRange(BitConverter.GetBytes(NetObjId));
+            outData.AddRange(BitConverter.GetBytes(messageID++));
+            outData.AddRange(BitConverter.GetBytes(parentsTree.Count));
+
+            foreach (ParentsTree tree in parentsTree)
+            {
+                outData.AddRange(BitConverter.GetBytes(tree.ID));
+                outData.AddRange(BitConverter.GetBytes(tree.collectionPos));
+                outData.AddRange(BitConverter.GetBytes(tree.collectionSize));
+            }
+
+            outData.AddRange(BitConverter.GetBytes((int)menssageFlags));
+
+            int result1 = 0;
+            int result2 = 0;
+
+            for (int i = 0; i < outData.Count; i++)
+            {
+                result1 += outData[i];
+                result2 -= outData[i];
+            }
+
+            outData.AddRange(BitConverter.GetBytes(result1));
+            outData.AddRange(BitConverter.GetBytes(result2));
+
+            return outData.ToArray();
+        }
+
+        public override void SetData(double data)
+        {
+            this.data = data;
+        }
+
+        public override void SetMessageID(uint id)
+        {
+            messageID = id;
+        }
+    }
+
+    [NetValueTypeMessage(NetMenssage.Char, typeof(char))]
+    public class NetChar : BaseNetMenssaje<char> 
+    {
+        public override char DeserializeWithNetValueId(byte[] message, out List<ParentsTree> parentsTree, out int objID)
+        {
+            char outData;
+            outData = BitConverter.ToChar(message, 4);
+            objID = BitConverter.ToInt32(message, 8);
+            int countList = BitConverter.ToInt32(message, 16);
+
+            parentsTree = new List<ParentsTree>();
+            int offset = 0;
+
+            for (int i = 0; i < countList; i++)
+            {
+                int id = BitConverter.ToInt32(message, 20 + offset);
+                int colPos = (BitConverter.ToInt32(message, 24 + offset));
+                int colSize = (BitConverter.ToInt32(message, 28 + offset));
+
+                offset += 12;
+                parentsTree.Add(new ParentsTree(id, colPos, colSize));
+            }
+
+            return outData;
+        }
+
+        public override char GetData()
+        {
+            return data;
+        }
+
+        public override uint GetMessageID()
+        {
+            return messageID;
+        }
+
+        public override NetMenssage GetMessageType()
+        {
+            return NetMenssage.Char;
+        }
+
+        public override byte[] SerializeWithValueID(List<ParentsTree> parentsTree, int NetObjId, MenssageFlags menssageFlags)
+        {
+            List<byte> outData = new List<byte>();
+
+            outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
+            outData.AddRange(ASCIIEncoding.UTF32.GetBytes(data.ToString()));
+            outData.AddRange(BitConverter.GetBytes(NetObjId));
+            outData.AddRange(BitConverter.GetBytes(messageID++));
+            outData.AddRange(BitConverter.GetBytes(parentsTree.Count));
+
+            foreach (ParentsTree tree in parentsTree)
+            {
+                outData.AddRange(BitConverter.GetBytes(tree.ID));
+                outData.AddRange(BitConverter.GetBytes(tree.collectionPos));
+                outData.AddRange(BitConverter.GetBytes(tree.collectionSize));
+            }
+
+            outData.AddRange(BitConverter.GetBytes((int)menssageFlags));
+
+            int result1 = 0;
+            int result2 = 0;
+
+            for (int i = 0; i < outData.Count; i++)
+            {
+                result1 += outData[i];
+                result2 -= outData[i];
+            }
+
+            outData.AddRange(BitConverter.GetBytes(result1));
+            outData.AddRange(BitConverter.GetBytes(result2));
+
+            return outData.ToArray();
+        }
+
+        public override void SetData(char data)
+        {
+            this.data = data;
+        }
+
+        public override void SetMessageID(uint id)
+        {
+            messageID = id;
+        }
+    }
+
+    [NetValueTypeMessage(NetMenssage.String, typeof(string))]
+    public class NetString  : BaseNetMenssaje<string>
+    {
+        public override string DeserializeWithNetValueId(byte[] message, out List<ParentsTree> parentsTree, out int objID)
+        {
+            string outData;
+            int stringlength = BitConverter.ToInt32(message, 4);
+            objID = BitConverter.ToInt32(message, 8);
+            int countList = BitConverter.ToInt32(message, 16);
+
+            parentsTree = new List<ParentsTree>();
+            int offset = 0;
+
+            for (int i = 0; i < countList; i++)
+            {
+                int id = BitConverter.ToInt32(message, 20 + offset);
+                int colPos = (BitConverter.ToInt32(message, 24 + offset));
+                int colSize = (BitConverter.ToInt32(message, 28 + offset));
+
+                offset += 12;
+                parentsTree.Add(new ParentsTree(id, colPos, colSize));
+            }
+
+            outData = Encoding.Unicode.GetString(message, message.Length - 12 - stringlength, stringlength);
+
+            return outData;
+        }
+
+        public override string GetData()
+        {
+            return data;
+        }
+
+        public override uint GetMessageID()
+        {
+            return messageID;
+        }
+
+        public override NetMenssage GetMessageType()
+        {
+            return NetMenssage.String;
+        }
+
+        public override byte[] SerializeWithValueID(List<ParentsTree> parentsTree, int NetObjId, MenssageFlags menssageFlags)
+        {
+            List<byte> outData = new List<byte>();
+
+            outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
+            outData.AddRange(BitConverter.GetBytes(NetObjId));
+            outData.AddRange(BitConverter.GetBytes(data.Length));
+            outData.AddRange(BitConverter.GetBytes(messageID++));
+            outData.AddRange(BitConverter.GetBytes(parentsTree.Count));
+
+            foreach (ParentsTree tree in parentsTree)
+            {
+                outData.AddRange(BitConverter.GetBytes(tree.ID));
+                outData.AddRange(BitConverter.GetBytes(tree.collectionPos));
+                outData.AddRange(BitConverter.GetBytes(tree.collectionSize));
+            }
+
+            outData.AddRange(Encoding.Unicode.GetBytes(data));
+            outData.AddRange(BitConverter.GetBytes((int)menssageFlags));
+
+            int result1 = 0;
+            int result2 = 0;
+
+            for (int i = 0; i < outData.Count; i++)
+            {
+                result1 += outData[i];
+                result2 -= outData[i];
+            }
+
+            outData.AddRange(BitConverter.GetBytes(result1));
+            outData.AddRange(BitConverter.GetBytes(result2));
+
+            return outData.ToArray();
+        }
+
+        public override void SetData(string data)
         {
             this.data = data;
         }
@@ -353,7 +1400,7 @@ namespace OkamiNet.Menssage
 
         public override NetMenssage GetMessageType()
         {
-            return NetMenssage.TuVieja;
+            return NetMenssage.S2C;
         }
 
         public override byte[] Serialize()

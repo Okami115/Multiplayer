@@ -11,13 +11,23 @@ public class TestObj : MonoBehaviour, INetObj
 
     private Rigidbody rb;
 
-    //[NetValue(0)] public float testValue;
-
-    [NetValue(0)] public bool testBool;
+    // Check [NetValue(0)] public float testValue;
+    // Check [NetValue(1)] public bool testBool;
+    [NetValue(2)] public string myString = "pepe";
+    // Check [NetValue(3)] public char myChar = 'a';
+    // Check [NetValue(5)] public double myDouble = 1;
+    // Check [NetValue(6)] public short myShort = 1;
+    // Check [NetValue(7)] public ushort myUShort = 1;
+    // Check [NetValue(8)] public int myInt = 1;
+    // Check [NetValue(9)] public uint myUInt = 1;
+    // Check [NetValue(10)] public long myLong = 1;
+    // Check [NetValue(11)] public ulong myULong = 1;
+    // Check [NetValue(12)] public byte myByte = 1;
+    // Check [NetValue(13)] public sbyte mySByte = 1;
+    //[NetValue(14)] public List<float> testList;
 
     private Vector3Pro position;
 
-    //[NetValue(1)] public List<float> testList;
 
     public int getID()
     {

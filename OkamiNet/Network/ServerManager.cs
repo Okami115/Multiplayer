@@ -291,6 +291,54 @@ namespace OkamiNet.Network
                     }
 
                     break;
+                case NetMenssage.Byte:
+                    UtilsTools.LOG("New NetByte");
+                    Broadcast(data);
+                    break;
+                case NetMenssage.SByte:
+                    UtilsTools.LOG("New NetSByte");
+                    Broadcast(data);
+                    break;
+                case NetMenssage.Short:
+                    UtilsTools.LOG("New NetShort");
+                    Broadcast(data);
+                    break;
+                case NetMenssage.UShort:
+                    UtilsTools.LOG("New NetUShort");
+                    Broadcast(data);
+                    break;
+                case NetMenssage.Int:
+                    UtilsTools.LOG("New NetInt");
+                    Broadcast(data);
+                    break;
+                case NetMenssage.UInt:
+                    UtilsTools.LOG("New NetUInt");
+                    Broadcast(data);
+                    break;
+                case NetMenssage.Long:
+                    UtilsTools.LOG("New NetLong");
+                    Broadcast(data);
+                    break;
+                case NetMenssage.ULong:
+                    UtilsTools.LOG("New NetULong");
+                    Broadcast(data);
+                    break;
+                case NetMenssage.Decimal:
+                    UtilsTools.LOG("New NetDecimal");
+                    Broadcast(data);
+                    break;
+                case NetMenssage.Double:
+                    UtilsTools.LOG("New NetDouble");
+                    Broadcast(data);
+                    break;
+                case NetMenssage.Char:
+                    UtilsTools.LOG("New NetChar");
+                    Broadcast(data);
+                    break;
+                case NetMenssage.String:
+                    UtilsTools.LOG("New NetString");
+                    Broadcast(data);
+                    break;
                 case NetMenssage.C2S:
                     UtilsTools.LOG?.Invoke("New C2S");
                     C2SHandShake C2SHandShake = new C2SHandShake("");
