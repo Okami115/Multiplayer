@@ -462,17 +462,19 @@ namespace OkamiNet.Network
 
             foreach (MessageData info in Reflection.GetFieldsFromType(type))
             {
-                UtilsTools.LOG?.Invoke($"Need Debug :: info :: {info.GetType().ToString()}");
+                if(info == null)
+                {
+                    info = CreateByConstructor(type);
+                    UtilsTools.LOG?.Invoke($"ICollection Debug :: Crate :: {obj.GetType().ToString()}");
+                }
 
                 if (info != null && info.ID == parentTree[iterator].ID)
                 {
                     object goNext = null;
 
+                    UtilsTools.LOG?.Invoke($"ICollection Debug :: Info is : {info} : {info.GetType()} : {info.ID} : {info.FieldInfo.Name}");
                     if (parentTree[iterator].collectionSize == -1)
                     {
-                        UtilsTools.LOG?.Invoke($"Non ICollection Debug :: Info is : {info} : {info.GetType()} : {info.ID} : {info.FieldInfo.Name}");
-                        UtilsTools.LOG?.Invoke($"Non ICollection Debug :: Obj is : {obj} : {obj.GetType()} : {obj.ToString()}");
-
                         iterator++;
 
                         if (iterator >= parentTree.Count)
@@ -482,35 +484,20 @@ namespace OkamiNet.Network
                         else
                         {
                             goNext = info.FieldInfo.GetValue(obj);
-
-                            if (goNext == null)
-                            {
-                                goNext = CreateByConstructor(info.FieldInfo.FieldType);
-                            }
-
                             goNext = InspectDataToChange(info.FieldInfo.FieldType, goNext, data, parentTree, iterator);
                             info.FieldInfo.SetValue(obj, goNext);
-                            UtilsTools.LOG?.Invoke($"Non ICollection Debug :: Go next is : {goNext} : {goNext.GetType()} : {goNext.ToString()}");
+                            UtilsTools.LOG?.Invoke($"ICollection Debug :: Go next is : {goNext}");
                         }
 
                         iterator--;
                     }
                     else
                     {
-
                         if (typeof(System.Collections.ICollection).IsAssignableFrom(info.FieldInfo.FieldType))
                         {
-                            UtilsTools.LOG?.Invoke($"ICollection Debug :: Info is : {info} : {info.GetType()} : {info.ID} : {info.FieldInfo.Name}");
-                            UtilsTools.LOG?.Invoke($"ICollection Debug :: Obj is : {obj} : {obj.GetType()} : {obj.ToString()}");
-
                             goNext = info.FieldInfo.GetValue(obj);
 
-                            if(goNext == null)
-                            {
-                                goNext = CreateByConstructor(info.FieldInfo.FieldType);
-                            }
-
-                            UtilsTools.LOG?.Invoke($"ICollection Debug :: Go next is : {goNext} : {goNext.GetType()} : {goNext.ToString()}");
+                            UtilsTools.LOG?.Invoke($"ICollection Debug :: Go next is : {goNext}");
 
                             int collectionSize = (goNext as ICollection).Count;
                             UtilsTools.LOG?.Invoke($"ICollection Debug :: colletion Size is : {collectionSize}");
@@ -761,7 +748,7 @@ namespace OkamiNet.Network
             return obj;
         }
 
-        private object SetValue(FieldInfo fieldInfo, object obj, object? data)
+        private object SetValue(FieldInfo fieldInfo, object obj, object data)
         {
             fieldInfo.SetValue(obj, data);
 

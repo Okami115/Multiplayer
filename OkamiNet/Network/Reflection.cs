@@ -3,6 +3,7 @@ using OkamiNet.Utils;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Security.Cryptography;
 
 namespace OkamiNet.Network
 {
@@ -35,6 +36,10 @@ namespace OkamiNet.Network
                     }
                 }
             }
+            else
+            {
+                SendNullMessage(parentTrees, objId);
+            }
         }
 
         public static void ReadValue(FieldInfo info, object obj, int objId, List<ParentsTree> parentTrees)
@@ -46,45 +51,55 @@ namespace OkamiNet.Network
             }
             else if (typeof(System.Collections.ICollection).IsAssignableFrom(info.FieldType))
             {
-                UtilsTools.LOG($"Insert Collection : Count = {(info.GetValue(obj) as System.Collections.ICollection).Count}");
-
-                int collectionSize = (info.GetValue(obj) as System.Collections.ICollection).Count;
-
-                int iterator = 0;
-
-                bool isClear = true;
-
-                foreach (object item in info.GetValue(obj) as System.Collections.ICollection)
+                try
                 {
-                    isClear = false;
+                    UtilsTools.LOG($"Insert Collection : Count = {(info.GetValue(obj) as System.Collections.ICollection).Count}");
 
-                    ParentsTree currentParent = parentTrees[^1];
+                    int collectionSize = (info.GetValue(obj) as System.Collections.ICollection).Count;
 
-                    currentParent.collectionPos = iterator++;
-                    currentParent.collectionSize = collectionSize;
+                    int iterator = 0;
 
-                    parentTrees[^1] = currentParent;
+                    bool isClear = true;
 
-                    UtilsTools.LOG($"Insert Collection in Foreach : {item.GetType()} : {item} : id obj {objId} : {parentTrees.Count}");
+                    foreach (object item in info.GetValue(obj) as System.Collections.ICollection)
+                    {
+                        isClear = false;
 
-                    InspectMessage(item.GetType(), item, objId, parentTrees, true);
+                        ParentsTree currentParent = parentTrees[^1];
+
+                        currentParent.collectionPos = iterator++;
+                        currentParent.collectionSize = collectionSize;
+
+                        parentTrees[^1] = currentParent;
+
+                        UtilsTools.LOG($"Insert Collection in Foreach : {item.GetType()} : {item} : id obj {objId} : {parentTrees.Count}");
+
+                        InspectMessage(item.GetType(), item, objId, parentTrees, true);
+                    }
+
+                    if (isClear)
+                    {
+                        NullOrEmpty nullOrEmpty = new NullOrEmpty();
+
+                        nullOrEmpty.data = true;
+
+                        ParentsTree currentParent = parentTrees[^1];
+
+                        currentParent.collectionPos = -1;
+                        currentParent.collectionSize = 0;
+
+                        parentTrees[^1] = currentParent;
+
+                        ClientManager.Instance.SendToServer(nullOrEmpty.SerializeWithValueID(parentTrees, objId, MenssageFlags.None));
+                    }
                 }
-
-                if(isClear)
+                catch (Exception)
                 {
-                    NullOrEmpty nullOrEmpty = new NullOrEmpty();
+                    SendNullMessage(parentTrees, objId);
 
-                    nullOrEmpty.data = true;
-
-                    ParentsTree currentParent = parentTrees[^1];
-
-                    currentParent.collectionPos = -1;
-                    currentParent.collectionSize = 0;
-
-                    parentTrees[^1] = currentParent;
-
-                    ClientManager.Instance.SendToServer(nullOrEmpty.SerializeWithValueID(parentTrees, objId, MenssageFlags.None));
+                    throw;
                 }
+                
             }
             else
             {
@@ -188,6 +203,14 @@ namespace OkamiNet.Network
             }
 
             return output;
+        }
+
+        public static void SendNullMessage(List<ParentsTree> parentTrees, int objId)
+        {
+            NullOrEmpty nullOrEmpty = new NullOrEmpty();
+            nullOrEmpty.data = false;
+
+            ClientManager.Instance.SendToServer(nullOrEmpty.SerializeWithValueID(parentTrees, objId, MenssageFlags.None));
         }
     }
 

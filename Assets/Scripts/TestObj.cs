@@ -11,7 +11,8 @@ public class TestObj : MonoBehaviour, INetObj
 
     private Rigidbody rb;
 
-    // Check [NetValue(0)] public float testValue;
+    // Check
+    [NetValue(0)] public solci testValue = new solci();
     // Check [NetValue(1)] public bool testBool;
     // Check [NetValue(2)] public string myString = "pepe";
     // Check [NetValue(3)] public char myChar = 'a';
@@ -87,6 +88,24 @@ public class TestObj : MonoBehaviour, INetObj
             transform.position = newPos;
         }
         */
+    }
+
+    [ContextMenu("Matar lista")]
+    private void NullList()
+    {
+        testList = null;
+    }
+
+    [ContextMenu("Matar Sol")]
+    private void NullSol()
+    {
+        testValue = null;
+    }
+
+    [ContextMenu("Crear Sol")]
+    private void Sol()
+    {
+        testValue = new solci();
     }
 }
 
