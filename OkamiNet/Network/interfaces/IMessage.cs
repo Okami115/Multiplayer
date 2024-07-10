@@ -1150,50 +1150,39 @@ namespace OkamiNet.Menssage
         public override string DeserializeWithNetValueId(byte[] message, out List<ParentsTree> parentsTree, out int objID)
         {
             string outData;
-            int stringlength = BitConverter.ToInt32(message, 4);
+            int stringLength = BitConverter.ToInt32(message, 4);
             objID = BitConverter.ToInt32(message, 8);
+            int idMessage = BitConverter.ToInt32(message, 12);
             int countList = BitConverter.ToInt32(message, 16);
 
             parentsTree = new List<ParentsTree>();
-            int offset = 0;
+            int offset = 20;
 
             for (int i = 0; i < countList; i++)
             {
-                int id = BitConverter.ToInt32(message, 20 + offset);
-                int colPos = (BitConverter.ToInt32(message, 24 + offset));
-                int colSize = (BitConverter.ToInt32(message, 28 + offset));
+                int id = BitConverter.ToInt32(message, offset);
+                int colPos = BitConverter.ToInt32(message, offset + 4);
+                int colSize = BitConverter.ToInt32(message, offset + 8);
 
                 offset += 12;
                 parentsTree.Add(new ParentsTree(id, colPos, colSize));
             }
 
-            outData = Encoding.Unicode.GetString(message, message.Length - 12 - stringlength, stringlength);
+            int stringStartIndex = offset;
+
+            int stringByteLength = stringLength * 4;
+
+            outData = Encoding.UTF32.GetString(message, stringStartIndex, stringByteLength);
 
             return outData;
         }
-
-        public override string GetData()
-        {
-            return data;
-        }
-
-        public override uint GetMessageID()
-        {
-            return messageID;
-        }
-
-        public override NetMenssage GetMessageType()
-        {
-            return NetMenssage.String;
-        }
-
         public override byte[] SerializeWithValueID(List<ParentsTree> parentsTree, int NetObjId, MenssageFlags menssageFlags)
         {
             List<byte> outData = new List<byte>();
 
             outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
-            outData.AddRange(BitConverter.GetBytes(NetObjId));
             outData.AddRange(BitConverter.GetBytes(data.Length));
+            outData.AddRange(BitConverter.GetBytes(NetObjId));
             outData.AddRange(BitConverter.GetBytes(messageID++));
             outData.AddRange(BitConverter.GetBytes(parentsTree.Count));
 
@@ -1204,7 +1193,7 @@ namespace OkamiNet.Menssage
                 outData.AddRange(BitConverter.GetBytes(tree.collectionSize));
             }
 
-            outData.AddRange(Encoding.Unicode.GetBytes(data));
+            outData.AddRange(Encoding.UTF32.GetBytes(data));
             outData.AddRange(BitConverter.GetBytes((int)menssageFlags));
 
             int result1 = 0;
@@ -1220,6 +1209,21 @@ namespace OkamiNet.Menssage
             outData.AddRange(BitConverter.GetBytes(result2));
 
             return outData.ToArray();
+        }
+
+        public override string GetData()
+        {
+            return data;
+        }
+
+        public override uint GetMessageID()
+        {
+            return messageID;
+        }
+
+        public override NetMenssage GetMessageType()
+        {
+            return NetMenssage.String;
         }
 
         public override void SetData(string data)

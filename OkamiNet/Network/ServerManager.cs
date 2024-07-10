@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Text;
 
 namespace OkamiNet.Network
 {
@@ -337,6 +338,17 @@ namespace OkamiNet.Network
                     break;
                 case NetMenssage.String:
                     UtilsTools.LOG("New NetString");
+
+                    NetString netString = new NetString();
+
+                    int idData;
+
+                    List<ParentsTree> parentsTree = new List<ParentsTree>();
+
+                    netString.data = netString.DeserializeWithNetValueId(data, out parentsTree, out idData);
+
+                    Console.WriteLine("Data : " + netString.data);
+
                     Broadcast(data);
                     break;
                 case NetMenssage.C2S:
@@ -453,8 +465,6 @@ namespace OkamiNet.Network
         {
             if (connection != null)
             {
-
-                UtilsTools.LOG?.Invoke("Updating....");
                 connection.FlushReceiveData();
                 //TryToReSendImportantMessage();
                 //DisconetForPing(Instance.isServer);
