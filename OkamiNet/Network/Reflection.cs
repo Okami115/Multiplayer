@@ -52,8 +52,12 @@ namespace OkamiNet.Network
 
                 int iterator = 0;
 
+                bool isClear = true;
+
                 foreach (object item in info.GetValue(obj) as System.Collections.ICollection)
                 {
+                    isClear = false;
+
                     ParentsTree currentParent = parentTrees[^1];
 
                     currentParent.collectionPos = iterator++;
@@ -64,6 +68,22 @@ namespace OkamiNet.Network
                     UtilsTools.LOG($"Insert Collection in Foreach : {item.GetType()} : {item} : id obj {objId} : {parentTrees.Count}");
 
                     InspectMessage(item.GetType(), item, objId, parentTrees, true);
+                }
+
+                if(isClear)
+                {
+                    NullOrEmpty nullOrEmpty = new NullOrEmpty();
+
+                    nullOrEmpty.data = true;
+
+                    ParentsTree currentParent = parentTrees[^1];
+
+                    currentParent.collectionPos = -1;
+                    currentParent.collectionSize = 0;
+
+                    parentTrees[^1] = currentParent;
+
+                    ClientManager.Instance.SendToServer(nullOrEmpty.SerializeWithValueID(parentTrees, objId, MenssageFlags.None));
                 }
             }
             else
@@ -166,20 +186,6 @@ namespace OkamiNet.Network
                     output.Add(new MessageData(info, netValue.id));
                 }
             }
-
-            /*
-            if (extensionMethods.TryGetValue(type, out MethodInfo? method))
-            {
-                consoleMessage.Invoke($"{type.Name}");
-                object uninitializedObject = FormatterServices.GetUninitializedObject(type);
-
-                object fields = method.Invoke(null, new object[] { uninitializedObject });
-                if (fields != null)
-                {
-                    output.AddRange((fields as List<MessageData>));
-                }
-            }
-            */
 
             return output;
         }

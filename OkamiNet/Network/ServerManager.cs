@@ -123,7 +123,7 @@ namespace OkamiNet.Network
             this.port = port;
 
             IPAddress ipAddress = IPAddress.Parse(ip);
-            connection = new UdpConnection( port, this);
+            connection = new UdpConnection(port, this);
 
             netNames = new List<string>();
             FactoryData = new List<FactoryData>();
@@ -351,6 +351,10 @@ namespace OkamiNet.Network
 
                     Broadcast(data);
                     break;
+                case NetMenssage.NullOrEmpty:
+                    UtilsTools.LOG("New Null Or Empty");
+                    Broadcast(data);
+                    break;
                 case NetMenssage.C2S:
                     UtilsTools.LOG?.Invoke("New C2S");
                     C2SHandShake C2SHandShake = new C2SHandShake("");
@@ -415,6 +419,7 @@ namespace OkamiNet.Network
                     StartServer(changePort.data.Item1, changePort.data.Item2);
                     break;
                 default:
+                    Broadcast(data);
                     break;
             }
         }

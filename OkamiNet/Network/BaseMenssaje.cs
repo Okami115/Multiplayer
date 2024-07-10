@@ -30,7 +30,8 @@ namespace OkamiNet.Menssage
         ULong,
         Decimal,
         Double,
-        Char
+        Char,
+        NullOrEmpty
     }
 
     [Flags]

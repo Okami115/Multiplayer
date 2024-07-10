@@ -233,6 +233,15 @@ namespace OkamiNet.Network
                     SetNetValueTree(netString.data, parents, ObjID);
 
                     break;
+                case NetMenssage.NullOrEmpty:
+                    UtilsTools.LOG?.Invoke("Recive new NullOrEmpty");
+                    NullOrEmpty nullOrEmpty = new NullOrEmpty();
+
+                    nullOrEmpty.data = nullOrEmpty.DeserializeWithNetValueId(data, out parents, out ObjID);
+
+                    UtilsTools.LOG?.Invoke("Recive : " + nullOrEmpty.data);
+                    SetNetNullOrEmptyValueTree(nullOrEmpty.data, parents, ObjID);
+                    break;
                 case NetMenssage.S2C:
                     UtilsTools.LOG?.Invoke("New S2C");
                     S2CHandShake s2cHandShake = new S2CHandShake(0);
@@ -418,41 +427,6 @@ namespace OkamiNet.Network
             }
         }
 
-        public void SetNetValue(object value, int parentID, List<ParentsTree> parentTree)
-        {
-            if (Reflection.netObjets.Count <= 0)
-                return;
-
-            UtilsTools.LOG($"Value to Read : {value}, Value ID to Read : {parentID}, Obj ID to Read : {parentTree.Count}");
-
-            for (int i = 0; i < Reflection.netObjets.Count; i++)
-            {
-                if (Reflection.netObjets[i].getID() == parentID && Reflection.netObjets[i].getOwner() != ClientManager.Instance.idClient)
-                {
-                    UtilsTools.LOG($"Try Read ID : {Reflection.netObjets[i].getID()}, Try read Owner : {Reflection.netObjets[i].getOwner()}");
-
-                    Type type = Reflection.netObjets[i].GetType();
-                    UtilsTools.LOG("Type To read : " + type.ToString());
-
-                    foreach (FieldInfo info in type.GetFields(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly))
-                    {
-                        object obj = info.GetValue(Reflection.netObjets[i]);
-                        NetValue netValueAttribute = info.GetCustomAttribute<NetValue>();
-
-                        if (obj != null && netValueAttribute != null && netValueAttribute.id == parentID)
-                        {
-                            UtilsTools.LOG("Property To Read : " + info.ToString() + " : " + obj.GetType() + " Value : " + value);
-                            info.SetValue(Reflection.netObjets[i], value);
-                        }
-                        else
-                        {
-                            UtilsTools.LOG("Property : " + info.ToString() + " : NULL : ID " + parentID);
-                        }
-                    }
-                }
-            }
-        }
-
         public void SetNetValueTree(object data, List<ParentsTree> parrentTree, int objId)
         {
             if (Reflection.netObjets.Count <= 0)
@@ -466,6 +440,22 @@ namespace OkamiNet.Network
                 }
             }
         }
+
+        public void SetNetNullOrEmptyValueTree(bool data, List<ParentsTree> parrentTree, int objId)
+        {
+            if (Reflection.netObjets.Count <= 0)
+                return;
+
+            for (int i = 0; i < Reflection.netObjets.Count; i++)
+            {
+                if (Reflection.netObjets[i].getID() == objId && Reflection.netObjets[i].getOwner() != ClientManager.Instance.idClient)
+                {
+                    Reflection.netObjets[i] = (INetObj)InspectNullOrEmptyDataToChange(Reflection.netObjets[i].GetType(), Reflection.netObjets[i], data, parrentTree, 0);
+                }
+            }
+        }
+
+
 
         private object InspectDataToChange(Type type, object obj, object data, List<ParentsTree> parentTree, int iterator)
         {
@@ -513,7 +503,35 @@ namespace OkamiNet.Network
                             object[] objects = new object[parentTree[iterator].collectionSize];
                             UtilsTools.LOG?.Invoke($"ICollection Debug :: objects Length is : {objects.Length}");
 
-                            (info.FieldInfo.GetValue(obj) as ICollection).CopyTo(objects, 0);
+
+                            if (parentTree[iterator].collectionSize == collectionSize)
+                            {
+                                (info.FieldInfo.GetValue(obj) as ICollection).CopyTo(objects, 0);
+                            }
+                            else
+                            {
+                                for (int i = 0; i < objects.Length; i++)
+                                {
+                                    if(i < collectionSize)
+                                    {
+                                        IEnumerator enumerator = (goNext as ICollection).GetEnumerator();
+
+                                        int count = 0;
+
+                                        while(enumerator.MoveNext())
+                                        {
+                                            if(count == i)
+                                                objects[i] = enumerator.Current;
+
+                                            count++;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        objects[i] = Activator.CreateInstance(GetElementType(info.FieldInfo.FieldType));
+                                    }
+                                }
+                            }
 
 
                             for (int i = 0; i < collectionSize; i++)
@@ -527,6 +545,158 @@ namespace OkamiNet.Network
                                     else
                                     {
                                         object item = InspectDataToChange(objects[i].GetType(), objects[i], data, parentTree, iterator + 1);
+                                        UtilsTools.LOG?.Invoke($"ICollection Debug :: item type is : {objects[i].GetType()} : {objects[i]} : {data}");
+                                        UtilsTools.LOG?.Invoke($"ICollection Debug :: item parrent Tree is : {parentTree.Count} : {parentTree[^1].collectionPos} : {parentTree[^1].collectionSize} : {parentTree[^1].ID}");
+
+                                        objects[i] = item;
+                                    }
+
+                                    break;
+                                }
+                            }
+
+                            object arrayAsGeneric;
+
+                            if (info.FieldInfo.FieldType.IsArray)
+                            {
+                                arrayAsGeneric = typeof(ClientManager).GetMethod(nameof(TranslateArray),
+                                    BindingFlags.Instance | BindingFlags.NonPublic).
+                                    MakeGenericMethod(info.FieldInfo.FieldType.GetElementType()).
+                                    Invoke(this, new[] { objects });
+
+                                goNext = Array.CreateInstance(info.FieldInfo.FieldType.GetElementType(), ((Array)arrayAsGeneric).Length);
+
+                                Array.Copy((Array)arrayAsGeneric, (Array)goNext, (arrayAsGeneric as ICollection).Count);
+                            }
+                            else
+                            {
+                                arrayAsGeneric = typeof(ClientManager).GetMethod(nameof(TranslateICollection),
+                                                    BindingFlags.Instance | BindingFlags.NonPublic).MakeGenericMethod(info.FieldInfo.FieldType.GenericTypeArguments[0]).
+                                                    Invoke(this, new[] { objects });
+
+                                goNext = Activator.CreateInstance(info.FieldInfo.FieldType, arrayAsGeneric as ICollection);
+                            }
+
+
+                        }
+
+                        info.FieldInfo.SetValue(obj, goNext);
+                    }
+                }
+
+            }
+
+            return obj;
+        }
+
+        private object InspectNullOrEmptyDataToChange(Type type, object obj, bool data, List<ParentsTree> parentTree, int iterator)
+        {
+            if (obj == null)
+                return obj;
+
+            foreach (MessageData info in Reflection.GetFieldsFromType(type))
+            {
+                if (info != null && info.ID == parentTree[iterator].ID)
+                {
+                    object goNext = null;
+
+                    UtilsTools.LOG?.Invoke($"ICollection Debug :: Info is : {info} : {info.GetType()} : {info.ID} : {info.FieldInfo.Name}");
+                    if (parentTree[iterator].collectionSize == -1)
+                    {
+                        iterator++;
+
+                        if (iterator >= parentTree.Count)
+                        {
+                            if(data)
+                            {
+                                goNext = info.FieldInfo.GetValue(obj);
+
+                                if(type.IsArray)
+                                {
+                                    goNext = Array.CreateInstance(info.FieldInfo.FieldType.GetElementType(), 0);
+                                }
+                                else if(typeof(System.Collections.ICollection).IsAssignableFrom(info.FieldInfo.FieldType) && info.FieldInfo.FieldType.IsGenericType)
+                                {
+                                    goNext = Activator.CreateInstance(typeof(List<>).MakeGenericType(GetElementType(info.FieldInfo.FieldType)));
+                                }
+                                
+                                info.FieldInfo.SetValue(obj, goNext);
+                                return obj;
+                            }
+                            else
+                            {
+                                obj = SetValue(info.FieldInfo, obj, null);
+                            }
+
+                        }
+                        else
+                        {
+                            UtilsTools.LOG?.Invoke($"ICollection Debug :: Go next is : {goNext}");
+                            goNext = info.FieldInfo.GetValue(obj);
+                            goNext = InspectNullOrEmptyDataToChange(info.FieldInfo.FieldType, goNext, data, parentTree, iterator);
+                            info.FieldInfo.SetValue(obj, goNext);
+                        }
+
+                        iterator--;
+                    }
+                    else
+                    {
+                        if (typeof(System.Collections.ICollection).IsAssignableFrom(info.FieldInfo.FieldType))
+                        {
+                            goNext = info.FieldInfo.GetValue(obj);
+
+                            UtilsTools.LOG?.Invoke($"ICollection Debug :: Go next is : {goNext}");
+
+                            int collectionSize = (goNext as ICollection).Count;
+                            UtilsTools.LOG?.Invoke($"ICollection Debug :: colletion Size is : {collectionSize}");
+
+                            int auxIterator = 0;
+
+                            object[] objects = new object[parentTree[iterator].collectionSize];
+                            UtilsTools.LOG?.Invoke($"ICollection Debug :: objects Length is : {objects.Length}");
+
+
+                            if (parentTree[iterator].collectionSize == collectionSize)
+                            {
+                                (info.FieldInfo.GetValue(obj) as ICollection).CopyTo(objects, 0);
+                            }
+                            else
+                            {
+                                for (int i = 0; i < objects.Length; i++)
+                                {
+                                    if (i < collectionSize)
+                                    {
+                                        IEnumerator enumerator = (goNext as ICollection).GetEnumerator();
+
+                                        int count = 0;
+
+                                        while (enumerator.MoveNext())
+                                        {
+                                            if (count == i)
+                                                objects[i] = enumerator.Current;
+
+                                            count++;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        objects[i] = Activator.CreateInstance(GetElementType(info.FieldInfo.FieldType));
+                                    }
+                                }
+                            }
+
+
+                            for (int i = 0; i < collectionSize; i++)
+                            {
+                                if (i == parentTree[iterator].collectionPos)
+                                {
+                                    if (((objects[i].GetType().IsValueType && objects[i].GetType().IsPrimitive) || objects[i].GetType() == typeof(string) || objects[i].GetType().IsEnum))
+                                    {
+                                        objects[i] = data;
+                                    }
+                                    else
+                                    {
+                                        object item = InspectNullOrEmptyDataToChange(objects[i].GetType(), objects[i], data, parentTree, iterator + 1);
                                         UtilsTools.LOG?.Invoke($"ICollection Debug :: item type is : {objects[i].GetType()} : {objects[i]} : {data}");
                                         UtilsTools.LOG?.Invoke($"ICollection Debug :: item parrent Tree is : {parentTree.Count} : {parentTree[^1].collectionPos} : {parentTree[^1].collectionSize} : {parentTree[^1].ID}");
 
@@ -600,6 +770,20 @@ namespace OkamiNet.Network
             }
 
             return array;
+        }
+
+        private Type GetElementType(Type type)
+        {
+            if (type.IsArray)
+            {
+                return type.GetElementType();
+            }
+            else if (type.IsGenericType)
+            {
+                return type.GetGenericArguments()[0];
+            }
+
+            return typeof(object);
         }
     }
 }

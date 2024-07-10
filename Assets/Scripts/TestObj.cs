@@ -13,7 +13,7 @@ public class TestObj : MonoBehaviour, INetObj
 
     // Check [NetValue(0)] public float testValue;
     // Check [NetValue(1)] public bool testBool;
-    [NetValue(2)] public string myString = "pepe";
+    // Check [NetValue(2)] public string myString = "pepe";
     // Check [NetValue(3)] public char myChar = 'a';
     // Check [NetValue(5)] public double myDouble = 1;
     // Check [NetValue(6)] public short myShort = 1;
@@ -24,7 +24,7 @@ public class TestObj : MonoBehaviour, INetObj
     // Check [NetValue(11)] public ulong myULong = 1;
     // Check [NetValue(12)] public byte myByte = 1;
     // Check [NetValue(13)] public sbyte mySByte = 1;
-    //[NetValue(14)] public List<float> testList;
+    [NetValue(14)] public List<float> testList;
 
     private Vector3Pro position;
 
@@ -57,6 +57,9 @@ public class TestObj : MonoBehaviour, INetObj
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
+
+        testList.Add(1);
+        testList.Add(2);
     }
 
     private void Update()
