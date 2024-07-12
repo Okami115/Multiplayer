@@ -19,7 +19,7 @@ namespace OkamiServer
             while(isRunning)
             {
                 serverManager.UpdateServer();
-                Thread.Sleep(10);
+                Thread.Sleep(150);
             }
 
             UtilsTools.LOG -= DrawText;

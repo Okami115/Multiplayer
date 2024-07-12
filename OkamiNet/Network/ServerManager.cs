@@ -197,7 +197,6 @@ namespace OkamiNet.Network
             switch (aux)
             {
                 case NetMenssage.Float:
-                    UtilsTools.LOG?.Invoke("New NetFloat");
 
                     if (isImportant)
                     {
@@ -245,7 +244,6 @@ namespace OkamiNet.Network
 
                     break;
                 case NetMenssage.Bool:
-                    UtilsTools.LOG?.Invoke("New NetBool");
 
                     if (isImportant)
                     {
@@ -293,51 +291,39 @@ namespace OkamiNet.Network
 
                     break;
                 case NetMenssage.Byte:
-                    UtilsTools.LOG("New NetByte");
                     Broadcast(data);
                     break;
                 case NetMenssage.SByte:
-                    UtilsTools.LOG("New NetSByte");
                     Broadcast(data);
                     break;
                 case NetMenssage.Short:
-                    UtilsTools.LOG("New NetShort");
                     Broadcast(data);
                     break;
                 case NetMenssage.UShort:
-                    UtilsTools.LOG("New NetUShort");
                     Broadcast(data);
                     break;
                 case NetMenssage.Int:
-                    UtilsTools.LOG("New NetInt");
                     Broadcast(data);
                     break;
                 case NetMenssage.UInt:
-                    UtilsTools.LOG("New NetUInt");
                     Broadcast(data);
                     break;
                 case NetMenssage.Long:
-                    UtilsTools.LOG("New NetLong");
                     Broadcast(data);
                     break;
                 case NetMenssage.ULong:
-                    UtilsTools.LOG("New NetULong");
                     Broadcast(data);
                     break;
                 case NetMenssage.Decimal:
-                    UtilsTools.LOG("New NetDecimal");
                     Broadcast(data);
                     break;
                 case NetMenssage.Double:
-                    UtilsTools.LOG("New NetDouble");
                     Broadcast(data);
                     break;
                 case NetMenssage.Char:
-                    UtilsTools.LOG("New NetChar");
                     Broadcast(data);
                     break;
                 case NetMenssage.String:
-                    UtilsTools.LOG("New NetString");
 
                     NetString netString = new NetString();
 
@@ -347,16 +333,12 @@ namespace OkamiNet.Network
 
                     netString.data = netString.DeserializeWithNetValueId(data, out parentsTree, out idData);
 
-                    Console.WriteLine("Data : " + netString.data);
-
                     Broadcast(data);
                     break;
                 case NetMenssage.NullOrEmpty:
-                    UtilsTools.LOG("New Null Or Empty");
                     Broadcast(data);
                     break;
                 case NetMenssage.C2S:
-                    UtilsTools.LOG?.Invoke("New C2S");
                     C2SHandShake C2SHandShake = new C2SHandShake("");
                     DeniedNet temp = new DeniedNet();
                     string name = C2SHandShake.Deserialize(data);
@@ -384,7 +366,7 @@ namespace OkamiNet.Network
 
                     ping.data = 0;
                     Instance.SendToClient(ping.Serialize(), ip);
-                    UtilsTools.LOG?.Invoke("Cliente " + idPing + " : ping : " + latencyMilliseconds);
+                    UtilsTools.LOG?.Invoke("Cliente " + idPing + " : ping : " + latencyMilliseconds +  "----------------------------------------------------");
                     break;
                 case NetMenssage.AddPlayer:
                     AddPlayer addPlayer = new AddPlayer();
@@ -398,7 +380,6 @@ namespace OkamiNet.Network
                     RemoveClient(id, ip);
                     break;
                 case NetMenssage.FactoryRequest:
-                    UtilsTools.LOG?.Invoke("Recive Factory Request");
                     FactoryRequest factoryRequest = new FactoryRequest();
                     factoryRequest.data = factoryRequest.Deserialize(data);
 
@@ -409,7 +390,6 @@ namespace OkamiNet.Network
                     FactoryMenssage factoryMenssage = new FactoryMenssage();
                     factoryMenssage.data = factoryRequest.data;
                     FactoryData.Add(factoryMenssage.data);
-                    UtilsTools.LOG?.Invoke("Send Factory Message");
                     Broadcast(factoryMenssage.Serialize());
                     break;
                 case NetMenssage.ChangePort:

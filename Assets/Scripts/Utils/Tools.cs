@@ -30,7 +30,7 @@ public class Tools : MonoBehaviour
 
     private void DebugLogs(string msg)
     {
-        Debug.Log(msg);
+       Debug.Log(msg);
     }
 
     private void Instanciate (FactoryData factoryData)

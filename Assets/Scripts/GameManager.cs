@@ -23,6 +23,8 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        Application.targetFrameRate = 50;
+
         netScreen = FindAnyObjectByType<NetworkScreen>();
         netTimer = new NetFloat();
         netTimer.data = timerInSecons;

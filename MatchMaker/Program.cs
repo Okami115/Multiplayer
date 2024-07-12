@@ -20,7 +20,7 @@ class MatchMaker : IReceiveData
         get; private set;
     }
 
-    public static int port { get; private set; } = 55555;
+    public static int port { get; private set; } = 35555;
 
     private int portToRedirect = port + 1;
 
