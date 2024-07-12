@@ -881,10 +881,10 @@ namespace OkamiNet.Menssage
 
             int[] bits = new int[4];
 
-            for (int i = 0; i < 4; i++)
-            {
-                bits[i] = BitConverter.ToInt32(message, 4 * i);
-            }
+            bits[0] = BitConverter.ToInt32(message, 4);
+            bits[1] = BitConverter.ToInt32(message, 8);
+            bits[2] = BitConverter.ToInt32(message, 12);
+            bits[3] = BitConverter.ToInt32(message, 16);
 
             outData = new decimal(bits);
 
@@ -929,11 +929,11 @@ namespace OkamiNet.Menssage
             outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
 
             int[] bits = Decimal.GetBits(data);
-
-            foreach(int bit in  bits)
+            foreach (int bit in bits)
             {
                 outData.AddRange(BitConverter.GetBytes(bit));
             }
+
             outData.AddRange(BitConverter.GetBytes(NetObjId));
             outData.AddRange(BitConverter.GetBytes(messageID++));
             outData.AddRange(BitConverter.GetBytes(parentsTree.Count));

@@ -558,7 +558,7 @@ namespace OkamiNet.Network
                             {
                                 if (i == parentTree[iterator].collectionPos)
                                 {
-                                    if (((objects[i].GetType().IsValueType && objects[i].GetType().IsPrimitive) || objects[i].GetType() == typeof(string) || objects[i].GetType().IsEnum))
+                                    if (((objects[i].GetType().IsValueType && objects[i].GetType().IsPrimitive) || objects[i].GetType() == typeof(string) || objects[i].GetType().IsEnum || objects[i].GetType() == typeof(decimal)))
                                     {
                                         objects[i] = data;
                                     }
@@ -710,7 +710,7 @@ namespace OkamiNet.Network
                             {
                                 if (i == parentTree[iterator].collectionPos)
                                 {
-                                    if (((objects[i].GetType().IsValueType && objects[i].GetType().IsPrimitive) || objects[i].GetType() == typeof(string) || objects[i].GetType().IsEnum))
+                                    if (((objects[i].GetType().IsValueType && objects[i].GetType().IsPrimitive) || objects[i].GetType() == typeof(string) || objects[i].GetType().IsEnum || objects[i].GetType() == typeof(decimal)))
                                     {
                                         objects[i] = data;
                                     }

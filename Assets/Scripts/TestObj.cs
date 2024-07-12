@@ -12,10 +12,11 @@ public class TestObj : MonoBehaviour, INetObj
     private Rigidbody rb;
 
     // Check
-    [NetValue(0)] public solci testValue = new solci();
+    //[NetValue(0)] public solci testValue = new solci();
     // Check [NetValue(1)] public bool testBool;
     // Check [NetValue(2)] public string myString = "pepe";
     // Check [NetValue(3)] public char myChar = 'a';
+    [NetValue(4)] public decimal myDecimal;
     // Check [NetValue(5)] public double myDouble = 1;
     // Check [NetValue(6)] public short myShort = 1;
     // Check [NetValue(7)] public ushort myUShort = 1;
@@ -25,7 +26,7 @@ public class TestObj : MonoBehaviour, INetObj
     // Check [NetValue(11)] public ulong myULong = 1;
     // Check [NetValue(12)] public byte myByte = 1;
     // Check [NetValue(13)] public sbyte mySByte = 1;
-    [NetValue(14)] public List<float> testList;
+    //[NetValue(14)] public List<float> testList;
 
     private Vector3Pro position;
 
@@ -59,8 +60,8 @@ public class TestObj : MonoBehaviour, INetObj
     {
         rb = GetComponent<Rigidbody>();
 
-        testList.Add(1);
-        testList.Add(2);
+        //testList.Add(1);
+        //testList.Add(2);
     }
 
     private void Update()
@@ -88,28 +89,43 @@ public class TestObj : MonoBehaviour, INetObj
             transform.position = newPos;
         }
         */
+
+        //Debug.Log($"Solci es : {testValue == null}");
+
+        Debug.Log($"Decimal es : {myDecimal}");
     }
 
     [ContextMenu("Matar lista")]
     private void NullList()
     {
-        testList = null;
+        //testList = null;
     }
 
     [ContextMenu("Matar Sol")]
     private void NullSol()
     {
-        testValue = null;
+        //testValue = null;
     }
 
     [ContextMenu("Crear Sol")]
     private void Sol()
     {
-        testValue = new solci();
+        //testValue = new solci();
+    }
+
+    [ContextMenu("Sumar Decimal")]
+    private void SumarDecimal()
+    {
+        myDecimal++;
+    }
+
+    [ContextMenu("Restar Decimal")]
+    private void RestarDecimal()
+    {
+        myDecimal--;
     }
 }
 
-[Serializable]
 public class solci
 {
     [NetValue(0)] public float gacha = 0;

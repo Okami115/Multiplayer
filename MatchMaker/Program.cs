@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 
@@ -39,10 +40,6 @@ class MatchMaker : IReceiveData
     public int idClient = 0;
     public int idObjs = 0;
 
-    public Player player;
-
-    public List<FactoryData> FactoryData;
-
     public List<string> netNames;
     private static readonly List<Process> processes = new List<Process>();
     public List<Process> servers = processes;
@@ -65,14 +62,12 @@ class MatchMaker : IReceiveData
     {
         Instance = this;
 
-        Reflection.Init();
         Console.WriteLine("----- Init MatchMaker V0.1 - Okami Industries -----");
 
         isServer = true;
         connection = new UdpConnection(port, this);
 
         netNames = new List<string>();
-        FactoryData = new List<FactoryData>();
     }
 
     public void AddClient(IPEndPoint ip, string name)
@@ -85,9 +80,6 @@ class MatchMaker : IReceiveData
 
             S2CHandShake s2CHandShake = new S2CHandShake(idClient);
             Instance.SendToClient(s2CHandShake.Serialize(), ip);
-
-            NetFactoryDataSpawn netFactoryDataSpawn = new NetFactoryDataSpawn(FactoryData);
-            Instance.SendToClient(netFactoryDataSpawn.Serialize(), ip);
 
             Player player = new Player(ipToId[ip], name);
 

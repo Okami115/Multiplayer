@@ -44,7 +44,7 @@ namespace OkamiNet.Network
 
         public static void ReadValue(FieldInfo info, object obj, int objId, List<ParentsTree> parentTrees)
         {
-            if ((info.FieldType.IsValueType && info.FieldType.IsPrimitive) || info.FieldType == typeof(string) || info.FieldType.IsEnum)
+            if ((info.FieldType.IsValueType && info.FieldType.IsPrimitive) || info.FieldType == typeof(string) || info.FieldType.IsEnum || info.FieldType == typeof(decimal))
             {
                 UtilsTools.LOG(info.Name + ": " + info.GetValue(obj) + " : ¡Funca!");
                 SendNetValues(info, objId, obj, parentTrees);
